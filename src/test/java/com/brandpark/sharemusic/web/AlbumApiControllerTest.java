@@ -46,9 +46,9 @@ public class AlbumApiControllerTest {
 
         //when
         ResponseEntity<Long> responseEntity = restTemplate.postForEntity(url, requestDto, Long.class);
-        Album saved = albumRepository.findAll().get(0);
 
         //then
+        Album saved = albumRepository.findAll().get(0);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(saved.getName()).isEqualTo(name);
     }
@@ -71,4 +71,17 @@ public class AlbumApiControllerTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(modified.getName()).isEqualTo(expectedName);
     }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void 앨범이_삭제된다() {
+        //given
+        Album saved = albumRepository.save(Album.builder().name("mingon").build());
+        String url = "http://localhost:" + port + "/api/albums/" + saved.getId();
+
+        //when
+        restTemplate.delete(url);
+
+        //then
+        Album deleted = albumRepository.findById(saved.getId()).orElseThrow(IllegalArgumentException::new);
+    }0
 }

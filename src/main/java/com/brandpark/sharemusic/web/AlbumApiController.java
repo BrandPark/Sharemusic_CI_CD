@@ -21,4 +21,9 @@ public class AlbumApiController {
         return albumApiService.update(id, requestDto);
     }
 
+    @DeleteMapping("/api/albums/{id}")
+    public Long delete(@PathVariable Long id) {
+        return albumApiService.delete(id);
+    }
+
 }
