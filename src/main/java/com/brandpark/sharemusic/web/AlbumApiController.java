@@ -4,15 +4,21 @@ import com.brandpark.sharemusic.service.albums.AlbumApiService;
 import com.brandpark.sharemusic.web.dto.AlbumSaveRequestDto;
 import com.brandpark.sharemusic.web.dto.AlbumUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @RestController
 public class AlbumApiController {
     private final AlbumApiService albumApiService;
 
-    @PostMapping("/api/albums")
-    public Long save(@RequestBody AlbumSaveRequestDto requestDto) {
+    @PostMapping(value = "/api/albums")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Long save(@RequestBody AlbumSaveRequestDto requestDto) throws IOException {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        AlbumSaveRequestDto requestDto = objectMapper.readValue(json, AlbumSaveRequestDto.class);
         return albumApiService.save(requestDto);
     }
 

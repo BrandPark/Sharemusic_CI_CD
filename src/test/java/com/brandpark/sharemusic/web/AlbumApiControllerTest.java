@@ -81,7 +81,8 @@ public class AlbumApiControllerTest {
         //when
         restTemplate.delete(url);
 
+
         //then
         Album deleted = albumRepository.findById(saved.getId()).orElseThrow(IllegalArgumentException::new);
-    }0
+    }
 }

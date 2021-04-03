@@ -2,7 +2,6 @@ package com.brandpark.sharemusic.service.albums;
 
 import com.brandpark.sharemusic.domain.tracks.TrackRepository;
 import com.brandpark.sharemusic.web.dto.TrackSaveRequestDto;
-import com.brandpark.sharemusic.web.dto.TrackUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +17,5 @@ public class TrackApiService {
         return trackRepository.save(requestDto.toEntity()).getId();
     }
 
-    @Transactional
-    public Long update(Long id, TrackUpdateRequestDto requestDto) {
 
-    }
 }
