@@ -1,4 +1,4 @@
-let index = {
+let save_album = {
     init: function () {
         let _this = this;
         $('#btn-save').on('click', function () {
@@ -36,4 +36,4 @@ let index = {
         });
     }
 };
-index.init();
+save_album.init();

@@ -1,5 +1,6 @@
 package com.brandpark.sharemusic.domain.tracks;
 
+import com.brandpark.sharemusic.domain.BaseTimeEntity;
 import com.brandpark.sharemusic.domain.albums.Album;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Getter
 @Entity
-public class Track {
+public class Track extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

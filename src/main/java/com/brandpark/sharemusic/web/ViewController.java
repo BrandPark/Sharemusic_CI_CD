@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class ViewController {
     @GetMapping("/")
     public String showMain() {
-        return "main";
+        return "index";
+    }
+    @GetMapping("/save_album")
+    public String showSaveAlbum() {
+        return "save_album";
     }
 }

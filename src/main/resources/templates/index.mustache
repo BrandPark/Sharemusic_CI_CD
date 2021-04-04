@@ -1,0 +1,25 @@
+{{>layout/header}}
+<h1>ShareMusic</h1>
+<div class="col-md-12">
+    <a href="/save_album" class="btn btn-primary" role="button">앨범등록</a>
+</div>
+<br>
+<table class="table table-horizontal table-bordered">
+    <thead class="thead-strong">
+    <tr>
+        <th>ID</th>
+        <th>앨범 이름</th>
+        <th>트랙 수</th>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    {{#album}}
+        <tr>
+            <td>{{id}}</td>
+            <td>{{name}}</td>
+            <td>{{track_count}}</td>
+        </tr>
+    {{/album}}
+    </tbody>
+</table>
+{{>layout/footer}}
