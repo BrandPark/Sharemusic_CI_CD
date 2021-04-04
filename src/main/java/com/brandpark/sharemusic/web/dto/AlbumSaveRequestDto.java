@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @Getter
@@ -24,10 +23,13 @@ public class AlbumSaveRequestDto implements Serializable {
     }
 
     public Album toEntity() {
-        List<Track> list2 = tracks.stream().map((t) -> t.toEntity()).collect(Collectors.toList());
-        return Album.builder()
-                .name(name)
-                .tracks(list2)
-                .build();
+        Album album = Album.builder().name(name).build();
+
+        for (TrackSaveRequestDto trackDto : tracks) {
+            Track track = trackDto.toEntity();
+            album.addTrack(track);
+        }
+
+        return album;
     }
 }

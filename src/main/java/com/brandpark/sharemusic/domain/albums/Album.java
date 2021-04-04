@@ -39,7 +39,9 @@ public class Album {
         this.tracks.remove(track);
     }
 
-    public void update(String name) {
+    public void update(String name, List<Track> tracks) {
         this.name = name;
+        if(tracks != null)
+            this.tracks = tracks;
     }
 }

@@ -2,7 +2,6 @@ let index = {
     init: function () {
         let _this = this;
         $('#btn-save').on('click', function () {
-            alert("gg");
             _this.save();
         });
     },

@@ -35,7 +35,7 @@ public class AlbumSaveRequestDtoTest {
         ObjectMapper om = new ObjectMapper();
 
         AlbumSaveRequestDto requestDto = om.readValue(expected3, AlbumSaveRequestDto.class);
-        List<TrackSaveRequestDto> list = requestDto.getTracks();
+        List<TrackSaveRequestDto> list = requestDto.getTrackReqeuestDtos();
         assertThat(list.get(0).getName()).isEqualTo("트랙0");
     }
 }

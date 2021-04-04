@@ -24,7 +24,7 @@ public class AlbumApiService {
     public Long update(Long id, AlbumUpdateRequestDto requestDto) {
         Album saved = albumRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다. id=" + id));
         String name = requestDto.getName();
-        saved.update(name);
+        saved.update(name, null);
 
         return id;
     }
