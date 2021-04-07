@@ -1,7 +1,8 @@
-package com.brandpark.sharemusic.web.dto;
+package com.brandpark.sharemusic.web.dto.albums;
 
 import com.brandpark.sharemusic.domain.albums.Album;
 import com.brandpark.sharemusic.domain.tracks.Track;
+import com.brandpark.sharemusic.web.dto.tracks.TrackSaveRequestDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

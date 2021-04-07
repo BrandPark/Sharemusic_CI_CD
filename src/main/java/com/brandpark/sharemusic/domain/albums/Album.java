@@ -26,6 +26,7 @@ public class Album extends BaseTimeEntity {
 
     @Column
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL)
+    @OrderBy("name ASC")
     private List<Track> tracks = new ArrayList<>();
 
     @Builder

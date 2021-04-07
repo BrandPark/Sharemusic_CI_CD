@@ -23,8 +23,8 @@ public class Track extends BaseTimeEntity {
     @Column(length = 100, nullable = false)
     private String artist;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "album_id", foreignKey = @ForeignKey(name = "FK_TRACK_ALBUM"))
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Album album;
 
     @Builder

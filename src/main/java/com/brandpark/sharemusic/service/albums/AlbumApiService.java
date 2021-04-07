@@ -2,12 +2,16 @@ package com.brandpark.sharemusic.service.albums;
 
 import com.brandpark.sharemusic.domain.albums.Album;
 import com.brandpark.sharemusic.domain.albums.AlbumRepository;
-import com.brandpark.sharemusic.web.dto.AlbumSaveRequestDto;
-import com.brandpark.sharemusic.web.dto.AlbumUpdateRequestDto;
+import com.brandpark.sharemusic.web.dto.albums.AlbumListResponseDto;
+import com.brandpark.sharemusic.web.dto.albums.AlbumSaveRequestDto;
+import com.brandpark.sharemusic.web.dto.albums.AlbumUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @RequiredArgsConstructor
 @Service
@@ -18,6 +22,11 @@ public class AlbumApiService {
     @Transactional
     public Long save(AlbumSaveRequestDto requestDto) {
         return albumRepository.save(requestDto.toEntity()).getId();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AlbumListResponseDto> findAllDesc() {
+        return albumRepository.findAllDesc().stream().map(AlbumListResponseDto::new).collect(Collectors.toList());
     }
 
     @Transactional

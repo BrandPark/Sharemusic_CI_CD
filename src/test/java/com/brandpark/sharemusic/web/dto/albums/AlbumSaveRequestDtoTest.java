@@ -1,5 +1,6 @@
-package com.brandpark.sharemusic.web.dto;
+package com.brandpark.sharemusic.web.dto.albums;
 
+import com.brandpark.sharemusic.web.dto.tracks.TrackSaveRequestDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -35,7 +36,7 @@ public class AlbumSaveRequestDtoTest {
         ObjectMapper om = new ObjectMapper();
 
         AlbumSaveRequestDto requestDto = om.readValue(expected3, AlbumSaveRequestDto.class);
-        List<TrackSaveRequestDto> list = requestDto.getTrackReqeuestDtos();
+        List<TrackSaveRequestDto> list = requestDto.getTracks();
         assertThat(list.get(0).getName()).isEqualTo("트랙0");
     }
 }

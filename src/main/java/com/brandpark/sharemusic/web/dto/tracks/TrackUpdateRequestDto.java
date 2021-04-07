@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.web.dto;
+package com.brandpark.sharemusic.web.dto.tracks;
 
 import lombok.Getter;
 

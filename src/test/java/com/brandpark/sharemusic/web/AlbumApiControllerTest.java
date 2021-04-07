@@ -2,8 +2,8 @@ package com.brandpark.sharemusic.web;
 
 import com.brandpark.sharemusic.domain.albums.Album;
 import com.brandpark.sharemusic.domain.albums.AlbumRepository;
-import com.brandpark.sharemusic.web.dto.AlbumSaveRequestDto;
-import com.brandpark.sharemusic.web.dto.AlbumUpdateRequestDto;
+import com.brandpark.sharemusic.web.dto.albums.AlbumSaveRequestDto;
+import com.brandpark.sharemusic.web.dto.albums.AlbumUpdateRequestDto;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +33,7 @@ public class AlbumApiControllerTest {
     private AlbumRepository albumRepository;
 
     @After
-    public void tearDown() {
+    public void clearAll() {
         albumRepository.deleteAll();
     }
 
@@ -80,7 +80,6 @@ public class AlbumApiControllerTest {
 
         //when
         restTemplate.delete(url);
-
 
         //then
         Album deleted = albumRepository.findById(saved.getId()).orElseThrow(IllegalArgumentException::new);
