@@ -6,12 +6,12 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class TrackListResponseDto {
+public class TrackResponseDto {
     private Long id;
     private String name;
     private String artist;
 
-    public TrackListResponseDto(Track track) {
+    public TrackResponseDto(Track track) {
         this.id = track.getId();
         this.name = track.getName();
         this.artist = track.getArtist();

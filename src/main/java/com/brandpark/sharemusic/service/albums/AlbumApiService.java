@@ -2,6 +2,7 @@ package com.brandpark.sharemusic.service.albums;
 
 import com.brandpark.sharemusic.domain.albums.Album;
 import com.brandpark.sharemusic.domain.albums.AlbumRepository;
+import com.brandpark.sharemusic.web.dto.albums.AlbumResponseDto;
 import com.brandpark.sharemusic.web.dto.albums.AlbumListResponseDto;
 import com.brandpark.sharemusic.web.dto.albums.AlbumSaveRequestDto;
 import com.brandpark.sharemusic.web.dto.albums.AlbumUpdateRequestDto;
@@ -29,9 +30,15 @@ public class AlbumApiService {
         return albumRepository.findAllDesc().stream().map(AlbumListResponseDto::new).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public AlbumResponseDto findById(Long id) {
+        Album saved = albumRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 앨범이 없습니다. id=" + id));
+
+        return new AlbumResponseDto(saved);
+    }
     @Transactional
     public Long update(Long id, AlbumUpdateRequestDto requestDto) {
-        Album saved = albumRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다. id=" + id));
+        Album saved = albumRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 앨범이 없습니다. id=" + id));
         String name = requestDto.getName();
         saved.update(name, null);
 

@@ -5,7 +5,6 @@ import com.brandpark.sharemusic.domain.albums.AlbumRepository;
 import com.brandpark.sharemusic.domain.tracks.Track;
 import com.brandpark.sharemusic.domain.tracks.TrackRepository;
 import com.brandpark.sharemusic.web.dto.albums.AlbumListResponseDto;
-import com.brandpark.sharemusic.web.dto.tracks.TrackListResponseDto;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +66,7 @@ public class AlbumApiServiceTest {
     }
 
     @Test
-    public void 모든_앨범_조회() {
+    public void 모든_앨범_최신순_조회() {
         //given
 
         //when
@@ -76,17 +75,11 @@ public class AlbumApiServiceTest {
         //then
         AlbumListResponseDto firstDto = albumList.get(0);
         AlbumListResponseDto secondDto = albumList.get(1);
-        List<TrackListResponseDto> firstTracks = firstDto.getTracks();
-        List<TrackListResponseDto> secondTracks = secondDto.getTracks();
 
         assertThat(firstDto.getName()).isEqualTo(albumNames[1]);
         assertThat(firstDto.getTrackCount()).isEqualTo(2);
-        assertThat(firstTracks.get(0).getName()).isEqualTo(trackNames[0]);
-        assertThat(firstTracks.get(1).getName()).isEqualTo(trackNames[1]);
 
         assertThat(secondDto.getName()).isEqualTo(albumNames[0]);
         assertThat(secondDto.getTrackCount()).isEqualTo(2);
-        assertThat(secondTracks.get(0).getName()).isEqualTo(trackNames[0]);
-        assertThat(secondTracks.get(1).getName()).isEqualTo(trackNames[1]);
     }
 }

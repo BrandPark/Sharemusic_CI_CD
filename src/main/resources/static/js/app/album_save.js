@@ -1,4 +1,4 @@
-let save_album = {
+let album_save = {
     init: function () {
         let _this = this;
         $('#btn-save').on('click', function () {
@@ -14,7 +14,6 @@ let save_album = {
                 artist: $('#track' + i + '_artist').val(),
             };
             tracks.push(track);
-            // tracks.push(track);
         }
 
         let data = {
@@ -36,4 +35,4 @@ let save_album = {
         });
     }
 };
-save_album.init();
+album_save.init();
