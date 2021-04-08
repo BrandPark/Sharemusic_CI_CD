@@ -2,8 +2,9 @@ package com.brandpark.sharemusic.web;
 
 import com.brandpark.sharemusic.domain.albums.Album;
 import com.brandpark.sharemusic.domain.albums.AlbumRepository;
+import com.brandpark.sharemusic.domain.tracks.Track;
 import com.brandpark.sharemusic.web.dto.albums.AlbumSaveRequestDto;
-import com.brandpark.sharemusic.web.dto.albums.AlbumUpdateRequestDto;
+import com.brandpark.sharemusic.web.dto.tracks.TrackSaveRequestDto;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,11 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,36 +42,31 @@ public class AlbumApiControllerTest {
     @Test
     public void 앨범이_저장된다() {
         //given
-        String name = "album1";
-        AlbumSaveRequestDto requestDto = AlbumSaveRequestDto.builder().name(name).build();
+        String name = "앨범";
+        List<TrackSaveRequestDto> tracks = new ArrayList<>();
+        TrackSaveRequestDto track = TrackSaveRequestDto.builder().name("트랙").artist("아티스트").build();
+        AlbumSaveRequestDto requestDto = AlbumSaveRequestDto.builder().name(name).tracks(tracks).build();
         String url = "http://localhost:" + port + "/api/albums";
 
         //when
         ResponseEntity<Long> responseEntity = restTemplate.postForEntity(url, requestDto, Long.class);
 
         //then
-        Album saved = albumRepository.findAll().get(0);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(saved.getName()).isEqualTo(name);
+        Album savedAlbum = albumRepository.findAll().get(0);
+        List<Track> savedTracks = savedAlbum.getTracks();
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);    // 상태확인
+        assertThat(savedAlbum.getName()).isEqualTo(name);   //앨범이름 확인
+        assertThat(savedTracks.size()).isEqualTo(savedAlbum.getTrackCount());    //앨범에 저장된 트랙 수 확인
+        assertThat(savedTracks.get(0).getName()).isEqualTo("트랙");   //트랙 이름 확인
+        assertThat(savedTracks.get(0).getArtist()).isEqualTo("아티스트");   //트랙 아티스트 확인
+
     }
 
     @Test
     public void 앨범이_수정된다() {
         //given
-        Album saved = albumRepository.save(Album.builder().name("mingon").build());
-        String expectedName = "MINGON";
-        String url = "http://localhost:" + port + "/api/albums/" + saved.getId();
 
-        AlbumUpdateRequestDto requestDto = AlbumUpdateRequestDto.builder().name(expectedName).build();
-        HttpEntity<AlbumUpdateRequestDto> httpEntity = new HttpEntity<>(requestDto);
-
-        //when
-        ResponseEntity<Long> responseEntity = restTemplate.exchange(url, HttpMethod.PUT, httpEntity, Long.class);
-        Album modified = albumRepository.findById(saved.getId()).orElseThrow(IllegalArgumentException::new);
-
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(modified.getName()).isEqualTo(expectedName);
     }
 
     @Test(expected=IllegalArgumentException.class)

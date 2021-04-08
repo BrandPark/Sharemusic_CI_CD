@@ -9,46 +9,35 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Transactional
 @RunWith(SpringRunner.class)
-@DataJpaTest
+@SpringBootTest
 public class JpaTest {
-
     @Autowired
     AlbumRepository albumRepository;
 
     @Autowired
     TrackRepository trackRepository;
 
-    Track track0;
-    Track track1;
-    Album album0;
     Album album1;
-    String[] albumNames = {"album1","album2"};
-    String[] trackNames = {"track1", "track2"};
-    String[] trackArtists = {"trackArtist1", "trackArtist2"};
-
+    Album album2;
 
     @Before
     public void setUp() {
-        album0 = Album.builder().name(albumNames[0]).build();
-        album1 = Album.builder().name(albumNames[0]).build();
+        album1 = Album.builder().name("앨범1").tracks(new ArrayList<>()).build();
+        album1.addTrack(Track.builder().name("트랙1").artist("아티1").album(album1).build());
+        album1.addTrack(Track.builder().name("트랙2").artist("아티2").album(album1).build());
 
-        track0 = Track.builder().name(trackNames[0]).artist(trackArtists[0]).build();
-        track1 = Track.builder().name(trackNames[1]).artist(trackArtists[1]).build();
-
-        album0.addTrack(track0);
-        album0.addTrack(track1);
-        album1.addTrack(track0);
-        album1.addTrack(track1);
+        album2 = Album.builder().name("앨범2").tracks(new ArrayList<>()).build();
+        album2.addTrack(Track.builder().name("트랙1").artist("아티1").album(album2).build());
+        album2.addTrack(Track.builder().name("트랙2").artist("아티2").album(album2).build());
     }
 
     @After
@@ -58,71 +47,61 @@ public class JpaTest {
     }
 
     @Test
-    public void 모든_앨범_조회() {
+    public void 앨범과_트랙저장() {
         //given
-        albumRepository.save(album0);
         albumRepository.save(album1);
 
         //when
-        List<Album> savedAlbums = albumRepository.findAllDesc();
+        Album savedAlbum = albumRepository.findById(album1.getId()).orElseThrow(IllegalArgumentException::new);
+        List<Track> savedTracks = trackRepository.findAllWithAlbum(savedAlbum);
 
-        for (int i = 0; i < savedAlbums.size(); i++) {
-            Album album = savedAlbums.get(i);
-            List<Track> tracks = album.getTracks();
-            assertThat(album.getName()).isEqualTo(albumNames[0]);
-            assertThat(album.getTrackCount()).isEqualTo(2);
+        //then
+        //---앨범 검사
+        assertThat(savedAlbum.getName()).isEqualTo("앨범1");  //이름
+        assertThat(savedAlbum.getTrackCount()).isEqualTo(2);    //트랙 수
 
-            assertThat(tracks.get(0).getName()).isEqualTo(trackNames[0]);
-            assertThat(tracks.get(0).getArtist()).isEqualTo(trackArtists[0]);
-            assertThat(tracks.get(1).getName()).isEqualTo(trackNames[1]);
-            assertThat(tracks.get(1).getArtist()).isEqualTo(trackArtists[1]);
-        }
-
+        //---트랙 검사
+        assertThat(savedTracks.size()).isEqualTo(2);    //트랙 수
+        assertThat(savedTracks.get(0).getName()).isEqualTo("트랙1");  //이름
+        assertThat(savedTracks.get(0).getArtist()).isEqualTo("아티1");    //아티스트
     }
 
     @Test
-    public void 앨범_저장_후_조회() {
+    public void 모든_앨범_변경날짜_순서로_조회() {
         //given
+        albumRepository.save(album1);
+        albumRepository.save(album2);
 
         //when
-        albumRepository.save(album0);
+        List<Album> albumList = albumRepository.findAllDesc();
 
         //then
-        Album savedAlbum = albumRepository.findAll().get(0);
-        List<Track> savedTracks = savedAlbum.getTracks();
-
-        assertThat(savedAlbum.getName()).isEqualTo(albumNames[0]);
-        assertThat(savedTracks.size()).isEqualTo(savedAlbum.getTrackCount());
-
-        assertThat(savedTracks.get(0).getName()).isEqualTo(trackNames[0]);
-        assertThat(savedTracks.get(0).getArtist()).isEqualTo(trackArtists[0]);
-        assertThat(savedTracks.get(1).getName()).isEqualTo(trackNames[1]);
-        assertThat(savedTracks.get(1).getArtist()).isEqualTo(trackArtists[1]);
+        assertThat(albumList.get(0).getName()).isEqualTo("앨범2");    //나중에 추가한 앨범이 먼저나온다.
+        assertThat(albumList.get(0).getModifiedDate()).isAfter(albumList.get(1).getModifiedDate()); //기준이 되는 수정 시간
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void 앨범_삭제_후_앨범_조회_예외() {
+    public void 삭제된_앨범_조회_예외() {
         //given
-        albumRepository.save(album0);
+        albumRepository.save(album1);
 
         //when
-        albumRepository.deleteById(album0.getId());
+        albumRepository.deleteById(album1.getId());
 
         //then
-        albumRepository.findById(album0.getId()).orElseThrow(IllegalArgumentException::new);
-
+        albumRepository.findById(album1.getId()).orElseThrow(IllegalArgumentException::new);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void 앨범_삭제_후_귀속된_트랙_조회_예외() {
+    public void 삭제된_앨범의_트랙_조회_예외() {
         //given
-        albumRepository.save(album0);
+        albumRepository.save(album1);
 
         //when
-        albumRepository.deleteById(album0.getId());
+        albumRepository.deleteById(album1.getId());
 
         //then
-        trackRepository.findById(track1.getId()).orElseThrow(IllegalArgumentException::new);
+        trackRepository.findById(album1.getTracks().get(0).getId()).orElseThrow(IllegalArgumentException::new);
     }
 
 }

@@ -28,9 +28,10 @@ public class Track extends BaseTimeEntity {
     private Album album;
 
     @Builder
-    public Track(String name, String artist) {
+    public Track(String name, String artist, Album album) {
         this.name = name;
         this.artist = artist;
+        this.album = album;
     }
 
     public void updateAlbum(Album album) {

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @NoArgsConstructor
@@ -51,5 +52,18 @@ public class Album extends BaseTimeEntity {
         this.name = name;
         if(tracks != null)
             this.tracks = tracks;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Album album = (Album) o;
+        return trackCount == album.trackCount && id.equals(album.id) && name.equals(album.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, trackCount);
     }
 }

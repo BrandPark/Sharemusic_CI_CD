@@ -14,33 +14,32 @@
             <label for="trackCount">트랙 수</label>
             <input type="text" class="form-control" id="trackCount" value="{{album.trackCount}}"/>
         </div>
-
-        <a href="/" class="btn btn-primary">뒤로</a>
-        <button class="btn btn-success" id="btn-save" role="button">저장</button>
-        <button class="btn btn-danger" id="btn-delete-album" role="button">앨범 삭제</button>
-
-        <br>
-        <h2>트랙</h2>
-        <table class="table table-horizontal table-bordered">
-            <thead class="thead-strong">
-            <tr>
-                <th>ID</th>
-                <th>트랙 이름</th>
-                <th>아티스트</th>
-            </tr>
-            </thead>
-            <tbody id="tbody">
-
-
-            {{#tracks}}
-                <tr>
-                    <td><input class="form-control" type="text" value="{{id}}"/></td>
-                    <td><input class="form-control" type="text" value="{{name}}"/></td>
-                    <td><input class="form-control" type="text" value="{{artist}}"/></td>
-                </tr>
-            {{/tracks}}
-            </tbody>
-        </table>
     </form>
+
+    <a href="/" class="btn btn-primary">뒤로</a>
+    <button class="btn btn-success" id="btn-update-album" role="button">저장</button>
+    <button class="btn btn-danger" id="btn-delete-album" role="button">앨범 삭제</button>
+
+    <br>
+    <h2>트랙</h2>
+    <table class="table table-horizontal table-bordered">
+        <thead class="thead-strong">
+        <tr>
+            <th>ID</th>
+            <th>트랙 이름</th>
+            <th>아티스트</th>
+        </tr>
+        </thead>
+        <tbody id="tbody">
+
+        {{#tracks}}
+            <tr>
+                <td><input name="track" class="form-control" type="text" value="{{id}}"/></td>
+                <td><input name="track" class="form-control" type="text" value="{{name}}"/></td>
+                <td><input name="track" class="form-control" type="text" value="{{artist}}"/></td>
+            </tr>
+        {{/tracks}}
+        </tbody>
+    </table>
 </div>
 {{>layout/footer}}
