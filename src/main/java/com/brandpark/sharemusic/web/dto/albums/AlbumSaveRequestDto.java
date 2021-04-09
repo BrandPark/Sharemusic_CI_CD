@@ -1,7 +1,6 @@
 package com.brandpark.sharemusic.web.dto.albums;
 
 import com.brandpark.sharemusic.domain.albums.Album;
-import com.brandpark.sharemusic.domain.tracks.Track;
 import com.brandpark.sharemusic.web.dto.tracks.TrackSaveRequestDto;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,16 +19,17 @@ public class AlbumSaveRequestDto implements Serializable {
     @Builder
     public AlbumSaveRequestDto(String name, List<TrackSaveRequestDto> tracks) {
         this.name = name;
-        this.tracks = tracks;
+        if(tracks != null)
+            this.tracks = tracks;
     }
 
     public Album toEntity() {
         Album album = Album.builder().name(name).build();
 
-        for (TrackSaveRequestDto trackDto : tracks) {
-            Track track = trackDto.toEntity();
-            album.addTrack(track);
-        }
+        tracks.forEach(track -> album.addTrack(track.toEntity()));
+//        for (TrackSaveRequestDto trackDto : tracks) {
+//            album.addTrack(trackDto.toEntity());
+//        }
 
         return album;
     }

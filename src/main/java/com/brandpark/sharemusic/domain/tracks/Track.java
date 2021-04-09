@@ -37,4 +37,9 @@ public class Track extends BaseTimeEntity {
     public void updateAlbum(Album album) {
         this.album = album;
     }
+
+    public void update(String name, String artist) {
+        this.name = name;
+        this.artist = artist;
+    }
 }

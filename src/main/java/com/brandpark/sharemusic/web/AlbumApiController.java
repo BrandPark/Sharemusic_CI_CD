@@ -14,8 +14,8 @@ import java.io.IOException;
 public class AlbumApiController {
     private final AlbumApiService albumApiService;
 
-    @PostMapping(value = "/api/albums")
     @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(value = "/api/albums")
     public Long save(@RequestBody AlbumSaveRequestDto requestDto) throws IOException {
         return albumApiService.save(requestDto);
     }

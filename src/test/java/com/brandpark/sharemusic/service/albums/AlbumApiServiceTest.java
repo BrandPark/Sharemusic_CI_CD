@@ -13,16 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class AlbumApiServiceTest {
 
     @Autowired
-    private AlbumApiService service;
+    private AlbumApiService albumApiservice;
 
     @Autowired
     AlbumRepository albumRepository;
@@ -30,33 +31,18 @@ public class AlbumApiServiceTest {
     @Autowired
     TrackRepository trackRepository;
 
-    Track track0;
-    Track track1;
-    Track track2;
-    Track track3;
-    Album album0;
     Album album1;
-    String[] albumNames = {"album1", "album2"};
-    String[] trackNames = {"track1", "track2"};
-    String[] trackArtists = {"trackArtist1", "trackArtist2"};
+    Album album2;
 
     @Before
     public void setUp() {
-        album0 = Album.builder().name(albumNames[0]).build();
-        album1 = Album.builder().name(albumNames[1]).build();
+        album1 = Album.builder().name("앨범1").tracks(new ArrayList<>()).build();
+        album1.addTrack(Track.builder().name("트랙1").artist("아티1").album(album1).build());
+        album1.addTrack(Track.builder().name("트랙2").artist("아티2").album(album1).build());
 
-        track0 = Track.builder().name(trackNames[0]).artist(trackArtists[0]).build();
-        track1 = Track.builder().name(trackNames[1]).artist(trackArtists[1]).build();
-        track2 = Track.builder().name(trackNames[0]).artist(trackArtists[0]).build();
-        track3 = Track.builder().name(trackNames[1]).artist(trackArtists[1]).build();
-
-        album0.addTrack(track0);
-        album0.addTrack(track1);
-        album1.addTrack(track2);
-        album1.addTrack(track3);
-
-        albumRepository.save(album0);
-        albumRepository.save(album1);
+        album2 = Album.builder().name("앨범2").tracks(new ArrayList<>()).build();
+        album2.addTrack(Track.builder().name("트랙1").artist("아티1").album(album2).build());
+        album2.addTrack(Track.builder().name("트랙2").artist("아티2").album(album2).build());
     }
 
     @After
@@ -68,18 +54,14 @@ public class AlbumApiServiceTest {
     @Test
     public void 모든_앨범_최신순_조회() {
         //given
+        albumRepository.save(album1);
+        albumRepository.save(album2);
 
         //when
-        List<AlbumListResponseDto> albumList = service.findAllDesc();
+        List<AlbumListResponseDto> albumList = albumApiservice.findAllDesc();
 
         //then
-        AlbumListResponseDto firstDto = albumList.get(0);
-        AlbumListResponseDto secondDto = albumList.get(1);
-
-        assertThat(firstDto.getName()).isEqualTo(albumNames[1]);
-        assertThat(firstDto.getTrackCount()).isEqualTo(2);
-
-        assertThat(secondDto.getName()).isEqualTo(albumNames[0]);
-        assertThat(secondDto.getTrackCount()).isEqualTo(2);
+        assertThat(albumList.get(0).getName()).isEqualTo("앨범2");
+        assertThat(albumList.get(0).getModifiedDate()).isAfter(albumList.get(1).getModifiedDate());
     }
 }

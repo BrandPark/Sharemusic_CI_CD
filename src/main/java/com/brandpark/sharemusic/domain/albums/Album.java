@@ -2,6 +2,7 @@ package com.brandpark.sharemusic.domain.albums;
 
 import com.brandpark.sharemusic.domain.BaseTimeEntity;
 import com.brandpark.sharemusic.domain.tracks.Track;
+import com.brandpark.sharemusic.web.dto.tracks.TrackUpdateRequestDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -43,27 +46,17 @@ public class Album extends BaseTimeEntity {
         trackCount++;
     }
 
+    public void update(String name , List<TrackUpdateRequestDto> trackUpdateRequestDtoList) {
+        this.name = name;
+
+        Map<Long,Track> trackMap = tracks.stream().collect(Collectors.toMap(Track::getId, Function.identity()));
+        for (TrackUpdateRequestDto dto : trackUpdateRequestDtoList) {
+            trackMap.get(dto.getId()).update(dto.getName(), dto.getArtist());
+        }
+    }
+
     public void removeTrack(Track track) {
         this.tracks.remove(track);
         trackCount--;
-    }
-
-    public void update(String name, List<Track> tracks) {
-        this.name = name;
-        if(tracks != null)
-            this.tracks = tracks;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Album album = (Album) o;
-        return trackCount == album.trackCount && id.equals(album.id) && name.equals(album.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, trackCount);
     }
 }

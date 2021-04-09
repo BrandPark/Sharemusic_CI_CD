@@ -7,13 +7,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class TrackUpdateRequestDto {
+    private Long id;
     private String name;
     private String artist;
 
     @Builder
-    public TrackUpdateRequestDto(String name, String artist) {
+    public TrackUpdateRequestDto(Long id, String name, String artist) {
+        this.id = id;
         this.name = name;
         this.artist = artist;
     }
-    
 }

@@ -18,7 +18,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class JpaTest {
     @Autowired
     AlbumRepository albumRepository;
@@ -31,7 +31,7 @@ public class JpaTest {
 
     @Before
     public void setUp() {
-        album1 = Album.builder().name("앨범1").tracks(new ArrayList<>()).build();
+        album1 = Album.builder().name("앨범1").build();
         album1.addTrack(Track.builder().name("트랙1").artist("아티1").album(album1).build());
         album1.addTrack(Track.builder().name("트랙2").artist("아티2").album(album1).build());
 
@@ -47,7 +47,7 @@ public class JpaTest {
     }
 
     @Test
-    public void 앨범과_트랙저장() {
+    public void 앨범과_트랙이_저장된다() {
         //given
         albumRepository.save(album1);
 
@@ -67,7 +67,7 @@ public class JpaTest {
     }
 
     @Test
-    public void 모든_앨범_변경날짜_순서로_조회() {
+    public void 모든_앨범이_변경날짜_순서로_조회된다() {
         //given
         albumRepository.save(album1);
         albumRepository.save(album2);
@@ -81,7 +81,7 @@ public class JpaTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void 삭제된_앨범_조회_예외() {
+    public void 삭제된_앨범은_조회되지_않는다() {
         //given
         albumRepository.save(album1);
 
@@ -93,7 +93,7 @@ public class JpaTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void 삭제된_앨범의_트랙_조회_예외() {
+    public void 삭제된_앨범의_트랙은_조회되지_않는다() {
         //given
         albumRepository.save(album1);
 
