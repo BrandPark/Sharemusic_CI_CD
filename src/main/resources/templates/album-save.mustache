@@ -1,25 +1,22 @@
 {{>layout/header}}
 <h2>앨범 추가</h2>
 <div class="col-md-12">
-    <div class="col-md-4">
-        <form>
-            <div class="form-group">
-                <label for="name">앨범 이름</label>
-                <input type="text" class="form-control" id="album_name"/>
+    <div class="col-md-12">
+        <div class="form-inline">
+            <label for="name" class="mr-sm-2">앨범 이름</label>
+            <input type="text" class="form-control" id="album_name"/>
+        </div>
+
+        <br>
+        <button id="btn-add-track" class="btn btn-primary mb-sm-2" role="button">트랙 추가</button>
+        <div id="trackList">
+            <div class="form-inline mb-sm-2">
+                <label for="track0_name" class="mr-sm-2">트랙0 이름</label>
+                <input name="track" type="text" class="mr-sm-2 form-control " id="track0_name"/>
+                <label for="track0_artist" class="mr-sm-2">트랙0 artist</label>
+                <input name="track" type="text" class="mr-sm-2 form-control" id="track0_artist"/>
             </div>
-            <div class="form-group">
-                <label for="track0_name">트랙0 이름</label>
-                <input name="track" type="text" class="form-control" id="track0_name"/>
-                <label for="track0_artist">트랙0 artist</label>
-                <input name="track" type="text" class="form-control" id="track0_artist"/>
-            </div>
-            <div class="form-group">
-                <label for="track1_name">트랙1 이름</label>
-                <input name="track" type="text" class="form-control" id="track1_name"/>
-                <label for="track1_artist">트랙1 artist</label>
-                <input name="track" type="text" class="form-control" id="track1_artist"/>
-            </div>
-        </form>
+        </div>
         <button type="button" class="btn btn-secondary" id="btn-save">등록</button>
         <a href="/" class="btn btn-primary">뒤로</a>
     </div>
