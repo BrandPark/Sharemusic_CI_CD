@@ -84,6 +84,7 @@ public class AlbumApiControllerTest {
 
         AlbumUpdateRequestDto requestDto = AlbumUpdateRequestDto.builder().name("수정앨범").build();
         requestDto.getTracks().add(TrackUpdateRequestDto.builder().id(trackId).name("수정트랙").artist("수정아티").build());
+        requestDto.getTracks().add(TrackUpdateRequestDto.builder().name("추가트랙").artist("추가아티").build());
 
         HttpEntity<AlbumUpdateRequestDto> requestEntity = new HttpEntity<>(requestDto);
 
@@ -100,10 +101,13 @@ public class AlbumApiControllerTest {
         //---앨범
         assertThat(savedAlbum.getName()).isEqualTo("수정앨범"); //앨범 이름
         //---트랙
-        assertThat(savedTracks.size()).isEqualTo(1);    //앨범을 가리키고있는 트랙들 수
+        assertThat(savedTracks.size()).isEqualTo(2);    //앨범을 가리키고있는 트랙들 수
         assertThat(savedTracks.get(0).getName()).isEqualTo("수정트랙"); //트랙 이름
         assertThat(savedTracks.get(0).getArtist()).isEqualTo("수정아티");   //트랙 아티스트
+        assertThat(savedTracks.get(1).getName()).isEqualTo("추가트랙"); //트랙 이름
+        assertThat(savedTracks.get(1).getArtist()).isEqualTo("추가아티");   //트랙 아티스트
     }
+
 
     @Test(expected=IllegalArgumentException.class)
     public void 삭제된_앨범은_조회되지_않는다() {

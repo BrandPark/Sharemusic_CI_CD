@@ -50,8 +50,16 @@ public class Album extends BaseTimeEntity {
         this.name = name;
 
         Map<Long,Track> trackMap = tracks.stream().collect(Collectors.toMap(Track::getId, Function.identity()));
+
         for (TrackUpdateRequestDto dto : trackUpdateRequestDtoList) {
-            trackMap.get(dto.getId()).update(dto.getName(), dto.getArtist());
+            Long trackId = dto.getId();
+            //트랙을 추가하는 경우
+            if (trackId == null) {
+                addTrack(dto.toEntity());
+                continue;
+            }
+            Track track = trackMap.get(trackId);
+            track.update(dto.getName(), dto.getArtist());
         }
     }
 

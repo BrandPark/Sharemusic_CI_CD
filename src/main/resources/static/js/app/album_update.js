@@ -1,11 +1,16 @@
 let album_update = {
     init: function () {
         let _this = this;
+        let trackCount = document.getElementById("trackCount").value;
         $('#btn-delete-album').on('click', function () {
             _this.delete();
         });
         $('#btn-update-album').on('click', function () {
-            _this.update();
+            _this.update(trackCount);
+        });
+        $('#btn-add-track-tb').on('click', function () {
+            _this.addTrackTb();
+            trackCount++;
         });
     },
     delete: function () {
@@ -23,8 +28,7 @@ let album_update = {
             alert(JSON.stringify(error));
         });
     },
-    update: function () {
-        let trackCount = document.getElementById("trackCount").value;
+    update: function (trackCount) {
         let tracks = [];
         let entries = document.getElementsByName("track");
         for (let i = 0; i < trackCount; i++) {
@@ -38,7 +42,6 @@ let album_update = {
 
         let album = {
             name: $('#album_name').val(),
-            trackCount: $('#trackCount').val(),
             tracks: tracks
         }
 
@@ -56,5 +59,13 @@ let album_update = {
             alert(JSON.stringify(error));
         });
     },
+    addTrackTb: function () {
+        let tbody = document.getElementById("tbody");
+        tbody.innerHTML += `<tr>
+                <td><input name="track" class="form-control" type="text"/></td>
+                <td><input name="track" class="form-control" type="text"/></td>
+                <td><input name="track" class="form-control" type="text"/></td>
+            </tr>`;
+    }
 };
 album_update.init();

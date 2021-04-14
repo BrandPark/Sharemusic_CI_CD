@@ -6,6 +6,7 @@ import com.brandpark.sharemusic.web.dto.albums.AlbumListResponseDto;
 import com.brandpark.sharemusic.web.dto.albums.AlbumResponseDto;
 import com.brandpark.sharemusic.web.dto.albums.AlbumSaveRequestDto;
 import com.brandpark.sharemusic.web.dto.albums.AlbumUpdateRequestDto;
+import com.brandpark.sharemusic.web.dto.tracks.TrackUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class AlbumApiService {
     public Long update(Long id, AlbumUpdateRequestDto requestDto) {
         //Persist context에서 앨범과 Track들을 가져온다.
         Album album = albumRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 앨범이 없습니다. id=" + id));
+
         album.update(requestDto.getName(), requestDto.getTracks());
         return id;
     }
