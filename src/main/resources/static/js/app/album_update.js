@@ -60,12 +60,12 @@ let album_update = {
         });
     },
     addTrackTb: function () {
-        let tbody = document.getElementById("tbody");
-        tbody.innerHTML += `<tr>
+        let addTagStr = `<tr>
                 <td><input name="track" class="form-control" type="text"/></td>
                 <td><input name="track" class="form-control" type="text"/></td>
                 <td><input name="track" class="form-control" type="text"/></td>
             </tr>`;
+        $('#tbody').prepend(addTagStr);
     }
 };
 album_update.init();
