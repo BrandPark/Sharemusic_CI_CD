@@ -38,12 +38,15 @@ public class AlbumApiControllerTest {
 
     AlbumSaveRequestDto albumSaveRequestDto;
     TrackSaveRequestDto trackSaveRequestDto;
+    TrackSaveRequestDto trackSaveRequestDto2;
 
     @Before
     public void setUp() {
         albumSaveRequestDto = AlbumSaveRequestDto.builder().name("앨범").build();
         trackSaveRequestDto = TrackSaveRequestDto.builder().name("트랙").artist("아티").build();
+        trackSaveRequestDto2 = TrackSaveRequestDto.builder().name("트랙").artist("아티").build();
         albumSaveRequestDto.getTracks().add(trackSaveRequestDto);
+        albumSaveRequestDto.getTracks().add(trackSaveRequestDto2);
     }
 
     @After
@@ -79,12 +82,14 @@ public class AlbumApiControllerTest {
         //given
         Long albumId = albumRepository.save(albumSaveRequestDto.toEntity()).getId();
         Long trackId = trackRepository.findAll().get(0).getId();
+        Long trackId2 = trackRepository.findAll().get(1).getId();
 
         String url = "/api/albums/" + albumId;
 
         AlbumUpdateRequestDto requestDto = AlbumUpdateRequestDto.builder().name("수정앨범").build();
-        requestDto.getTracks().add(TrackUpdateRequestDto.builder().id(trackId).name("수정트랙").artist("수정아티").build());
-        requestDto.getTracks().add(TrackUpdateRequestDto.builder().name("추가트랙").artist("추가아티").build());
+        requestDto.getTracks().add(TrackUpdateRequestDto.builder().id(trackId).name("트랙").artist("아티").build());
+        requestDto.getTracks().add(TrackUpdateRequestDto.builder().id(trackId2).name("수정트랙").artist("수정아티").state("U").build());
+        requestDto.getTracks().add(TrackUpdateRequestDto.builder().name("추가트랙").artist("추가아티").state("I").build());
 
         HttpEntity<AlbumUpdateRequestDto> requestEntity = new HttpEntity<>(requestDto);
 
@@ -101,11 +106,16 @@ public class AlbumApiControllerTest {
         //---앨범
         assertThat(savedAlbum.getName()).isEqualTo("수정앨범"); //앨범 이름
         //---트랙
-        assertThat(savedTracks.size()).isEqualTo(2);    //앨범을 가리키고있는 트랙들 수
-        assertThat(savedTracks.get(0).getName()).isEqualTo("수정트랙"); //트랙 이름
-        assertThat(savedTracks.get(0).getArtist()).isEqualTo("수정아티");   //트랙 아티스트
-        assertThat(savedTracks.get(1).getName()).isEqualTo("추가트랙"); //트랙 이름
-        assertThat(savedTracks.get(1).getArtist()).isEqualTo("추가아티");   //트랙 아티스트
+        assertThat(savedTracks.size()).isEqualTo(3);    //앨범을 가리키고있는 트랙들 수
+
+        assertThat(savedTracks.get(0).getName()).isEqualTo("트랙"); //변경없는 트랙 이름
+        assertThat(savedTracks.get(0).getArtist()).isEqualTo("아티");   //변경없는 트랙 아티스트
+
+        assertThat(savedTracks.get(1).getName()).isEqualTo("수정트랙"); //변경한 트랙 이름
+        assertThat(savedTracks.get(1).getArtist()).isEqualTo("수정아티");   //변경한 트랙 아티스트
+
+        assertThat(savedTracks.get(2).getName()).isEqualTo("추가트랙"); //추가한 트랙 이름
+        assertThat(savedTracks.get(2).getArtist()).isEqualTo("추가아티");   //추가한 트랙 아티스트
     }
 
 

@@ -33,9 +33,10 @@ let album_update = {
         let entries = document.getElementsByName("track");
         for (let i = 0; i < trackCount; i++) {
             let track = {
-                id: entries[i * 3].value,
-                name: entries[i * 3 + 1].value,
-                artist: entries[i * 3 + 2].value
+                state: entries[i * 4].value,
+                id: entries[i * 4 + 1].value,
+                name: entries[i * 4 + 2].value,
+                artist: entries[i * 4 + 3].value
             };
             tracks.push(track);
         }
@@ -61,6 +62,7 @@ let album_update = {
     },
     addTrackTb: function () {
         let addTagStr = `<tr>
+                <td><input name="track" class="form-control" type="text" value="I"/></td>
                 <td><input name="track" class="form-control" type="text"/></td>
                 <td><input name="track" class="form-control" type="text"/></td>
                 <td><input name="track" class="form-control" type="text"/></td>

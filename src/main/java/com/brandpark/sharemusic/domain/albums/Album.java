@@ -11,6 +11,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,10 @@ public class Album extends BaseTimeEntity {
         track.updateAlbum(this);
         trackCount++;
     }
+    public void removeTrack(Track track) {
+        this.tracks.remove(track);
+        trackCount--;
+    }
 
     public void update(String name , List<TrackUpdateRequestDto> trackUpdateRequestDtoList) {
         this.name = name;
@@ -53,18 +58,15 @@ public class Album extends BaseTimeEntity {
 
         for (TrackUpdateRequestDto dto : trackUpdateRequestDtoList) {
             Long trackId = dto.getId();
-            //트랙을 추가하는 경우
-            if (trackId == null) {
-                addTrack(dto.toEntity());
-                continue;
-            }
-            Track track = trackMap.get(trackId);
-            track.update(dto.getName(), dto.getArtist());
-        }
-    }
+            String state = dto.getState();
 
-    public void removeTrack(Track track) {
-        this.tracks.remove(track);
-        trackCount--;
+            if (state == null) continue;
+
+            switch (state) {
+                case "I" : addTrack(dto.toEntity());break;  //트랙을 추가
+                case "D" : removeTrack(dto.toEntity());break;   //트랙을 삭제
+                case "U" : trackMap.get(trackId).update(dto.getName(), dto.getArtist());break;  //트랙을 변경
+            }
+        }
     }
 }

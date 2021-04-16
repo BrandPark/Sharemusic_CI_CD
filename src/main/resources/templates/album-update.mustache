@@ -29,6 +29,7 @@
     <table class="table table-horizontal table-bordered">
         <thead class="thead-strong">
         <tr>
+            <th>STATE</th>
             <th>ID</th>
             <th>트랙 이름</th>
             <th>아티스트</th>
@@ -38,6 +39,7 @@
 
         {{#tracks}}
             <tr>
+                <td><input name="track" class="form-control" type="text"/></td>
                 <td><input name="track" class="form-control" type="text" value="{{id}}"/></td>
                 <td><input name="track" class="form-control" type="text" value="{{name}}"/></td>
                 <td><input name="track" class="form-control" type="text" value="{{artist}}"/></td>
