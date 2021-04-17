@@ -11,7 +11,6 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,7 +29,7 @@ public class Album extends BaseTimeEntity {
     private int trackCount;
 
     @Column
-    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("name ASC")
     private List<Track> tracks = new ArrayList<>();
 
@@ -46,6 +45,7 @@ public class Album extends BaseTimeEntity {
         track.updateAlbum(this);
         trackCount++;
     }
+
     public void removeTrack(Track track) {
         this.tracks.remove(track);
         trackCount--;

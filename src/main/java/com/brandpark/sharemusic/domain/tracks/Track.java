@@ -25,11 +25,12 @@ public class Track extends BaseTimeEntity {
     private String artist;
 
     @JoinColumn(name = "album_id", foreignKey = @ForeignKey(name = "FK_TRACK_ALBUM"))
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Album album;
 
     @Builder
-    public Track(String name, String artist, Album album) {
+    public Track(Long id, String name, String artist, Album album) {
+        this.id = id;
         this.name = name;
         this.artist = artist;
         this.album = album;
@@ -44,6 +45,7 @@ public class Track extends BaseTimeEntity {
         this.artist = artist;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -56,4 +58,6 @@ public class Track extends BaseTimeEntity {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+
 }

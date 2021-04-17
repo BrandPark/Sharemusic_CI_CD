@@ -15,14 +15,15 @@ public class TrackUpdateRequestDto {
 
     @Builder
     public TrackUpdateRequestDto(Long id, String name, String artist, String state) {
-        this.state = state;
         this.id = id;
         this.name = name;
         this.artist = artist;
+        this.state = state;
     }
 
     public Track toEntity() {
         return Track.builder()
+                .id(id)
                 .name(name)
                 .artist(artist)
                 .build();

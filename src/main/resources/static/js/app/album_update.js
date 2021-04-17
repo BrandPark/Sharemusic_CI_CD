@@ -1,16 +1,19 @@
 let album_update = {
     init: function () {
         let _this = this;
-        let trackCount = document.getElementById("trackCount").value;
+
         $('#btn-delete-album').on('click', function () {
             _this.delete();
         });
         $('#btn-update-album').on('click', function () {
-            _this.update(trackCount);
+            _this.update();
         });
         $('#btn-add-track-tb').on('click', function () {
             _this.addTrackTb();
-            trackCount++;
+        });
+        $('input[name^="track_"]').on('change', function () {
+            let parent = $(this).closest("tr");
+            parent.find('input[name="track_state"]').val("U");
         });
     },
     delete: function () {
@@ -28,15 +31,16 @@ let album_update = {
             alert(JSON.stringify(error));
         });
     },
-    update: function (trackCount) {
+    update: function () {
         let tracks = [];
-        let entries = document.getElementsByName("track");
-        for (let i = 0; i < trackCount; i++) {
+        let rows = $('#tbody').children();
+        for (let i = 0; i < rows.length; i++) {
+            let cols = $(rows[i]).find('input');
             let track = {
-                state: entries[i * 4].value,
-                id: entries[i * 4 + 1].value,
-                name: entries[i * 4 + 2].value,
-                artist: entries[i * 4 + 3].value
+                state: cols[0].value,
+                id: cols[1].value,
+                name: cols[2].value,
+                artist: cols[3].value
             };
             tracks.push(track);
         }
@@ -62,12 +66,21 @@ let album_update = {
     },
     addTrackTb: function () {
         let addTagStr = `<tr>
-                <td><input name="track" class="form-control" type="text" value="I"/></td>
-                <td><input name="track" class="form-control" type="text"/></td>
-                <td><input name="track" class="form-control" type="text"/></td>
-                <td><input name="track" class="form-control" type="text"/></td>
+                <td><input name="track_state" class="form-control" type="text" value="I"/></td>
+                <td><input name="track_id" class="form-control" type="text"/></td>
+                <td><input name="track_name" class="form-control" type="text"/></td>
+                <td><input name="track_artist" class="form-control" type="text"/></td>
+                <td><button class="btn btn-danger" role="button" onclick="album_update.removeTrack(this)">삭제</button></td>
             </tr>`;
         $('#tbody').prepend(addTagStr);
+    },
+    removeTrack: function (btn) {
+        let row = $(btn).closest('tr');
+        let state = $(row).find('input[name="track_state"]');
+        if(state.val() == 'I')
+            row.remove();
+        else
+            state.val("D");
     }
 };
 album_update.init();

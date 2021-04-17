@@ -33,16 +33,18 @@
             <th>ID</th>
             <th>트랙 이름</th>
             <th>아티스트</th>
+            <th></th>
         </tr>
         </thead>
         <tbody id="tbody">
 
         {{#tracks}}
             <tr>
-                <td><input name="track" class="form-control" type="text"/></td>
-                <td><input name="track" class="form-control" type="text" value="{{id}}"/></td>
-                <td><input name="track" class="form-control" type="text" value="{{name}}"/></td>
-                <td><input name="track" class="form-control" type="text" value="{{artist}}"/></td>
+                <td><input name="track_state" class="form-control" type="text"/></td>
+                <td><input name="track_id" class="form-control" type="text" value="{{id}}"/></td>
+                <td><input name="track_name" class="form-control" type="text" value="{{name}}"/></td>
+                <td><input name="track_artist" class="form-control" type="text" value="{{artist}}"/></td>
+                <td><button class="btn btn-danger" role="button" onclick="album_update.removeTrack(this)">삭제</button></td>
             </tr>
         {{/tracks}}
         </tbody>
