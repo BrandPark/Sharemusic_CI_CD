@@ -1,0 +1,23 @@
+{{>layout/header}}
+<h2>last.fm 검색기능 테스트</h2>
+<div class="col-md-12">
+    <div class="col-md-12">
+        <div class="form-inline mb-sm-2">
+            <label for="name" class="mr-sm-2">아티스트로 검색</label>
+            <input type="text" class="form-control" id="search_artist"/>
+        </div>
+        <div class="form-inline mb-sm-2">
+            <label for="name" class="mr-sm-2">트랙으로 검색</label>
+            <input type="text" class="form-control" id="search_track"/>
+        </div>
+
+        <div class="list-group" id="search-list">
+
+        </div>
+        <button type="button" class="btn btn-primary " id="btn-search">검색</button>
+        <a href="/" class="btn btn-primary">뒤로</a>
+    </div>
+</div>
+{{>layout/footer}}
+
+

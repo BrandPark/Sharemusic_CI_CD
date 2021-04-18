@@ -37,16 +37,17 @@ public class AlbumApiControllerTest {
     @Autowired TrackRepository trackRepository;
 
     AlbumSaveRequestDto albumSaveRequestDto;
-    TrackSaveRequestDto trackSaveRequestDto;
-    TrackSaveRequestDto trackSaveRequestDto2;
+    String albumName = "앨범";
+    String trackName = "트랙";
+    String trackArtist = "아티";
 
     @Before
     public void setUp() {
-        albumSaveRequestDto = AlbumSaveRequestDto.builder().name("앨범").build();
-        trackSaveRequestDto = TrackSaveRequestDto.builder().name("트랙").artist("아티").build();
-        trackSaveRequestDto2 = TrackSaveRequestDto.builder().name("트랙").artist("아티").build();
-        albumSaveRequestDto.getTracks().add(trackSaveRequestDto);
-        albumSaveRequestDto.getTracks().add(trackSaveRequestDto2);
+        albumSaveRequestDto = AlbumSaveRequestDto.builder().name(albumName).build();
+
+        albumSaveRequestDto.getTracks().add(TrackSaveRequestDto.builder().name(trackName).artist(trackArtist).build());
+        albumSaveRequestDto.getTracks().add(TrackSaveRequestDto.builder().name(trackName).artist(trackArtist).build());
+        albumSaveRequestDto.getTracks().add(TrackSaveRequestDto.builder().name(trackName).artist(trackArtist).build());
     }
 
     @After
@@ -73,8 +74,8 @@ public class AlbumApiControllerTest {
         assertThat(savedAlbum.getName()).isEqualTo(albumSaveRequestDto.getName());   //앨범이름
         assertThat(savedAlbum.getTrackCount()).isEqualTo(savedTracks.size());    //앨범에 저장된 트랙 수
         //---트랙
-        assertThat(savedTracks.get(0).getName()).isEqualTo(trackSaveRequestDto.getName());   //트랙 이름
-        assertThat(savedTracks.get(0).getArtist()).isEqualTo(trackSaveRequestDto.getArtist());   //트랙 아티스트
+        assertThat(savedTracks.get(0).getName()).isEqualTo(trackName);   //트랙 이름
+        assertThat(savedTracks.get(0).getArtist()).isEqualTo(trackArtist);   //트랙 아티스트
     }
 
     @Test
@@ -82,14 +83,17 @@ public class AlbumApiControllerTest {
         //given
         Long albumId = albumRepository.save(albumSaveRequestDto.toEntity()).getId();
         Long trackId = trackRepository.findAll().get(0).getId();
-        Long trackId2 = trackRepository.findAll().get(1).getId();
+        Long modTrackId = trackRepository.findAll().get(1).getId();
+        Long rmTrackId = trackRepository.findAll().get(2).getId();
 
         String url = "/api/albums/" + albumId;
 
         AlbumUpdateRequestDto requestDto = AlbumUpdateRequestDto.builder().name("수정앨범").build();
-        requestDto.getTracks().add(TrackUpdateRequestDto.builder().id(trackId).name("트랙").artist("아티").build());
-        requestDto.getTracks().add(TrackUpdateRequestDto.builder().id(trackId2).name("수정트랙").artist("수정아티").state("U").build());
-        requestDto.getTracks().add(TrackUpdateRequestDto.builder().name("추가트랙").artist("추가아티").state("I").build());
+
+        requestDto.getTracks().add(TrackUpdateRequestDto.builder().id(trackId).name("트랙").artist("아티").build());    //변경x
+        requestDto.getTracks().add(TrackUpdateRequestDto.builder().id(modTrackId).name("수정트랙").artist("수정아티").state("U").build());  //수정
+        requestDto.getTracks().add(TrackUpdateRequestDto.builder().id(rmTrackId).name("트랙").artist("아티").state("D").build());   //삭제
+        requestDto.getTracks().add(TrackUpdateRequestDto.builder().name("추가트랙").artist("추가아티").state("I").build()); //추가
 
         HttpEntity<AlbumUpdateRequestDto> requestEntity = new HttpEntity<>(requestDto);
 
@@ -108,8 +112,8 @@ public class AlbumApiControllerTest {
         //---트랙
         assertThat(savedTracks.size()).isEqualTo(3);    //앨범을 가리키고있는 트랙들 수
 
-        assertThat(savedTracks.get(0).getName()).isEqualTo("트랙"); //변경없는 트랙 이름
-        assertThat(savedTracks.get(0).getArtist()).isEqualTo("아티");   //변경없는 트랙 아티스트
+        assertThat(savedTracks.get(0).getName()).isEqualTo("트랙"); //변경하지 않은 트랙 이름
+        assertThat(savedTracks.get(0).getArtist()).isEqualTo("아티");   //변경하지 않은 트랙 아티스트
 
         assertThat(savedTracks.get(1).getName()).isEqualTo("수정트랙"); //변경한 트랙 이름
         assertThat(savedTracks.get(1).getArtist()).isEqualTo("수정아티");   //변경한 트랙 아티스트

@@ -38,4 +38,9 @@ public class ViewController {
     public String albumSave() {
         return "album-save";
     }
+
+    @GetMapping("/search_track")
+    public String searchTrack() {
+        return "search-track";
+    }
 }
