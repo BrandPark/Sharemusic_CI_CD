@@ -43,4 +43,7 @@ public class ViewController {
     public String searchTrack() {
         return "search-track";
     }
+
+    @GetMapping("/search_youtube")
+    public String searchYoutube(){ return "search-youtube"; }
 }

@@ -15,7 +15,6 @@ let search = {
             let searchList = $('#search-list');
 
             lastfm.artist.getTopTracks({artist: word}, {success: function(data){
-                    console.log(data);
                     /* Use data. */
                     let tracks = data['toptracks']['track'];
 
@@ -36,7 +35,6 @@ let search = {
 
             lastfm.track.search({track: word}, {success: function(data){
                     /* Use data. */
-                    console.log(data);
                     let tracks = data['results']['trackmatches']['track'];
 
                     let len = tracks.length < 8 ? tracks.length : 8;
