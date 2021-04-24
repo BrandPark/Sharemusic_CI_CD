@@ -2,6 +2,9 @@ let album_update = {
     init: function () {
         let _this = this;
 
+        $('#btn-update').on('click', function () {
+            _this.updateMode();
+        });
         $('#btn-delete-album').on('click', function () {
             _this.delete();
         });
@@ -31,6 +34,11 @@ let album_update = {
             alert(JSON.stringify(error));
         });
     },
+    updateMode: function(){
+        $('input[name^="track"]').attr('disabled',false);
+        $('input[name^="album"]').attr('disabled',false);
+        $('#btn_remove_track').attr('disabled', false);
+    },
     update: function () {
         let tracks = [];
         let rows = $('#tbody').children();
@@ -59,7 +67,7 @@ let album_update = {
             data: JSON.stringify(album)
         }).done(function () {
             alert("수정되었습니다.");
-            window.location.href = '/';
+            window.location.href = '/albums/' + albumId;
         }).fail(function (error) {
             alert(JSON.stringify(error));
         });
