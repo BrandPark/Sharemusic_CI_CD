@@ -19,6 +19,15 @@ let album_update = {
             parent.find('input[name="track_state"]').val("U");
         });
     },
+    showVideo: function(name, artist){
+        let key = "AIzaSyACOcyGt5cZQgRJh9kaMN_Vo38xG0BbFjo";
+        let q = `${artist} ${name} 음원`;
+        $.get("https://www.googleapis.com/youtube/v3/search?key=" + key + "&type=video&part=id&maxResults=1" + "&q=" + q,
+            function(data){
+                let videoId = data['items'][0]['id']['videoId'];
+                window.open(`https://www.youtube.com/embed/${videoId}?amp;autoplay=1`, "비디오 새창", "width=800, height=700, toolbar=no, menubar=no, scrollbars=no, resizable=yes" );
+            });
+    },
     delete: function () {
         let album_id = $('#album_id').val();
 
@@ -38,6 +47,7 @@ let album_update = {
         $('input[name^="track"]').attr('disabled',false);
         $('input[name^="album"]').attr('disabled',false);
         $('#btn_remove_track').attr('disabled', false);
+        $('#tbody tr').off();
     },
     update: function () {
         let tracks = [];

@@ -27,7 +27,7 @@
     <br>
     <button id="btn-add-track-tb" class="btn btn-primary mb-sm-2" role="button">트랙 추가</button>
 
-    <table class="table table-horizontal table-bordered">
+    <table class="table table-horizontal table-bordered .table-hover">
         <thead class="thead-strong">
         <tr>
             <th>STATE</th>
@@ -40,12 +40,12 @@
         <tbody id="tbody">
 
         {{#tracks}}
-            <tr>
+            <tr onclick="album_update.showVideo('{{name}}', '{{artist}}')">
                 <td><input disabled name="track_state" class="form-control" type="text"/></td>
                 <td><input disabled name="track_id" class="form-control" type="text" value="{{id}}"/></td>
                 <td><input disabled name="track_name" class="form-control" type="text" value="{{name}}"/></td>
                 <td><input disabled name="track_artist" class="form-control" type="text" value="{{artist}}"/></td>
-                <td><button disabled id="btn_remove_track" class="btn btn-danger" role="button" onclick="album_update.removeTrack(this)">삭제</button></td>
+                <td><button id="btn_remove_track" class="btn btn-danger" role="button" onclick="album_update.removeTrack(this)">삭제</button></td>
             </tr>
         {{/tracks}}
         </tbody>
