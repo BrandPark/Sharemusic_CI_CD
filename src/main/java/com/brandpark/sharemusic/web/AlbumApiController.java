@@ -4,8 +4,8 @@ import com.brandpark.sharemusic.service.albums.AlbumApiService;
 import com.brandpark.sharemusic.web.dto.albums.AlbumSaveRequestDto;
 import com.brandpark.sharemusic.web.dto.albums.AlbumUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 

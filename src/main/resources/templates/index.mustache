@@ -5,6 +5,15 @@
     <a href="/search_track" class="btn btn-primary" role="button">트랙검색</a>
     <a href="/search_youtube" class="btn btn-primary" role="button">영상검색</a>
 </div>
+<div class="col-md-12">
+    {{#userName}}
+        Logged in as: <span id="user">{{userName}}</span>
+        <a href="/logout" class="btn btn-info active mt-sm-2" role="button">Logout</a>
+    {{/userName}}
+    {{^userName}}
+        <a href="/oauth2/authorization/google" class="btn btn-success active mt-sm-2" role="button">Google Login</a>
+    {{/userName}}
+</div>
 <br>
 <table class="table table-horizontal table-bordered">
     <thead class="thead-strong">

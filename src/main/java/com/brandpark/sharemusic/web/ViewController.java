@@ -1,5 +1,6 @@
 package com.brandpark.sharemusic.web;
 
+import com.brandpark.sharemusic.config.auth.dto.SessionUser;
 import com.brandpark.sharemusic.service.albums.AlbumApiService;
 import com.brandpark.sharemusic.web.dto.albums.AlbumResponseDto;
 import com.brandpark.sharemusic.web.dto.tracks.TrackResponseDto;
@@ -9,17 +10,23 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
 public class ViewController {
 
+    private final HttpSession httpSession;
     private final AlbumApiService albumApiService;
 
     @GetMapping("/")
     public String index(Model model) {
         model.addAttribute("albums", albumApiService.findAllDesc());
+        SessionUser user = (SessionUser) httpSession.getAttribute("user");
+        if(user != null)
+            model.addAttribute("userName", user.getName());
+
         return "index";
     }
 
