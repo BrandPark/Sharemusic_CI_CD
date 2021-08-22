@@ -3,11 +3,11 @@ package com.brandpark.sharemusic.domain.user;
 import com.brandpark.sharemusic.domain.BaseTimeEntity;
 import com.brandpark.sharemusic.domain.Role;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,13 +30,23 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_name")
     private String name;
 
-    @Email
-    private String email;
-
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private String email;
     private String nickname;
+    private String password;
     private String imgUrl;
     private String intro;
+
+    @Builder
+    private User(String name, Role role, String email, String nickname, String imgUrl, String intro, String password) {
+        this.name = name;
+        this.role = role;
+        this.email = email;
+        this.nickname = nickname;
+        this.password = password;
+        this.imgUrl = imgUrl;
+        this.intro = intro;
+    }
 }
