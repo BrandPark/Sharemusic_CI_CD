@@ -22,17 +22,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class AlbumServiceTest {
 
-    @Autowired
-    AlbumService albumService;
-
-    @Autowired
-    AlbumRepository albumRepository;
-
-    @Autowired
-    EntityManager em;
+    @Autowired AlbumService albumService;
+    @Autowired AlbumRepository albumRepository;
+    @Autowired EntityManager em;
 
     @Test
-    public void Album이_저장된다() throws Exception {
+    public void 앨범이_저장된다() throws Exception {
         // given
         List<TrackSaveRequestDto> trackDtos = new ArrayList<>(Collections.singletonList(createTrackDto()));
 
@@ -57,6 +52,22 @@ class AlbumServiceTest {
         assertThat(findTracks.get(0).getImgUrl()).isEqualTo(trackDtos.get(0).getImgUrl());
         assertThat(findTracks.get(0).getName()).isEqualTo(trackDtos.get(0).getName());
         assertThat(findTracks.get(0).getVideoUrl()).isEqualTo(trackDtos.get(0).getVideoUrl());
+    }
+
+    @Test
+    public void 앨범이_삭제된다() throws Exception {
+        // given
+        Album album = Album.createAlbum("title", "imgUrl", null, null);
+        em.persist(album);
+        persistToDb();
+
+        // when
+        albumService.deleteAlbum(album.getId());
+        persistToDb();
+
+        // then
+        Album findAlbum = em.find(Album.class, album.getId());
+        assertThat(findAlbum).isNull();
     }
 
     private void persistToDb() {

@@ -1,6 +1,5 @@
 package com.brandpark.sharemusic.web.api.dto;
 
-import com.brandpark.sharemusic.domain.Role;
 import com.brandpark.sharemusic.domain.user.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,13 +25,7 @@ public class UserSaveRequestDto {
     private String password;
 
     public User toEntity() {
-        return User.builder()
-                .email(email)
-                .name(name)
-                .nickname(nickname)
-                .password(password)
-                .role(Role.USER)
-                .build();
+        return User.createUser(email, name, nickname, password);
     }
 }
 

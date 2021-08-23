@@ -3,6 +3,7 @@ package com.brandpark.sharemusic.service;
 import com.brandpark.sharemusic.domain.user.User;
 import com.brandpark.sharemusic.exception.DuplicateUserException;
 import com.brandpark.sharemusic.web.api.dto.UserSaveRequestDto;
+import com.brandpark.sharemusic.web.api.dto.UserUpdateRequestDto;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,11 +18,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class UserServiceTest {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private EntityManager em;
+    @Autowired private UserService userService;
+    @Autowired private EntityManager em;
 
     @Test
     public void 회원가입이_된다() throws Exception {
@@ -51,6 +49,31 @@ class UserServiceTest {
         assertThatThrownBy(() -> {
             userService.saveUser(createSaveDto());
         }).isInstanceOf(DuplicateUserException.class).hasMessageContaining("계정이 이미 존재합니다.");
+    }
+
+    @Test
+    public void 사용자_정보_수정() throws Exception {
+        // given
+        User user = User.createUser("email", "name", "nickname", "password");
+        em.persist(user);
+        persistToDb();
+
+        UserUpdateRequestDto requestDto = new UserUpdateRequestDto();
+        requestDto.setNickname("mod_nickname");
+        requestDto.setPassword("mod_password");
+        requestDto.setImgUrl("img");
+        requestDto.setIntro("intro");
+
+        // when
+        userService.updateProfile(user.getId(), requestDto);
+        persistToDb();
+
+        // then
+        User findUser = em.find(User.class, user.getId());
+        assertThat(findUser.getNickname()).isEqualTo(requestDto.getNickname());
+        assertThat(findUser.getPassword()).isEqualTo(requestDto.getPassword());
+        assertThat(findUser.getImgUrl()).isEqualTo(requestDto.getImgUrl());
+        assertThat(findUser.getIntro()).isEqualTo(requestDto.getIntro());
     }
 
     private void persistToDb() {

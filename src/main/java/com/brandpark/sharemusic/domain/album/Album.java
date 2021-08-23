@@ -47,12 +47,23 @@ public class Album extends BaseTimeEntity {
         Album album = new Album();
         album.title = title;
         album.imgUrl = imgUrl;
-        for (Track track : tracks) {
-            album.addTrack(track);
+        if(tracks != null){
+            for (Track track : tracks) {
+                album.addTrack(track);
+            }
         }
 
-        album.themes.addAll(themes);
+        if (themes != null) {
+            album.themes.addAll(themes);
+        }
 
         return album;
+    }
+
+    public void update(String title, String imgUrl, Set<Theme> themes) {
+        this.title = title;
+        this.imgUrl = imgUrl;
+        this.themes.clear();
+        this.themes.addAll(themes);
     }
 }

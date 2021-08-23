@@ -28,4 +28,17 @@ public class Comment extends BaseTimeEntity {
     private Album album;
 
     private String contents;
+
+    public static Comment createComment(Album album, User user, String contents) {
+        Comment comment = new Comment();
+        comment.album = album;
+        comment.user = user;
+        comment.contents = contents;
+
+        return comment;
+    }
+
+    public void update(String contents) {
+        this.contents = contents;
+    }
 }

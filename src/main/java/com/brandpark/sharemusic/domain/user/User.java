@@ -3,7 +3,6 @@ package com.brandpark.sharemusic.domain.user;
 import com.brandpark.sharemusic.domain.BaseTimeEntity;
 import com.brandpark.sharemusic.domain.Role;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,14 +38,20 @@ public class User extends BaseTimeEntity {
     private String imgUrl;
     private String intro;
 
-    @Builder
-    private User(String name, Role role, String email, String nickname, String imgUrl, String intro, String password) {
-        this.name = name;
-        this.role = role;
-        this.email = email;
+    public static User createUser(String email, String name, String nickname, String password) {
+        User user = new User();
+        user.email = email;
+        user.name = name;
+        user.nickname = nickname;
+        user.password = password;
+
+        return user;
+    }
+
+    public void updateProfile(String nickname, String imgUrl, String password, String intro) {
         this.nickname = nickname;
-        this.password = password;
         this.imgUrl = imgUrl;
+        this.password = password;
         this.intro = intro;
     }
 }
