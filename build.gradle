@@ -2,6 +2,7 @@ plugins {
     id 'org.springframework.boot' version '2.4.9'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
+    id "com.moowork.node" version "1.3.1"
 }
 
 group 'com.brandpark.sharemusic'
@@ -27,6 +28,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.6.3")
+
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'
@@ -36,6 +38,21 @@ dependencies {
     testImplementation ('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
+}
+
+apply plugin: "com.moowork.node"
+
+// task 등록
+tasks.register("npm-install") {
+    group = "application"
+    description = "Installs dependencies from package.json"
+    tasks.appNpmInstall.exec();
+}
+
+task appNpmInstall(type: NpmTask) {
+    description = "Installs dependencies from pacakage.json"
+    workingDir = file("/src/main/resources/static")
+    args = ["install"]
 }
 
 test {

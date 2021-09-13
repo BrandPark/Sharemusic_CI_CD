@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.domain.user;
 
 import com.brandpark.sharemusic.domain.BaseTimeEntity;
-import com.brandpark.sharemusic.account.Role;
+import com.brandpark.sharemusic.account.domain.Role;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

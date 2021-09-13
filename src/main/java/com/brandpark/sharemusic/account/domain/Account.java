@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.account;
+package com.brandpark.sharemusic.account.domain;
 
 import com.brandpark.sharemusic.domain.BaseTimeEntity;
 import lombok.*;
