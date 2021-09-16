@@ -14,7 +14,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .mvcMatchers("/").authenticated()
+                .mvcMatchers("/accounts/signup").permitAll()
                 .anyRequest().authenticated();
 
         http.formLogin()
@@ -24,7 +24,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
-                .mvcMatchers("/node_modules/**")
+                .mvcMatchers("/node_modules/**", "/custom/**")
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
 
     }
