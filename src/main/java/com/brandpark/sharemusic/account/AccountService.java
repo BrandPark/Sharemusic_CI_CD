@@ -4,9 +4,14 @@ import com.brandpark.sharemusic.account.domain.Account;
 import com.brandpark.sharemusic.account.domain.AccountRepository;
 import com.brandpark.sharemusic.account.domain.Role;
 import com.brandpark.sharemusic.account.form.SignUpForm;
+import com.brandpark.sharemusic.infra.mail.MailMessage;
+import com.brandpark.sharemusic.infra.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,17 +30,22 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final MailService mailService;
 
     @Transactional
-    public Account createAccount(SignUpForm form) {
+    public Account processCreateAccount(SignUpForm form) {
 
-        form.setPassword(passwordEncoder.encode(form.getPassword()));
         Account newAccount = createAccountImpl(form);
+        accountRepository.save(newAccount);
 
-        return accountRepository.save(newAccount);
+        sendEmailCheckMail(newAccount);
+
+        return newAccount;
     }
 
     private Account createAccountImpl(SignUpForm form) {
+
+        form.setPassword(passwordEncoder.encode(form.getPassword()));
 
         Account newAccount = modelMapper.map(form, Account.class);
         newAccount.generateEmailCheckToken();
@@ -61,5 +71,25 @@ public class AccountService implements UserDetailsService {
                 , account.getPassword()
                 , Collections.singleton(new SimpleGrantedAuthority(account.getRole().getKey()))
         );
+    }
+
+    public void login(Account newAccount) {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                newAccount.getEmail()
+                , newAccount.getPassword()
+                , Collections.singleton(new SimpleGrantedAuthority(newAccount.getRole().getKey()))
+        );
+
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(authenticationToken);
+    }
+
+    private void sendEmailCheckMail(Account account) {
+        MailMessage message = new MailMessage();
+        message.setText(account.getEmailCheckToken());
+        message.setTitle("ShareMusic");
+        message.setTo(account.getEmail());
+
+        mailService.send(message);
     }
 }

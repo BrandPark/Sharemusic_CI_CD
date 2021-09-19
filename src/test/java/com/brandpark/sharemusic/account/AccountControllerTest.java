@@ -90,7 +90,7 @@ class AccountControllerTest {
     @Test
     public void SignUpSubmit_Fail_When_InputDuplicateEmail() throws Exception {
         // given
-        Account savedAccount = accountService.createAccount(createForm());
+        Account savedAccount = accountService.processCreateAccount(createForm());
 
         SignUpForm form = createForm();
         form.setEmail(savedAccount.getEmail());
@@ -113,7 +113,7 @@ class AccountControllerTest {
     @Test
     public void SignUpSubmit_Fail_When_InputDuplicateNickname() throws Exception {
         // given
-        Account savedAccount = accountService.createAccount(createForm());
+        Account savedAccount = accountService.processCreateAccount(createForm());
 
         SignUpForm form = createForm();
         form.setEmail(savedAccount.getEmail() + "diff");
