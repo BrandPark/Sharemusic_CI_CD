@@ -2,12 +2,16 @@ package com.brandpark.sharemusic.account.domain;
 
 import com.brandpark.sharemusic.domain.BaseTimeEntity;
 import lombok.*;
+import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
-@Getter @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter(AccessLevel.PRIVATE)
+@NoArgsConstructor @AllArgsConstructor
 @Builder @EqualsAndHashCode(of = "id")
 public class Account extends BaseTimeEntity {
 
@@ -38,4 +42,13 @@ public class Account extends BaseTimeEntity {
     private String emailCheckToken;
 
     private LocalDateTime emailCheckTokenGeneratedAt;
+
+    public void generateEmailCheckToken() {
+        emailCheckToken = UUID.randomUUID().toString();
+        emailCheckTokenGeneratedAt = LocalDateTime.now();
+    }
+
+    public void assignRole(Role role) {
+        this.role = role;
+    }
 }
