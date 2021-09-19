@@ -19,7 +19,7 @@ public class SignUpForm {
     @Length(min = 2, max = 20, message = "이름은 2자 이상 20자 이하로 입력해 주세요.")
     private String name;
 
-    @Pattern(regexp = "^[a-zA-Zㄱ-ㅎ가-힣_-]+$", message = "영문, 한글, 특수문자(_, -)만 가능합니다.")
+    @Pattern(regexp = "^[0-9a-zA-Zㄱ-ㅎ가-힣_-]+$", message = "영문, 한글, 숫자, 특수문자(_, -)만 가능합니다.")
     @NotBlank(message = "닉네임을 입력해 주세요.")
     @Length(min = 2, max = 20, message = "닉네임은 2자 이상 20자 이하로 입력해 주세요.")
     private String nickname;

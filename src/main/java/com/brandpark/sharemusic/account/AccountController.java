@@ -6,6 +6,10 @@ import com.brandpark.sharemusic.account.validator.SignUpFormValidator;
 import com.brandpark.sharemusic.infra.mail.MailMessage;
 import com.brandpark.sharemusic.infra.mail.MailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
+import java.util.Collections;
 
 @RequiredArgsConstructor
 @RequestMapping("/accounts")
@@ -48,6 +53,14 @@ public class AccountController {
         sendEmailCheckMail(newAccount);
 
         // 5. 로그인
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                newAccount.getEmail()
+                , newAccount.getPassword()
+                , Collections.singleton(new SimpleGrantedAuthority(newAccount.getRole().getKey()))
+        );
+
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(authenticationToken);
 
         // 6. 이메일 확인 화면 보여주기
 
