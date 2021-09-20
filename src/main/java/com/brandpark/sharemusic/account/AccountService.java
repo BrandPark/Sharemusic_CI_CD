@@ -2,6 +2,7 @@ package com.brandpark.sharemusic.account;
 
 import com.brandpark.sharemusic.account.domain.Account;
 import com.brandpark.sharemusic.account.domain.AccountRepository;
+import com.brandpark.sharemusic.account.domain.CustomUserDetails;
 import com.brandpark.sharemusic.account.domain.Role;
 import com.brandpark.sharemusic.account.form.SignUpForm;
 import com.brandpark.sharemusic.infra.mail.MailMessage;
@@ -12,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,14 +33,48 @@ public class AccountService implements UserDetailsService {
     private final MailService mailService;
 
     @Transactional
-    public Account processCreateAccount(SignUpForm form) {
+    public Account createAccount(SignUpForm form) {
 
         Account newAccount = createAccountImpl(form);
         accountRepository.save(newAccount);
 
-        sendEmailCheckMail(newAccount);
-
         return newAccount;
+    }
+
+    public void login(Account newAccount) {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                new CustomUserDetails(newAccount)
+                , newAccount.getPassword()
+                , Collections.singleton(new SimpleGrantedAuthority(newAccount.getRole().getKey()))
+        );
+
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(authenticationToken);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
+
+        Account account = accountRepository.findByEmail(emailOrNickname);
+        if (account == null) {
+            account = accountRepository.findByNickname(emailOrNickname);
+        }
+
+        if (account == null) {
+            throw new UsernameNotFoundException(emailOrNickname);
+        }
+
+        return new CustomUserDetails(account);
+    }
+
+    public void sendConfirmMail(Account account) {
+
+        MailMessage message = new MailMessage();
+        message.setText(account.getEmailCheckToken());
+        message.setTitle("ShareMusic");
+        message.setTo(account.getEmail());
+
+        mailService.send(message);
     }
 
     private Account createAccountImpl(SignUpForm form) {
@@ -52,44 +86,5 @@ public class AccountService implements UserDetailsService {
         newAccount.assignRole(Role.GUEST);
 
         return newAccount;
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
-
-        Account account = accountRepository.findByEmail(emailOrNickname);
-
-        if (account == null) {
-            account = accountRepository.findByNickname(emailOrNickname);
-        }
-        if (account == null) {
-            throw new UsernameNotFoundException(emailOrNickname);
-        }
-
-        return new User(
-                emailOrNickname
-                , account.getPassword()
-                , Collections.singleton(new SimpleGrantedAuthority(account.getRole().getKey()))
-        );
-    }
-
-    public void login(Account newAccount) {
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                newAccount.getEmail()
-                , newAccount.getPassword()
-                , Collections.singleton(new SimpleGrantedAuthority(newAccount.getRole().getKey()))
-        );
-
-        SecurityContext context = SecurityContextHolder.getContext();
-        context.setAuthentication(authenticationToken);
-    }
-
-    private void sendEmailCheckMail(Account account) {
-        MailMessage message = new MailMessage();
-        message.setText(account.getEmailCheckToken());
-        message.setTitle("ShareMusic");
-        message.setTo(account.getEmail());
-
-        mailService.send(message);
     }
 }

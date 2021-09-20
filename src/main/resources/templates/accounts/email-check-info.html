@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments.html :: head"></head>
+
+<body class="background">
+<div class="container" style="padding: 10em 0;">
+    <div class="row justify-content-center py-3">
+        <h1 class="text-center">ShareMusic</h1>
+    </div>
+    <div class="row justify-content-center py-5">
+        <div class="col-md-8 text-center">
+            <h5>가입하신 아래의 메일 주소로 인증 메일을 보냈습니다.</h5>
+            <h2 class="text-nowrap bd-highlight py-3">example@email.com</h2>
+            <h5>메일을 확인하시고 <strong>"본인 인증 링크"를 클릭</strong>해 주세요.</h5>
+            <small class="text-muted">
+                인증 메일이 오지 않았나요?
+                <a class="text-decoration-none text-info font-weight-bold" th:href="@{/resend-confirm-email}">인증 메일 다시 보내기</a>
+            </small>
+        </div>
+    </div>
+    <div class="row justify-content-center py-3">
+        <a class="btn btn-outline-primary" th:href="@{/}">홈으로 이동 </a>
+    </div>
+</div>
+
+<div th:replace="fragments.html::footer"></div>
+</body>
+</html>
+

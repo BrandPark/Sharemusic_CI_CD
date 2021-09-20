@@ -6,6 +6,7 @@ import com.brandpark.sharemusic.account.domain.Role;
 import com.brandpark.sharemusic.account.form.SignUpForm;
 import com.brandpark.sharemusic.infra.mail.MailMessage;
 import com.brandpark.sharemusic.infra.mail.MailService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -35,10 +40,23 @@ class AccountControllerTest {
     @Autowired AccountRepository accountRepository;
     @Autowired PasswordEncoder passwordEncoder;
     @MockBean MailService mailService;
+    Account savedAccount;
+
+    @BeforeEach
+    public void setUp() {
+        SignUpForm form = new SignUpForm();
+        form.setEmail("savedAccount@email.com");
+        form.setName("savedAccount");
+        form.setNickname("savedAccount");
+        form.setPassword("000000000");
+        form.setConfirmPassword("000000000");
+
+        savedAccount = accountService.createAccount(form);
+    }
 
     @DisplayName("회원가입 화면출력")
     @Test
-    public void signUpForm() throws Exception {
+    public void SignUpForm() throws Exception {
         mockMvc.perform(get("/accounts/signup"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("signUpForm"))
@@ -62,7 +80,8 @@ class AccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeHasFieldErrorCode("signUpForm", "email", "Email"))
-                .andExpect(view().name("accounts/signup"));
+                .andExpect(view().name("accounts/signup"))
+                .andExpect(unauthenticated());
     }
 
     @DisplayName("회원가입 처리 - 입력 값 오류 (password 불일치)")
@@ -83,15 +102,14 @@ class AccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeHasFieldErrorCode("signUpForm", "confirmPassword", "error.confirmPassword"))
-                .andExpect(view().name("accounts/signup"));
+                .andExpect(view().name("accounts/signup"))
+                .andExpect(unauthenticated());
     }
 
     @DisplayName("회원가입 처리 - 입력 값 오류 (email 중복)")
     @Test
     public void SignUpSubmit_Fail_When_InputDuplicateEmail() throws Exception {
         // given
-        Account savedAccount = accountService.processCreateAccount(createForm());
-
         SignUpForm form = createForm();
         form.setEmail(savedAccount.getEmail());
         form.setNickname(savedAccount.getNickname() + "diff");
@@ -106,15 +124,14 @@ class AccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeHasFieldErrorCode("signUpForm", "email", "error.email"))
-                .andExpect(view().name("accounts/signup"));
+                .andExpect(view().name("accounts/signup"))
+                .andExpect(unauthenticated());
     }
 
     @DisplayName("회원가입 처리 - 입력 값 오류 (nickname 중복)")
     @Test
     public void SignUpSubmit_Fail_When_InputDuplicateNickname() throws Exception {
         // given
-        Account savedAccount = accountService.processCreateAccount(createForm());
-
         SignUpForm form = createForm();
         form.setEmail(savedAccount.getEmail() + "diff");
         form.setNickname(savedAccount.getNickname());
@@ -129,7 +146,8 @@ class AccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeHasFieldErrorCode("signUpForm", "nickname", "error.nickname"))
-                .andExpect(view().name("accounts/signup"));
+                .andExpect(view().name("accounts/signup"))
+                .andExpect(unauthenticated());
     }
 
     @DisplayName("회원가입 처리 - 성공")
@@ -148,14 +166,29 @@ class AccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(model().hasNoErrors())
-                .andExpect(view().name("redirect:/"));
+                .andExpect(view().name("redirect:/accounts/sendmail"))
+                .andExpect(authenticated().withUsername(form.getEmail()));
 
-        Account account = accountRepository.findByEmail("example@email.com");
+        Account account = accountRepository.findByEmail(form.getEmail());
         assertThat(account).isNotNull();
         assertThat(account.getEmailCheckToken()).isNotNull();
         assertThat(account.getEmailCheckTokenGeneratedAt()).isNotNull();
         assertThat(account.getRole()).isEqualTo(Role.GUEST);
-        assertTrue(passwordEncoder.matches("123123123", account.getPassword()));
+        assertTrue(passwordEncoder.matches(form.getPassword(), account.getPassword()));
+    }
+
+    @WithUserDetails(value = "savedAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("회원 가입 후 처리 - 본인인증 메일 전송")
+    @Test
+    public void SendEmail_After_SignUp() throws Exception {
+        // given : beforeEach
+
+        // when, then
+        mockMvc.perform(get("/accounts/sendmail"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(view().name("accounts/email-check-info"))
+                .andExpect(authenticated().withUsername("savedAccount@email.com"));
 
         then(mailService).should().send(any(MailMessage.class));
     }
@@ -164,11 +197,11 @@ class AccountControllerTest {
 
         SignUpForm form = new SignUpForm();
 
-        form.setName("name");
-        form.setNickname("nickname");
-        form.setPassword("123123123");
-        form.setConfirmPassword("123123123");
-        form.setEmail("example@email.com");
+        form.setName("newAccount");
+        form.setNickname("newAccount");
+        form.setPassword("111111111");
+        form.setConfirmPassword("111111111");
+        form.setEmail("newAccount@email.com");
 
         return form;
     }
