@@ -3,7 +3,7 @@ package com.brandpark.sharemusic.account;
 import com.brandpark.sharemusic.account.domain.Account;
 import com.brandpark.sharemusic.account.domain.AccountRepository;
 import com.brandpark.sharemusic.account.domain.Role;
-import com.brandpark.sharemusic.account.form.SignUpForm;
+import com.brandpark.sharemusic.account.dto.SignUpForm;
 import com.brandpark.sharemusic.infra.mail.MailMessage;
 import com.brandpark.sharemusic.infra.mail.MailService;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +18,8 @@ import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,6 +41,7 @@ class AccountControllerTest {
     @Autowired AccountService accountService;
     @Autowired AccountRepository accountRepository;
     @Autowired PasswordEncoder passwordEncoder;
+    @Autowired EntityManager em;
     @MockBean MailService mailService;
     Account savedAccount;
 
@@ -191,6 +194,27 @@ class AccountControllerTest {
                 .andExpect(authenticated().withUsername("savedAccount@email.com"));
 
         then(mailService).should().send(any(MailMessage.class));
+    }
+
+    @WithUserDetails(value="savedAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("본인인증 처리 - 이메일 토큰 확인")
+    @Test
+    public void CheckEmailToken() throws Exception {
+        // given : beforeEach
+        // when
+        mockMvc.perform(get("/accounts/check-email-token")
+                        .param("token", savedAccount.getEmailCheckToken())
+                        .param("email", savedAccount.getEmail()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/"));
+
+        em.flush();
+        em.clear();
+
+        // then
+        Account account = accountRepository.findByEmail(savedAccount.getEmail());
+
+        assertThat(account.getRole()).isEqualTo(Role.USER);
     }
 
     private SignUpForm createForm() {

@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.account.validator;
 
 import com.brandpark.sharemusic.account.domain.AccountRepository;
-import com.brandpark.sharemusic.account.form.SignUpForm;
+import com.brandpark.sharemusic.account.dto.SignUpForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;

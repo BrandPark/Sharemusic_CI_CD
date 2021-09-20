@@ -10,6 +10,5 @@ public class ConsoleMailService implements MailService {
     @Override
     public void send(MailMessage message) {
         log.info("Send Mail : Text = {}", message.getText());
-        throw new RuntimeException("메시지 에러");
     }
 }

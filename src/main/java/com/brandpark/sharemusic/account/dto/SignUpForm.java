@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.account.form;
+package com.brandpark.sharemusic.account.dto;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;

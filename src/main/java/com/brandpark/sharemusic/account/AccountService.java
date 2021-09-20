@@ -4,7 +4,7 @@ import com.brandpark.sharemusic.account.domain.Account;
 import com.brandpark.sharemusic.account.domain.AccountRepository;
 import com.brandpark.sharemusic.account.domain.CustomUserDetails;
 import com.brandpark.sharemusic.account.domain.Role;
-import com.brandpark.sharemusic.account.form.SignUpForm;
+import com.brandpark.sharemusic.account.dto.SignUpForm;
 import com.brandpark.sharemusic.infra.mail.MailMessage;
 import com.brandpark.sharemusic.infra.mail.MailService;
 import lombok.RequiredArgsConstructor;
@@ -35,10 +35,13 @@ public class AccountService implements UserDetailsService {
     @Transactional
     public Account createAccount(SignUpForm form) {
 
-        Account newAccount = createAccountImpl(form);
-        accountRepository.save(newAccount);
+        form.setPassword(passwordEncoder.encode(form.getPassword()));
 
-        return newAccount;
+        Account newAccount = modelMapper.map(form, Account.class);
+        newAccount.generateEmailCheckToken();
+        newAccount.assignRole(Role.GUEST);
+
+        return accountRepository.save(newAccount);
     }
 
     public void login(Account newAccount) {
@@ -70,21 +73,10 @@ public class AccountService implements UserDetailsService {
     public void sendConfirmMail(Account account) {
 
         MailMessage message = new MailMessage();
-        message.setText(account.getEmailCheckToken());
+        message.setText("/accounts/check-email-token?token=" + account.getEmailCheckToken() + "&email=" + account.getEmail());
         message.setTitle("ShareMusic");
         message.setTo(account.getEmail());
 
         mailService.send(message);
-    }
-
-    private Account createAccountImpl(SignUpForm form) {
-
-        form.setPassword(passwordEncoder.encode(form.getPassword()));
-
-        Account newAccount = modelMapper.map(form, Account.class);
-        newAccount.generateEmailCheckToken();
-        newAccount.assignRole(Role.GUEST);
-
-        return newAccount;
     }
 }
