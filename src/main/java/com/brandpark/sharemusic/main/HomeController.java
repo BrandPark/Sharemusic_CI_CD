@@ -1,13 +1,21 @@
 package com.brandpark.sharemusic.main;
 
+import com.brandpark.sharemusic.account.domain.Account;
+import com.brandpark.sharemusic.account.domain.CurrentAccount;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class HomeController {
 
     @GetMapping("/")
-    public String viewHome() {
+    public String viewHome(@CurrentAccount Account account, Model model) {
+        if (account != null) {
+            model.addAttribute(account);
+        }
+
+
         return "home";
     }
 

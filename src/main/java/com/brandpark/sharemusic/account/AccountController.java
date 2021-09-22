@@ -11,16 +11,11 @@ import com.brandpark.sharemusic.account.validator.SignUpFormValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
 
 @RequiredArgsConstructor
 @RequestMapping("/accounts")
@@ -46,7 +41,6 @@ public class AccountController {
     public String signUpForm(Model model) {
 
         model.addAttribute(new SignUpForm());
-
         return "accounts/signup";
     }
 
@@ -77,16 +71,27 @@ public class AccountController {
     public String checkEmailToken(@CurrentAccount Account account, @Valid EmailCheckToken token, BindingResult errors
             , Model model) {
 
-        // TODO : 인증 링크 클릭시 로그인이 풀린상태일때 테스트
         if (errors.hasErrors()) {
             model.addAttribute(account);
             return "accounts/email-check-info";
         }
 
-        // 토큰 값이 같다면 역할을 USER 로 변경
         account.assignRole(Role.USER);
         accountRepository.save(account);
 
         return "redirect:/";
+    }
+
+    @GetMapping("/{nickname}")
+    public String profileView(@PathVariable String nickname, Model model) {
+
+        Account account = accountRepository.findByNickname(nickname);
+        if (account == null) {
+            throw new IllegalArgumentException(nickname + "은(는) 존재하지 않는 닉네임 입니다.");
+        }
+
+        model.addAttribute(account);
+
+        return "accounts/profile";
     }
 }

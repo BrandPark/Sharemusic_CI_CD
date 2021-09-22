@@ -12,7 +12,7 @@ public class CustomUserDetails extends User {
     private Account account;
 
     public CustomUserDetails(Account account) {
-        super(account.getEmail()
+        super(account.getNickname()
                 , account.getPassword()
                 , Collections.singleton(new SimpleGrantedAuthority(account.getRole().getKey())));
 

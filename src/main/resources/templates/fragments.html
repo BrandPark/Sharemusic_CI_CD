@@ -42,7 +42,7 @@
                             <i class="fa fa-user-circle fa-lg text-white" aria-hidden="true"></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="#"><i class="fa fa-user fa-fw" aria-hidden="true"></i>&nbsp; 프로필</a>
+                            <a class="dropdown-item" th:href="@{'/accounts/' + ${#authentication.getName()}}"><i class="fa fa-user fa-fw" aria-hidden="true"></i>&nbsp; 프로필</a>
                             <a class="dropdown-item" href="#"><i class="fa fa-cog fa-fw" aria-hidden="true"></i>&nbsp; 설정</a>
                             <div class="dropdown-divider"></div>
                             <form class="form-inline my-2 my-lg-0" th:action="@{/logout}" method="post">

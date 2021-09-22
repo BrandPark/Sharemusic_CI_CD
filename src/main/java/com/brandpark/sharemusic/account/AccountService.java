@@ -5,6 +5,7 @@ import com.brandpark.sharemusic.account.domain.AccountRepository;
 import com.brandpark.sharemusic.account.domain.CustomUserDetails;
 import com.brandpark.sharemusic.account.domain.Role;
 import com.brandpark.sharemusic.account.dto.SignUpForm;
+import com.brandpark.sharemusic.account.dto.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.infra.mail.MailMessage;
 import com.brandpark.sharemusic.infra.mail.MailService;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,7 @@ public class AccountService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
 
-        Account account = accountRepository.findByEmail(emailOrNickname);
+         Account account = accountRepository.findByEmail(emailOrNickname);
         if (account == null) {
             account = accountRepository.findByNickname(emailOrNickname);
         }
@@ -78,5 +79,11 @@ public class AccountService implements UserDetailsService {
         message.setTo(account.getEmail());
 
         mailService.send(message);
+    }
+
+    @Transactional
+    public void updateBasicInfo(UpdateBasicInfoForm form, Account account) {
+        Account persistAccount = accountRepository.findById(account.getId()).get();
+        modelMapper.map(form, account);
     }
 }
