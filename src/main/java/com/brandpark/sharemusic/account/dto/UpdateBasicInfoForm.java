@@ -9,6 +9,8 @@ import javax.validation.constraints.Pattern;
 @Data
 public class UpdateBasicInfoForm {
 
+    private String email;
+
     @Pattern(regexp = "^[a-zA-Zㄱ-ㅎ가-힣]+$", message = "영문, 한글만 가능합니다.")
     @NotBlank(message = "이름을 입력해 주세요.")
     @Length(min = 2, max = 20, message = "이름은 2자 이상 20자 이하로 입력해 주세요.")
