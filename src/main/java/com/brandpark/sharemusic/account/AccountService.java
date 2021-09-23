@@ -6,6 +6,7 @@ import com.brandpark.sharemusic.account.domain.CustomUserDetails;
 import com.brandpark.sharemusic.account.domain.Role;
 import com.brandpark.sharemusic.account.dto.SignUpForm;
 import com.brandpark.sharemusic.account.dto.UpdateBasicInfoForm;
+import com.brandpark.sharemusic.account.dto.UpdatePasswordForm;
 import com.brandpark.sharemusic.infra.mail.MailMessage;
 import com.brandpark.sharemusic.infra.mail.MailService;
 import lombok.RequiredArgsConstructor;
@@ -92,6 +93,19 @@ public class AccountService implements UserDetailsService {
         String bio = form.getBio();
         bio = bio.replaceAll("\n", "<br>");
         form.setBio(bio);
+
+        modelMapper.map(form, persistAccount);
+
+        login(persistAccount);
+    }
+
+    @Transactional
+    public void updatePassword(UpdatePasswordForm form, Account account) {
+
+        Account persistAccount = accountRepository.findById(account.getId()).get();
+
+        String encodedPassword = passwordEncoder.encode(form.getPassword());
+        form.setPassword(encodedPassword);
 
         modelMapper.map(form, persistAccount);
 

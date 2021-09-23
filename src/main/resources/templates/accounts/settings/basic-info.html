@@ -13,10 +13,7 @@
     <div class="container my-5">
         <div class="row">
             <div class="col-3">
-                <div class="list-group" role="tablist">
-                    <a class="list-group-item list-group-item-action active" th:href="@{/accounts/edit/basicinfo}">기본 정보 변경</a>
-                    <a class="list-group-item list-group-item-action" th:href="@{/accounts/edit/profileimg}">프로필 사진 변경</a>
-                    <a class="list-group-item list-group-item-action" th:href="@{/accounts/edit/password}">비밀번호 변경</a>
+                <div th:replace="fragments.html::accountSettingList('basicInfo')">
                 </div>
             </div>
             <div class="col-9">

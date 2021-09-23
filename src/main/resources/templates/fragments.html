@@ -56,6 +56,13 @@
             </div>
         </div>
     </nav>
+
+    <div th:fragment="accountSettingList (currentMenu)" class="list-group" role="tablist">
+        <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'basicInfo'} ? active" th:href="@{/accounts/edit/basicinfo}">기본 정보 변경</a>
+        <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'profileImg'} ? active" th:href="@{/accounts/edit/profileImg}">프로필 사진 변경</a>
+        <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'password'} ? active" th:href="@{/accounts/edit/password}">비밀번호 변경</a>
+    </div>
+
     <div th:fragment="footer">
         <script src="/node_modules/jquery/dist/jquery.min.js"></script>
         <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
