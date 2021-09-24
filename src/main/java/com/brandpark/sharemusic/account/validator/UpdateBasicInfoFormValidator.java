@@ -26,7 +26,7 @@ public class UpdateBasicInfoFormValidator implements Validator {
 
         Account account = accountRepository.findByNickname(form.getNickname());
 
-        if (account != null && account.getEmail() != form.getEmail()) {
+        if (account != null && !account.getEmail().equals(form.getEmail())) {
             errors.rejectValue("nickname", "error.nickname", "이미 존재하는 닉네임입니다.");
         }
     }

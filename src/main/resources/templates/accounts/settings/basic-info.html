@@ -16,38 +16,156 @@
                 <div th:replace="fragments.html::accountSettingList('basicInfo')">
                 </div>
             </div>
-            <div class="col-9">
-                <form th:action="@{/accounts/edit/basicinfo}" method="post" th:object="${updateBasicInfoForm}" >
+            <div class="col-9 d-flex">
+                <form class="col-7" th:action="@{/accounts/edit/basicinfo}" method="post" th:object="${updateBasicInfoForm}" >
+                    <div class="form-group">
+                        <input id="profileImage" type="hidden" th:field="*{profileImage}" class="form-control" />
+                    </div>
                     <div class="form-group row">
-                        <label class="font-weight-bold col-2 col-form-label text-right pr-4" for="name">이메일</label>
-                        <input id="email" type="text" th:field="*{email}" name="name" class="form-control col-6 text-muted" disabled/>
+                        <label class="font-weight-bold col-3 col-form-label text-right pr-4" for="email">이메일</label>
+                        <input id="email" type="email" th:field="*{email}" name="email" class="form-control col-6 text-muted" readonly/>
                         <small class="form-text text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
                     </div>
                     <div class="form-group row">
-                        <label class="font-weight-bold col-2 col-form-label text-right pr-4" for="name">이름</label>
+                        <label class="font-weight-bold col-3 col-form-label text-right pr-4" for="name">이름</label>
                         <input id="name" type="text" th:field="*{name}" name="name" class="form-control col-6"/>
                         <small class="form-text text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
                     </div>
                     <div class="form-group row">
-                        <label class="font-weight-bold col-2 col-form-label text-right pr-4" for="nickname">닉네임</label>
+                        <label class="font-weight-bold col-3 col-form-label text-right pr-4" for="nickname">닉네임</label>
                         <input id="nickname" type="text" th:field="*{nickname}" name="nickname" class="form-control col-6"/>
                         <small class="form-text text-danger" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}"></small>
                     </div>
                     <div class="form-group row">
-                        <label class="font-weight-bold col-2 col-form-label text-right pr-4" for="bio">소개</label>
+                        <label class="font-weight-bold col-3 col-form-label text-right pr-4" for="bio">소개</label>
                         <textarea id="bio" class="form-control col-6 " th:field="*{bio}" name="bio" rows="3" style="resize: none"></textarea>
                         <small class="form-text text-danger" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}"></small>
                     </div>
                     <div class="form-group row mt-5 justify-content-center">
                         <div class="col-8">
-                            <button type="submit" class="form-control btn btn-primary col-2">변경</button>
+                            <button type="submit" class="form-control btn btn-primary col-3">변경</button>
                         </div>
                     </div>
                 </form>
+                <div class="col-5">
+                    <div class="card text-center bg-light">
+                        <div class="card-header">
+                            프로필 이미지
+                        </div>
+                        <div id="current-profile-image" class="mt-3 d-flex justify-content-center">
+                            <img th:if="${#strings.isEmpty(updateBasicInfoForm.profileImage)}"
+                                 class="img-fluid float-left rounded-circle img-thumbnail p-0"
+                                 src="/images/profile-noimage.png" width="125" height="125" alt="img"/>
+                            <img th:if="${!#strings.isEmpty(updateBasicInfoForm.profileImage)}"
+                                 class="img-fluid float-left rounded-circle img-thumbnail p-0"
+                                 th:src="${updateBasicInfoForm.profileImage}" width="125" height="125" alt="img"/>
+                        </div>
+                        <div id="new-profile-image" class="mt-3"></div>
+                        <div class="card-body">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="profile-image-file">
+                                <label class="custom-file-label" for="profile-image-file">프로필 이미지 변경</label>
+                            </div>
+                            <div id="new-profile-image-control" class="mt-3">
+                                <button class="btn btn-outline-primary btn-block" id="cut-button">자르기</button>
+                                <button class="btn btn-outline-success btn-block" id="confirm-button">확인</button>
+                                <button class="btn btn-outline-warning btn-block" id="reset-button">취소</button>
+                            </div>
+                            <div id="cropped-new-profile-image" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <div th:replace="fragments.html::footer"></div>
+    <link rel="stylesheet" href="/node_modules/cropper/dist/cropper.min.css"/>
+    <script src="/node_modules/cropper/dist/cropper.min.js"></script>
+    <script src="/node_modules/jquery-cropper/dist/jquery-cropper.min.js"></script>
+    <script type="application/javascript">
+        $(function() {
+            cropper = '';
+            let $confirmBtn = $("#confirm-button");
+            let $resetBtn = $("#reset-button");
+            let $cutBtn = $("#cut-button");
+            let $newProfileImage = $("#new-profile-image");
+            let $currentProfileImage = $("#current-profile-image");
+            let $resultImage = $("#cropped-new-profile-image");
+            let $profileImage = $("#profileImage");
+
+            $newProfileImage.hide();
+            $cutBtn.hide();
+            $resetBtn.hide();
+            $confirmBtn.hide();
+
+            $("#profile-image-file").change(function(e) {
+                if (e.target.files.length === 1) {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        if (e.target.result) {
+                            if (!e.target.result.startsWith("data:image")) {
+                                alert("이미지 파일을 선택하세요.");
+                                return;
+                            }
+
+                            let img = document.createElement("img");
+                            img.id = 'new-profile';
+                            img.src = e.target.result;
+                            img.setAttribute('width', '100%');
+
+                            $newProfileImage.html(img);
+                            $newProfileImage.show();
+                            $currentProfileImage.hide();
+
+                            let $newImage = $(img);
+                            $newImage.cropper({aspectRatio: 1});
+                            cropper = $newImage.data('cropper');
+
+                            $cutBtn.show();
+                            $confirmBtn.hide();
+                            $resetBtn.show();
+                        }
+                    };
+
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+
+            $resetBtn.click(function() {
+                $currentProfileImage.show();
+                $newProfileImage.hide();
+                $resultImage.hide();
+                $resetBtn.hide();
+                $cutBtn.hide();
+                $confirmBtn.hide();
+                $profileImage.val('');
+            });
+
+            $cutBtn.click(function () {
+                let dataUrl = cropper.getCroppedCanvas().toDataURL();
+
+                if (dataUrl.length > 1000 * 1024) {
+                    alert("이미지 파일이 너무 큽니다. 1M 보다 작은 파일을 사용하세요. 현재 이미지 사이즈 " + dataUrl.length);
+                    return;
+                }
+
+                let newImage = document.createElement("img");
+                newImage.id = "cropped-new-profile-image";
+                newImage.src = dataUrl;
+                newImage.width = 125;
+                $resultImage.html(newImage);
+                $resultImage.show();
+                $confirmBtn.show();
+
+                $confirmBtn.click(function () {
+                    $newProfileImage.html(newImage);
+                    $cutBtn.hide();
+                    $confirmBtn.hide();
+                    $profileImage.val(dataUrl);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
 

@@ -23,4 +23,6 @@ public class UpdateBasicInfoForm {
 
     @Length(max = 100, message = "소개는 100자 이하로 작성해주시기 바랍니다.")
     private String bio;
+
+    private String profileImage;
 }

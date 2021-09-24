@@ -51,6 +51,7 @@ public class SettingsController {
         bio = bio.replaceAll("<br>", "\n");
         form.setBio(bio);
 
+        model.addAttribute(account);
         model.addAttribute(form);
 
         return "accounts/settings/basic-info";

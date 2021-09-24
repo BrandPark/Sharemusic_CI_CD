@@ -13,3 +13,7 @@ spring:
 logging:
   level:
     org.hibernate.SQL: DEBUG
+
+server:
+  tomcat:
+    max-http-form-post-size: 5MB
