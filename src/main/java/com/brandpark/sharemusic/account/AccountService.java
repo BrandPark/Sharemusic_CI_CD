@@ -72,6 +72,7 @@ public class AccountService implements UserDetailsService {
         return new CustomUserDetails(account);
     }
 
+    @Transactional
     public void sendConfirmMail(Account account) {
 
         MailMessage message = new MailMessage();
@@ -84,19 +85,11 @@ public class AccountService implements UserDetailsService {
 
     @Transactional
     public void updateBasicInfo(UpdateBasicInfoForm form, Account account) {
+        account = accountRepository.findByEmail(form.getEmail());
 
-        Account persistAccount = accountRepository.findById(account.getId()).get();
+        modelMapper.map(form, account);
 
-        String email = persistAccount.getEmail();
-        form.setEmail(email);
-
-        String bio = form.getBio();
-        bio = bio.replaceAll("\n", "<br>");
-        form.setBio(bio);
-
-        modelMapper.map(form, persistAccount);
-
-        login(persistAccount);
+        login(account);
     }
 
     @Transactional

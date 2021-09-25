@@ -2,10 +2,8 @@ package com.brandpark.sharemusic.account.domain;
 
 import com.brandpark.sharemusic.domain.BaseTimeEntity;
 import lombok.*;
-import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

@@ -1,11 +1,9 @@
 package com.brandpark.sharemusic.account.validator;
 
 import com.brandpark.sharemusic.account.dto.UpdatePasswordForm;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-@Component
 public class UpdatePasswordFormValidator implements Validator {
 
     @Override

@@ -168,7 +168,6 @@ class AccountControllerTest {
                         .param("confirmPassword", form.getConfirmPassword())
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(model().hasNoErrors())
                 .andExpect(view().name("redirect:/accounts/sendmail"))
                 .andExpect(authenticated().withUsername(form.getEmail()));
 
