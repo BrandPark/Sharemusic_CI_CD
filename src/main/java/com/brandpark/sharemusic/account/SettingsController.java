@@ -41,11 +41,7 @@ public class SettingsController {
 
         UpdateBasicInfoForm form = modelMapper.map(account, UpdateBasicInfoForm.class);
 
-        String bio = form.getBio();
-        if (bio != null) {
-            bio = bio.replaceAll("<br>", "\n");
-            form.setBio(bio);
-        }
+        form.setBio(NewLineUtil.toEscape(form.getBio()));
 
         model.addAttribute(account);
         model.addAttribute(form);
@@ -59,11 +55,8 @@ public class SettingsController {
 
         form.setEmail(account.getEmail());
 
-        // 같은 닉네임이 있는지 확인
         if (!account.getNickname().equals(form.getNickname())) {
-
-            Account duplicatedNicknameAccount = accountRepository.findByNickname(form.getNickname());
-            if (duplicatedNicknameAccount != null) {
+            if (accountRepository.existsByNickname(form.getNickname())) {
                 errors.rejectValue("nickname", "error.nickname", "이미 존재하는 닉네임입니다.");
             }
         }
@@ -74,12 +67,7 @@ public class SettingsController {
             return "accounts/settings/basic-info";
         }
 
-        // bio의 개행 처리
-        String bio = form.getBio();
-        if (bio != null) {
-            bio = bio.replaceAll("\n", "<br>");
-            form.setBio(bio);
-        }
+        form.setBio(NewLineUtil.toBrTag(form.getBio()));
 
         accountService.updateBasicInfo(form, account);
 
@@ -114,6 +102,22 @@ public class SettingsController {
 
         attributes.addFlashAttribute("updateMessage", "프로필이 수정되었습니다.");
         return "redirect:/accounts/edit/password";
+    }
+
+    private static abstract class NewLineUtil {
+        public static String toEscape(String text) {
+            if (text != null) {
+                text = text.replaceAll("<br>", "\n");
+            }
+            return text;
+        }
+
+        public static String toBrTag(String text) {
+            if (text != null) {
+                text = text.replaceAll("\n", "<br>");
+            }
+            return text;
+        }
     }
 }
 
