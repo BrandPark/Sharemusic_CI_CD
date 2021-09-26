@@ -9,8 +9,8 @@ import java.util.UUID;
 
 @Entity
 @Getter @Setter(AccessLevel.PRIVATE)
-@NoArgsConstructor @AllArgsConstructor
-@Builder @EqualsAndHashCode(of = "id")
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class Account extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

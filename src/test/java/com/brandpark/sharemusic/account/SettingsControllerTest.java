@@ -44,7 +44,7 @@ class SettingsControllerTest {
         form.setNickname("savedAccount");
         form.setPassword("000000000");
         form.setConfirmPassword("000000000");
-        savedAccount = accountService.createAccount(form);
+        savedAccount = accountService.signUp(form);
 
         SignUpForm form2 = new SignUpForm();
         form2.setEmail("savedAccount2@email.com");
@@ -52,7 +52,7 @@ class SettingsControllerTest {
         form2.setNickname("savedAccount2");
         form2.setPassword("000000000");
         form2.setConfirmPassword("000000000");
-        savedAccount2 = accountService.createAccount(form2);
+        savedAccount2 = accountService.signUp(form2);
     }
 
     @WithUserDetails(value = "savedAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)

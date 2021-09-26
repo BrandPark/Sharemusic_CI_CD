@@ -35,18 +35,26 @@ public class AccountService implements UserDetailsService {
     private final MailService mailService;
 
     @Transactional
-    public Account createAccount(SignUpForm form) {
+    public Account signUp(SignUpForm form) {
 
+        Account newAccount = createAccount(form);
+
+        login(newAccount);
+        return newAccount;
+    }
+
+    public Account createAccount(SignUpForm form) {
         form.setPassword(passwordEncoder.encode(form.getPassword()));
 
         Account newAccount = modelMapper.map(form, Account.class);
         newAccount.generateEmailCheckToken();
         newAccount.assignRole(Role.GUEST);
+        accountRepository.save(newAccount);
 
-        return accountRepository.save(newAccount);
+        return newAccount;
     }
 
-    public void login(Account newAccount) {
+    private void login(Account newAccount) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 new CustomUserDetails(newAccount)
                 , newAccount.getPassword()
@@ -103,5 +111,12 @@ public class AccountService implements UserDetailsService {
         modelMapper.map(form, persistAccount);
 
         login(persistAccount);
+    }
+
+    public void succeedVerifyEmailCheckToken(Account account) {
+        account.assignRole(Role.USER);
+        accountRepository.save(account);
+
+        login(account);
     }
 }

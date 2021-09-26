@@ -169,7 +169,7 @@ class AccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/accounts/sendmail"))
-                .andExpect(authenticated().withUsername(form.getEmail()));
+                .andExpect(authenticated().withUsername(form.getNickname()));
 
         Account account = accountRepository.findByEmail(form.getEmail());
         assertThat(account).isNotNull();
@@ -190,15 +190,15 @@ class AccountControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("account"))
                 .andExpect(view().name("accounts/email-check-info"))
-                .andExpect(authenticated().withUsername("savedAccount@email.com"));
+                .andExpect(authenticated().withUsername("savedAccount"));
 
         then(mailService).should().send(any(MailMessage.class));
     }
 
     @WithUserDetails(value="savedAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    @DisplayName("본인인증 처리 - 이메일 토큰 확인")
+    @DisplayName("인증메일 검증 - 성공")
     @Test
-    public void CheckEmailToken() throws Exception {
+    public void VerifyEmailLink_Success() throws Exception {
         // given : beforeEach
         // when
         mockMvc.perform(get("/accounts/check-email-token")

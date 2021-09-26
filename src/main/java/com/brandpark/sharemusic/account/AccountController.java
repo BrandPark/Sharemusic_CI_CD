@@ -3,17 +3,17 @@ package com.brandpark.sharemusic.account;
 import com.brandpark.sharemusic.account.domain.Account;
 import com.brandpark.sharemusic.account.domain.AccountRepository;
 import com.brandpark.sharemusic.account.domain.CurrentAccount;
-import com.brandpark.sharemusic.account.domain.Role;
-import com.brandpark.sharemusic.account.dto.EmailCheckToken;
+import com.brandpark.sharemusic.account.dto.VerifyEmailLink;
 import com.brandpark.sharemusic.account.dto.SignUpForm;
-import com.brandpark.sharemusic.account.validator.EmailCheckTokenValidator;
-import com.brandpark.sharemusic.account.validator.SignUpFormValidator;
+import com.brandpark.sharemusic.account.validator.Validation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
 
@@ -24,18 +24,7 @@ public class AccountController {
 
     private final AccountService accountService;
     private final AccountRepository accountRepository;
-    private final SignUpFormValidator signUpFormValidator;
-    private final EmailCheckTokenValidator emailCheckTokenValidator;
-
-    @InitBinder("signUpForm")
-    public void initSignUpForm(WebDataBinder webDataBinder) {
-        webDataBinder.addValidators(signUpFormValidator);
-    }
-
-    @InitBinder("emailCheckToken")
-    public void initEmailCheckToken(WebDataBinder webDataBinder) {
-        webDataBinder.addValidators(emailCheckTokenValidator);
-    }
+    private final Validation validation;
 
     @GetMapping("/signup")
     public String signUpForm(Model model) {
@@ -47,12 +36,12 @@ public class AccountController {
     @PostMapping("/signup")
     public String signUpSubmit(@Valid SignUpForm form, BindingResult errors) {
 
+        validation.validateSignUpForm(form, errors);
         if (errors.hasErrors()) {
             return "accounts/signup";
         }
 
-        Account newAccount = accountService.createAccount(form);
-        accountService.login(newAccount);
+        Account newAccount = accountService.signUp(form);
 
         return "redirect:/accounts/sendmail";
     }
@@ -68,16 +57,11 @@ public class AccountController {
     }
 
     @GetMapping("/check-email-token")
-    public String checkEmailToken(@CurrentAccount Account account, @Valid EmailCheckToken token, BindingResult errors
-            , Model model) {
+    public String checkVerifyEmailLink(@CurrentAccount Account account, VerifyEmailLink link, Model model) {
 
-        if (errors.hasErrors()) {
-            model.addAttribute(account);
-            return "accounts/email-check-info";
-        }
+        validation.validateVerifyEmailLink(link.getToken(), link.getEmail());
 
-        account.assignRole(Role.USER);
-        accountRepository.save(account);
+        accountService.succeedVerifyEmailCheckToken(account);
 
         return "redirect:/";
     }
