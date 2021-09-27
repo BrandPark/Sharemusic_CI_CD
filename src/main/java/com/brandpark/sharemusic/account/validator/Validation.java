@@ -61,14 +61,14 @@ public class Validation {
         }
     }
 
-    public void validateVerifyEmailLink(String token, String email) {
+    public void validateVerifyEmailLink(String token, String email, BindingResult errors) {
         if (!StringUtils.hasText(token) || !StringUtils.hasText(email)) {
-            throw new IllegalArgumentException("유효하지 않은 링크입니다.");
+            errors.reject("error.verifyEmailLink", "유효하지않은 링크입니다.");
         }
 
         Account accountByEmail = accountRepository.findByEmail(email);
         if (accountByEmail == null || !accountByEmail.getEmailCheckToken().equals(token)) {
-            throw new IllegalArgumentException("토큰정보가 일치하지 않습니다.");
+            errors.reject("error.verifyEmailToken", "토큰정보가 일치하지 않습니다.");
         }
     }
 }

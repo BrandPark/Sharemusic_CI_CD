@@ -5,6 +5,7 @@ import com.brandpark.sharemusic.account.domain.AccountRepository;
 import com.brandpark.sharemusic.account.dto.SignUpForm;
 import com.brandpark.sharemusic.account.dto.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.account.dto.UpdatePasswordForm;
+import com.brandpark.sharemusic.account.service.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

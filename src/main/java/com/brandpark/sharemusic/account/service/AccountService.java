@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.account;
+package com.brandpark.sharemusic.account.service;
 
 import com.brandpark.sharemusic.account.domain.Account;
 import com.brandpark.sharemusic.account.domain.AccountRepository;
@@ -7,8 +7,6 @@ import com.brandpark.sharemusic.account.domain.Role;
 import com.brandpark.sharemusic.account.dto.SignUpForm;
 import com.brandpark.sharemusic.account.dto.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.account.dto.UpdatePasswordForm;
-import com.brandpark.sharemusic.infra.mail.MailMessage;
-import com.brandpark.sharemusic.infra.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,7 +30,6 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
-    private final MailService mailService;
 
     @Transactional
     public Account signUp(SignUpForm form) {
@@ -54,7 +51,7 @@ public class AccountService implements UserDetailsService {
         return newAccount;
     }
 
-    private void login(Account newAccount) {
+    public void login(Account newAccount) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 new CustomUserDetails(newAccount)
                 , newAccount.getPassword()
@@ -81,17 +78,6 @@ public class AccountService implements UserDetailsService {
     }
 
     @Transactional
-    public void sendConfirmMail(Account account) {
-
-        MailMessage message = new MailMessage();
-        message.setText("/accounts/check-email-token?token=" + account.getEmailCheckToken() + "&email=" + account.getEmail());
-        message.setTitle("ShareMusic");
-        message.setTo(account.getEmail());
-
-        mailService.send(message);
-    }
-
-    @Transactional
     public void updateBasicInfo(UpdateBasicInfoForm form, Account account) {
         account = accountRepository.findByEmail(form.getEmail());
 
@@ -111,12 +97,5 @@ public class AccountService implements UserDetailsService {
         modelMapper.map(form, persistAccount);
 
         login(persistAccount);
-    }
-
-    public void succeedVerifyEmailCheckToken(Account account) {
-        account.assignRole(Role.USER);
-        accountRepository.save(account);
-
-        login(account);
     }
 }

@@ -2,9 +2,9 @@ package com.brandpark.sharemusic.account;
 
 import com.brandpark.sharemusic.account.domain.Account;
 import com.brandpark.sharemusic.account.domain.AccountRepository;
-import com.brandpark.sharemusic.account.domain.CurrentAccount;
-import com.brandpark.sharemusic.account.dto.VerifyEmailLink;
 import com.brandpark.sharemusic.account.dto.SignUpForm;
+import com.brandpark.sharemusic.account.service.AccountService;
+import com.brandpark.sharemusic.account.service.VerifyMailService;
 import com.brandpark.sharemusic.account.validator.Validation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -23,6 +23,7 @@ import javax.validation.Valid;
 public class AccountController {
 
     private final AccountService accountService;
+    private final VerifyMailService verifyMailService;
     private final AccountRepository accountRepository;
     private final Validation validation;
 
@@ -42,28 +43,9 @@ public class AccountController {
         }
 
         Account newAccount = accountService.signUp(form);
+        verifyMailService.sendConfirmMail(newAccount);
 
-        return "redirect:/accounts/sendmail";
-    }
-
-    @GetMapping("/sendmail")
-    public String sendMail(@CurrentAccount Account account, Model model) {
-
-        accountService.sendConfirmMail(account);
-
-        model.addAttribute(account);
-
-        return "accounts/email-check-info";
-    }
-
-    @GetMapping("/check-email-token")
-    public String checkVerifyEmailLink(@CurrentAccount Account account, VerifyEmailLink link, Model model) {
-
-        validation.validateVerifyEmailLink(link.getToken(), link.getEmail());
-
-        accountService.succeedVerifyEmailCheckToken(account);
-
-        return "redirect:/";
+        return "redirect:/send-mail-info";
     }
 
     @GetMapping("/{nickname}")

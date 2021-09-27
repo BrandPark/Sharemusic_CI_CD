@@ -4,6 +4,7 @@ import com.brandpark.sharemusic.account.domain.Account;
 import com.brandpark.sharemusic.account.domain.AccountRepository;
 import com.brandpark.sharemusic.account.domain.Role;
 import com.brandpark.sharemusic.account.dto.SignUpForm;
+import com.brandpark.sharemusic.account.service.AccountService;
 import com.brandpark.sharemusic.infra.mail.MailMessage;
 import com.brandpark.sharemusic.infra.mail.MailService;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,12 +15,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.TestExecutionEvent;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,7 +38,6 @@ class AccountControllerTest {
     @Autowired AccountService accountService;
     @Autowired AccountRepository accountRepository;
     @Autowired PasswordEncoder passwordEncoder;
-    @Autowired EntityManager em;
     @MockBean MailService mailService;
     Account savedAccount;
 
@@ -168,8 +164,10 @@ class AccountControllerTest {
                         .param("confirmPassword", form.getConfirmPassword())
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/accounts/sendmail"))
+                .andExpect(view().name("redirect:/send-mail-info"))
                 .andExpect(authenticated().withUsername(form.getNickname()));
+
+        then(mailService).should().send(any(MailMessage.class));
 
         Account account = accountRepository.findByEmail(form.getEmail());
         assertThat(account).isNotNull();
@@ -177,43 +175,6 @@ class AccountControllerTest {
         assertThat(account.getEmailCheckTokenGeneratedAt()).isNotNull();
         assertThat(account.getRole()).isEqualTo(Role.GUEST);
         assertTrue(passwordEncoder.matches(form.getPassword(), account.getPassword()));
-    }
-
-    @WithUserDetails(value = "savedAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    @DisplayName("회원 가입 후 처리 - 본인인증 메일 전송")
-    @Test
-    public void SendEmail_After_SignUp() throws Exception {
-        // given : beforeEach
-
-        // when, then
-        mockMvc.perform(get("/accounts/sendmail"))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("account"))
-                .andExpect(view().name("accounts/email-check-info"))
-                .andExpect(authenticated().withUsername("savedAccount"));
-
-        then(mailService).should().send(any(MailMessage.class));
-    }
-
-    @WithUserDetails(value="savedAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    @DisplayName("인증메일 검증 - 성공")
-    @Test
-    public void VerifyEmailLink_Success() throws Exception {
-        // given : beforeEach
-        // when
-        mockMvc.perform(get("/accounts/check-email-token")
-                        .param("token", savedAccount.getEmailCheckToken())
-                        .param("email", savedAccount.getEmail()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/"));
-
-        em.flush();
-        em.clear();
-
-        // then
-        Account account = accountRepository.findByEmail(savedAccount.getEmail());
-
-        assertThat(account.getRole()).isEqualTo(Role.USER);
     }
 
     private SignUpForm createForm() {
