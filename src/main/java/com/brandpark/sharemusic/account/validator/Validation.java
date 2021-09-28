@@ -2,6 +2,7 @@ package com.brandpark.sharemusic.account.validator;
 
 import com.brandpark.sharemusic.account.domain.Account;
 import com.brandpark.sharemusic.account.domain.AccountRepository;
+import com.brandpark.sharemusic.account.domain.Role;
 import com.brandpark.sharemusic.account.dto.SignUpForm;
 import com.brandpark.sharemusic.account.dto.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.account.dto.UpdatePasswordForm;
@@ -62,13 +63,24 @@ public class Validation {
     }
 
     public void validateVerifyEmailLink(String token, String email, BindingResult errors) {
+
         if (!StringUtils.hasText(token) || !StringUtils.hasText(email)) {
-            errors.reject("error.verifyEmailLink", "유효하지않은 링크입니다.");
+
+            String message = "유효하지 않은 링크입니다. 메일 재전송 버튼을 눌러주세요.";
+            errors.reject("error.verifyEmailLink", message);
         }
 
         Account accountByEmail = accountRepository.findByEmail(email);
         if (accountByEmail == null || !accountByEmail.getEmailCheckToken().equals(token)) {
-            errors.reject("error.verifyEmailToken", "토큰정보가 일치하지 않습니다.");
+
+            String message = "발신자 신원을 확인할 수 없습니다. 메일 재전송 버튼을 눌러주세요.";
+            errors.reject("error.notValidToken", message);
+        }
+
+        if (accountByEmail.getRole() == Role.USER) {
+
+            String message = "이미 인증이 완료된 계정입니다.";
+            errors.reject("error.alreadyVerified", message);
         }
     }
 }

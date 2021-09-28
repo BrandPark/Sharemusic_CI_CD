@@ -13,15 +13,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        // Authentication
         http.authorizeRequests()
-                .mvcMatchers("/", "/accounts/signup").permitAll()
-                .anyRequest().authenticated();
+                .mvcMatchers("/", "/accounts/signup").permitAll();
 
+        // Role
+        http.authorizeRequests()
+                .mvcMatchers("/verify-email-result").hasRole("USER");
+
+        // login & logout
         http.formLogin()
                 .loginPage("/login").permitAll()
                 .and()
                 .logout().logoutSuccessUrl("/");
-
     }
 
     @Override
@@ -29,6 +33,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         web.ignoring()
                 .mvcMatchers("/node_modules/**", "/custom/**")
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
-
     }
 }

@@ -14,8 +14,10 @@
             <h2 th:text="${account.email}" class="text-nowrap bd-highlight py-3">example@email.com</h2>
             <h5>메일을 확인하시고 <strong>"본인 인증 링크"를 클릭</strong>해 주세요.</h5>
             <small class="text-muted">
-                인증 메일이 오지 않았나요?
-                <a class="text-decoration-none text-info font-weight-bold" href="javascript:$('#resendMailForm').submit()">인증 메일 다시 보내기</a>
+                <form th:action="@{/resend-verify-mail}" class="pt-1" id="resendMailForm" method="post">
+                    인증 메일이 오지 않았나요?
+                    <a class="text-decoration-none text-info font-weight-bold" href="javascript:$('#resendMailForm').submit()">인증 메일 다시 보내기</a>
+                </form>
             </small>
         </div>
     </div>

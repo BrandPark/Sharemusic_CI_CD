@@ -2,7 +2,7 @@ package com.brandpark.sharemusic.account;
 
 import com.brandpark.sharemusic.account.domain.Account;
 import com.brandpark.sharemusic.account.domain.CurrentAccount;
-import com.brandpark.sharemusic.account.dto.VerifyEmailLink;
+import com.brandpark.sharemusic.account.dto.VerificationEmail;
 import com.brandpark.sharemusic.account.service.VerifyMailService;
 import com.brandpark.sharemusic.account.validator.Validation;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
+
 @RequiredArgsConstructor
 @Controller
 public class VerifyMailController {
@@ -20,7 +22,7 @@ public class VerifyMailController {
     private final Validation validation;
     private final VerifyMailService verifyMailService;
 
-    @PostMapping("/resend-verify-Mail")
+    @PostMapping("/resend-verify-mail")
     public String resendVerifyMail(@CurrentAccount Account account) {
 
         verifyMailService.sendConfirmMail(account);
@@ -36,10 +38,10 @@ public class VerifyMailController {
     }
 
     @GetMapping("/verify-email")
-    public String verifyEmail(@CurrentAccount Account account, VerifyEmailLink link, BindingResult errors
+    public String verifyEmail(@CurrentAccount Account account, @Valid VerificationEmail verificationEmail, BindingResult errors
             , Model model, RedirectAttributes attributes) {
 
-        validation.validateVerifyEmailLink(link.getToken(), link.getEmail(), errors);
+        validation.validateVerifyEmailLink(verificationEmail.getToken(), verificationEmail.getEmail(), errors);
         if (errors.hasErrors()) {
             model.addAttribute(account);
             return "accounts/mails/verify-email-result";
@@ -55,6 +57,7 @@ public class VerifyMailController {
     public String verifyEmailResult(@CurrentAccount Account account, Model model) {
 
         model.addAttribute(account);
+        model.addAttribute(new VerificationEmail());
         return "accounts/mails/verify-email-result";
     }
 }

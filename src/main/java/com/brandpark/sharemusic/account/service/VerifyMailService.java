@@ -29,6 +29,7 @@ public class VerifyMailService {
         mailService.send(message);
     }
 
+    @Transactional
     public void succeedVerifyEmailCheckToken(Account account) {
         account.assignRole(Role.USER);
         accountRepository.save(account);
