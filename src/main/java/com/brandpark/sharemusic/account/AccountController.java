@@ -43,7 +43,7 @@ public class AccountController {
         }
 
         Account newAccount = accountService.signUp(form);
-        verifyMailService.sendConfirmMail(newAccount);
+        verifyMailService.sendSignUpConfirmMail(newAccount);
 
         return "redirect:/send-mail-info";
     }

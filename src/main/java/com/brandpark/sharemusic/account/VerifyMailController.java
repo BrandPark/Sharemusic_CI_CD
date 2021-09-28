@@ -2,7 +2,7 @@ package com.brandpark.sharemusic.account;
 
 import com.brandpark.sharemusic.account.domain.Account;
 import com.brandpark.sharemusic.account.domain.CurrentAccount;
-import com.brandpark.sharemusic.account.dto.VerificationEmail;
+import com.brandpark.sharemusic.account.dto.VerificationEmailToken;
 import com.brandpark.sharemusic.account.service.VerifyMailService;
 import com.brandpark.sharemusic.account.validator.Validation;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class VerifyMailController {
     @PostMapping("/resend-verify-mail")
     public String resendVerifyMail(@CurrentAccount Account account) {
 
-        verifyMailService.sendConfirmMail(account);
+        verifyMailService.sendSignUpConfirmMail(account);
         return "redirect:/send-mail-info";
     }
 
@@ -38,10 +38,10 @@ public class VerifyMailController {
     }
 
     @GetMapping("/verify-email")
-    public String verifyEmail(@CurrentAccount Account account, @Valid VerificationEmail verificationEmail, BindingResult errors
+    public String verifyEmail(@CurrentAccount Account account, @Valid VerificationEmailToken verificationEmail, BindingResult errors
             , Model model, RedirectAttributes attributes) {
 
-        validation.validateVerifyEmailLink(verificationEmail.getToken(), verificationEmail.getEmail(), errors);
+        validation.validateVerificationEmailToken(verificationEmail.getToken(), verificationEmail.getEmail(), errors);
         if (errors.hasErrors()) {
             model.addAttribute(account);
             return "accounts/mails/verify-email-result";
@@ -57,7 +57,7 @@ public class VerifyMailController {
     public String verifyEmailResult(@CurrentAccount Account account, Model model) {
 
         model.addAttribute(account);
-        model.addAttribute(new VerificationEmail());
+        model.addAttribute(new VerificationEmailToken());
         return "accounts/mails/verify-email-result";
     }
 }

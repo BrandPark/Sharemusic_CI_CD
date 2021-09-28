@@ -3,14 +3,15 @@ package com.brandpark.sharemusic.infra.config;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.convention.NameTokenizers;
-import org.modelmapper.spi.MatchingStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.modelmapper.config.Configuration.*;
+import static org.modelmapper.config.Configuration.AccessLevel;
 
+@EnableJpaAuditing
 @Configuration
 public class AppConfig {
 

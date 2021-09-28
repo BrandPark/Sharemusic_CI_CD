@@ -95,7 +95,7 @@ class VerifyMailControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(model().hasErrors())
-                .andExpect(model().attributeExists("account", "verificationEmail"))
+                .andExpect(model().attributeExists("account", "verificationEmailToken"))
                 .andExpect(view().name("accounts/mails/verify-email-result"));
     }
 
@@ -113,7 +113,7 @@ class VerifyMailControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(model().hasErrors())
-                .andExpect(model().attributeExists("account", "verificationEmail"))
+                .andExpect(model().attributeExists("account", "verificationEmailToken"))
                 .andExpect(view().name("accounts/mails/verify-email-result"));
     }
 

@@ -8,7 +8,7 @@
     <div class="row justify-content-center py-3">
         <h1 class="text-center">ShareMusic</h1>
     </div>
-    <div th:object="${verificationEmail}" class="row justify-content-center py-5">
+    <div th:object="${verificationEmailToken}" class="row justify-content-center py-5">
         <div th:if="${!#fields.hasGlobalErrors()}" class="col-md-8 text-center">
             <h2 th:text="${successMessage}">Message</h2>
             <h5>이제 더 많은 활동을 하실 수 있습니다. 사람들과 음악을 공유해주세요!</h5>

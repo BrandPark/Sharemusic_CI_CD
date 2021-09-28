@@ -62,7 +62,7 @@ public class Validation {
         }
     }
 
-    public void validateVerifyEmailLink(String token, String email, BindingResult errors) {
+    public void validateVerificationEmailToken(String token, String email, BindingResult errors) {
 
         if (!StringUtils.hasText(token) || !StringUtils.hasText(email)) {
 
@@ -77,7 +77,7 @@ public class Validation {
             errors.reject("error.notValidToken", message);
         }
 
-        if (accountByEmail.getRole() == Role.USER) {
+        else if (accountByEmail.getRole() == Role.USER) {
 
             String message = "이미 인증이 완료된 계정입니다.";
             errors.reject("error.alreadyVerified", message);
