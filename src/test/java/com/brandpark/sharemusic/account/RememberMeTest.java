@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.infra;
+package com.brandpark.sharemusic.account;
 
 import com.brandpark.sharemusic.account.domain.Account;
 import com.brandpark.sharemusic.account.dto.SignUpForm;
@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.TestExecutionEvent;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.test.context.ActiveProfiles;
@@ -46,12 +44,10 @@ public class RememberMeTest {
         savedAccount = accountService.signUp(form);
     }
 
-    @WithUserDetails(value = "savedAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("로그인에 성공하면 토큰을 생성한다.")
     @Test
     public void CreateToken_When_LoginSuccess() throws Exception {
         // given : beforeEach
-
         // when, then
         mockMvc.perform(post("/login")
                 .param("username", savedAccount.getEmail())
