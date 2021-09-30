@@ -1,10 +1,11 @@
 package com.brandpark.sharemusic.infra.config;
 
-import com.brandpark.sharemusic.account.service.AccountService;
+import com.brandpark.sharemusic.modules.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,19 +25,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // Authentication
-        http.authorizeRequests()
-                .mvcMatchers("/", "/accounts/signup").permitAll();
 
         // Role
         http.authorizeRequests()
                 .mvcMatchers("/verify-email-result").hasRole("USER");
 
+        // Authentication
+        http.authorizeRequests()
+                .mvcMatchers("/", "/accounts/signup").permitAll()
+                .mvcMatchers(HttpMethod.GET, "/accounts/*").permitAll()
+                .anyRequest().authenticated();
+
         // login & logout
         http.formLogin()
                 .loginPage("/login").permitAll()
                 .and()
-                .logout().logoutSuccessUrl("/");
+                .logout().logoutSuccessUrl("/").deleteCookies("JSESSIONID");
 
         // RememberMe
         http.rememberMe()

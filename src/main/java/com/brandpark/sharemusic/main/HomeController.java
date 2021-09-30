@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.main;
 
-import com.brandpark.sharemusic.account.domain.Account;
-import com.brandpark.sharemusic.account.domain.CurrentAccount;
+import com.brandpark.sharemusic.modules.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.domain.CurrentAccount;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
