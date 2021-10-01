@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html :: head"></head>
+
+<body class="background">
+    <nav th:replace="fragments.html:: nav"></nav>
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-3">
+                <div class="list-group" id="list-tab" role="tablist">
+                    <a class="list-group-item list-group-item-action active" id="list_album_info" data-toggle="list" href="#album_info" role="tab" aria-controls="album">앨범 정보</a>
+                    <a class="list-group-item list-group-item-action" id="list_track_info" data-toggle="list" href="#tracks_info" role="tab" aria-controls="tracks">음원 리스트 정보</a>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="album_info" role="tabpanel" aria-labelledby="list_album_info">
+                        <h2>앨범 정보</h2>
+                        <br>
+                        <div class="form-group">
+                            <label class="col-form-label" for="album_title">앨범 제목</label>
+                            <input type="album" class="form-control" id="album_title" aria-describedby="albumHelp">
+                            <small id="albumHelp" class="form-text text-muted">We'll never share your album with anyone else.</small>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="tracks_info" role="tabpanel" aria-labelledby="list_track_info">
+                        <h2>음원 리스트 정보</h2>
+                        <br>
+                        <button id="btn_add_row" class="btn btn-primary mb-2">추가하기</button>
+                        <table id="tracks_table" class="table table-hover table-responsive">
+                            <thead>
+                                <tr>
+                                    <th scope="col">음원 명</th>
+                                    <th scope="col">아티스트</th>
+                                    <th scope="col" class="w-10"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <input type="text" class="form-control">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control">
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-danger">
+                                            <i class="fa fa-minus" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="row d-flex justify-content-center pt-5">
+                            <button class="btn btn-success">저장하기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="fragments.html::footer"></div>
+    <script>
+        $(function(){
+            var $tracksTable = $("#tracks_table");
+
+            $("#btn_add_row").on("click", function(){
+                var rowTag =
+                    `<tr>
+                        <td>
+                            <input type="text" class="form-control">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control">
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-danger remove">
+                                <i class="fa fa-minus" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+
+                $('tbody').append(rowTag);
+            })
+            $('tbody').on('click', '.remove', function () {
+
+                // Getting all the rows next to the
+                // row containing the clicked button
+                var child = $(this).closest('tr').nextAll();
+
+
+
+                // Removing the current row.
+                $(this).closest('tr').remove();
+
+            });
+        })
+
+    </script>
+</body>
+</html>
+
