@@ -1,13 +1,13 @@
-package com.brandpark.sharemusic.modules.tracks;
+package com.brandpark.sharemusic.modules.albums.domain;
 
 import com.brandpark.sharemusic.modules.BaseTimeEntity;
-import com.brandpark.sharemusic.modules.albums.Album;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
-@Getter @NoArgsConstructor
+@Getter @Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         uniqueConstraints = @UniqueConstraint(name = "UK_TRACK", columnNames = {"track_name", "artist"})
 )

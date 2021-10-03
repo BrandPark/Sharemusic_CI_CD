@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class AlbumController {
 
-    @GetMapping("/albums/create")
+    @GetMapping("/albums")
     public String createAlbumForm(@CurrentAccount Account account, Model model) {
         model.addAttribute(account);
         return "albums/create";

@@ -18,16 +18,16 @@
                         <h2>앨범 정보</h2>
                         <br>
                         <div class="form-group">
-                            <label class="col-form-label" for="album_title">앨범 제목</label>
-                            <input type="album" class="form-control" id="album_title" aria-describedby="albumHelp">
+                            <label class="col-form-label" for="album-title">앨범 제목</label>
+                            <input type="album" class="form-control" id="album-title" aria-describedby="albumHelp">
                             <small id="albumHelp" class="form-text text-muted">We'll never share your album with anyone else.</small>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="tracks_info" role="tabpanel" aria-labelledby="list_track_info">
                         <h2>음원 리스트 정보</h2>
                         <br>
-                        <button id="btn_add_row" class="btn btn-primary mb-2">추가하기</button>
-                        <table id="tracks_table" class="table table-hover table-responsive">
+                        <button id="btn-add" class="btn btn-primary mb-2">추가하기</button>
+                        <table id="tracks_table" class="table table-hover w-100">
                             <thead>
                                 <tr>
                                     <th scope="col">음원 명</th>
@@ -44,7 +44,7 @@
                                         <input type="text" class="form-control">
                                     </td>
                                     <td class="text-center">
-                                        <button class="btn btn-danger">
+                                        <button class="btn btn-danger btn-remove">
                                             <i class="fa fa-minus" aria-hidden="true"></i>
                                         </button>
                                     </td>
@@ -52,7 +52,7 @@
                             </tbody>
                         </table>
                         <div class="row d-flex justify-content-center pt-5">
-                            <button class="btn btn-success">저장하기</button>
+                            <button class="btn btn-success" id="btn-save">저장하기</button>
                         </div>
                     </div>
                 </div>
@@ -63,8 +63,8 @@
     <script>
         $(function(){
             var $tracksTable = $("#tracks_table");
-
-            $("#btn_add_row").on("click", function(){
+            $("#btn-add").on('click', function(){
+                $('tbody').closest
                 var rowTag =
                     `<tr>
                         <td>
@@ -74,29 +74,50 @@
                             <input type="text" class="form-control">
                         </td>
                         <td class="text-center">
-                            <button class="btn btn-danger remove">
+                            <button class="btn btn-danger btn-remove">
                                 <i class="fa fa-minus" aria-hidden="true"></i>
                             </button>
                         </td>
                     </tr>`;
 
-                $('tbody').append(rowTag);
-            })
-            $('tbody').on('click', '.remove', function () {
+                $('tbody').prepend(rowTag);
+            });
 
-                // Getting all the rows next to the
-                // row containing the clicked button
-                var child = $(this).closest('tr').nextAll();
+            $('#btn-save').on('click', function () {
 
+                var tracks = [];
 
+                $('tbody > tr').each(function () {
+                    tracks.push({
+                        name: $(this).find("input:eq(0)").val()
+                        , artist: $(this).find("input:eq(1)").val()
+                    });
+                });
 
-                // Removing the current row.
-                $(this).closest('tr').remove();
+                var data = {
+                    title: $('#album-title').val()
+                    , tracks: tracks
+                };
+
+                $.ajax({
+                    url: "/albums"
+                    , method: 'POST'
+                    , contentType: 'application/json;charset=utf-8'
+                    , dataType: 'json'
+                    , data: JSON.stringify(data)
+                }).done(function (data) {
+                }).fail(function (e) {
+                    e['readyState']
+                });
 
             });
-        })
 
+            $('tbody').on('click', '.btn-remove', function () {
+                $(this).closest('tr').remove();
+            });
+        })
     </script>
+    <script th:replace="fragments.html::ajax-csrf-header"></script>
 </body>
 </html>
 

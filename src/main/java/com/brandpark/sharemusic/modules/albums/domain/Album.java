@@ -1,15 +1,15 @@
-package com.brandpark.sharemusic.modules.albums;
+package com.brandpark.sharemusic.modules.albums.domain;
 
 import com.brandpark.sharemusic.modules.BaseTimeEntity;
-import com.brandpark.sharemusic.modules.tracks.Track;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter @NoArgsConstructor
+@Builder @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         uniqueConstraints = @UniqueConstraint(name = "UK_ALBUM", columnNames = {"album_id", "album_title"})
 )
@@ -29,6 +29,7 @@ public class Album extends BaseTimeEntity {
     @Column(nullable = false)
     private Long accountId;
 
+    @Builder.Default
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Track> tracks = new ArrayList<>();
 }
