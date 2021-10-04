@@ -73,6 +73,7 @@
         <script src="/node_modules/jquery/dist/jquery.min.js"></script>
         <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     </div>
+
     <script  th:inline="javascript" th:fragment="ajax-csrf-header">
         $(function () {
             var token = /*[[${_csrf.token}]]*/ null;

@@ -8,6 +8,9 @@ import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
+import com.brandpark.sharemusic.modules.album.domain.Album;
+import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
+import com.brandpark.sharemusic.modules.album.domain.Track;
 import com.brandpark.sharemusic.modules.album.dto.AlbumSaveDto;
 import com.brandpark.sharemusic.modules.album.dto.TrackSaveDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +42,7 @@ class AlbumApiControllerTest {
     @Autowired AccountFactory accountFactory;
     @Autowired AccountRepository accountRepository;
     @Autowired AccountService accountService;
+    @Autowired AlbumRepository albumRepository;
     Account guestAccount;
     Account userAccount;
 
@@ -137,5 +141,45 @@ class AlbumApiControllerTest {
 
                 // then
                 .andExpect(status().isForbidden());
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 저장 성공")
+    @Test
+    public void SaveAlbum_Success() throws Exception {
+
+        // given : 이메일 인증을 하지 않은 GUEST 계정으로 로그인한다.
+        int trackCount = 5;
+        List<TrackSaveDto> trackDtos = albumFactory.createTrackSaveDtoList("음원명", "아티스트", trackCount);
+
+        AlbumSaveDto albumDto = albumFactory.createAlbumSaveDto("앨범 제목", trackDtos);
+        String requestJson = objectMapper.writeValueAsString(albumDto);
+
+        // when
+        mockMvc.perform(post("/api/v1/albums")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(requestJson))
+
+                // then
+                .andExpect(status().isOk())
+                .andExpect(result -> {
+
+                    Long albumId = objectMapper.readValue(result.getResponse().getContentAsString(UTF_8), Long.class);
+                    assertThat(albumId).isNotNull();
+
+                    Album album = albumRepository.findById(albumId).get();
+                    assertThat(album).isNotNull();
+                    assertThat(album.getTitle()).isEqualTo("앨범 제목");
+
+                    List<Track> tracks = album.getTracks();
+                    assertThat(tracks.size()).isEqualTo(trackCount);
+
+                    Track track = tracks.get(0);
+                    assertThat(track.getAlbum() == album).isTrue();
+                    assertThat(track.getName()).contains("음원명");
+                    assertThat(track.getArtist()).contains("아티스트");
+                });
     }
 }
