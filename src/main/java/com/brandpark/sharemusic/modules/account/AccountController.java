@@ -5,7 +5,7 @@ import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.dto.SignUpForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import com.brandpark.sharemusic.modules.account.service.VerifyMailService;
-import com.brandpark.sharemusic.modules.account.validator.Validation;
+import com.brandpark.sharemusic.modules.FormValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,7 +25,7 @@ public class AccountController {
     private final AccountService accountService;
     private final VerifyMailService verifyMailService;
     private final AccountRepository accountRepository;
-    private final Validation validation;
+    private final FormValidator formValidator;
 
     @GetMapping("/signup")
     public String signUpForm(Model model) {
@@ -37,7 +37,7 @@ public class AccountController {
     @PostMapping("/signup")
     public String signUpSubmit(@Valid SignUpForm form, BindingResult errors) {
 
-        validation.validateSignUpForm(form, errors);
+        formValidator.validateSignUpForm(form, errors);
         if (errors.hasErrors()) {
             return "accounts/signup";
         }

@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.exception;
+package com.brandpark.sharemusic.api.exception;
 
 import lombok.Getter;
 

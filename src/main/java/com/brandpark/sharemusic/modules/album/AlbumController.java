@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules.albums;
+package com.brandpark.sharemusic.modules.album;
 
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.CurrentAccount;

@@ -1,7 +1,7 @@
-package com.brandpark.sharemusic.modules.albums.dto;
+package com.brandpark.sharemusic.modules.album.dto;
 
-import com.brandpark.sharemusic.modules.albums.domain.Album;
-import com.brandpark.sharemusic.modules.albums.domain.Track;
+import com.brandpark.sharemusic.modules.album.domain.Album;
+import com.brandpark.sharemusic.modules.album.domain.Track;
 import lombok.Data;
 
 import java.util.ArrayList;

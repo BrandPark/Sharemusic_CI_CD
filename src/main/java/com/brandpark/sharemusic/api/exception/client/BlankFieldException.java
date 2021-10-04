@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.exception.client;
+package com.brandpark.sharemusic.api.exception.client;
 
 public class BlankFieldException extends RuntimeException {
     public BlankFieldException(String message) {

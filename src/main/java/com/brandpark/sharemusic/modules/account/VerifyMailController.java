@@ -4,7 +4,7 @@ import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.CurrentAccount;
 import com.brandpark.sharemusic.modules.account.dto.VerificationEmailToken;
 import com.brandpark.sharemusic.modules.account.service.VerifyMailService;
-import com.brandpark.sharemusic.modules.account.validator.Validation;
+import com.brandpark.sharemusic.modules.FormValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,7 +19,7 @@ import javax.validation.Valid;
 @Controller
 public class VerifyMailController {
 
-    private final Validation validation;
+    private final FormValidator formValidator;
     private final VerifyMailService verifyMailService;
 
     @PostMapping("/resend-verify-mail")
@@ -41,7 +41,7 @@ public class VerifyMailController {
     public String verifyEmail(@CurrentAccount Account account, @Valid VerificationEmailToken verificationEmail, BindingResult errors
             , Model model, RedirectAttributes attributes) {
 
-        validation.validateVerificationEmailToken(verificationEmail.getToken(), verificationEmail.getEmail(), errors);
+        formValidator.validateVerificationEmailToken(verificationEmail.getToken(), verificationEmail.getEmail(), errors);
         if (errors.hasErrors()) {
             model.addAttribute(account);
             return "accounts/mails/verify-email-result";

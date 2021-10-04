@@ -1,6 +1,6 @@
-package com.brandpark.sharemusic.exception;
+package com.brandpark.sharemusic.api.exception;
 
-import com.brandpark.sharemusic.exception.dto.ExceptionResult;
+import com.brandpark.sharemusic.api.exception.dto.ExceptionResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

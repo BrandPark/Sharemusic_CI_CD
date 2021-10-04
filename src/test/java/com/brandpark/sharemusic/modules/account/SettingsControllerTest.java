@@ -1,23 +1,19 @@
 package com.brandpark.sharemusic.modules.account;
 
+import com.brandpark.sharemusic.infra.MockMvcTest;
+import com.brandpark.sharemusic.modules.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.account.dto.SignUpForm;
 import com.brandpark.sharemusic.modules.account.dto.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordForm;
-import com.brandpark.sharemusic.modules.account.service.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,36 +22,23 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ActiveProfiles("dev")
-@AutoConfigureMockMvc
-@Transactional
-@SpringBootTest
+@MockMvcTest
 class SettingsControllerTest {
 
     @Autowired MockMvc mockMvc;
-    @Autowired AccountService accountService;
     @Autowired AccountRepository accountRepository;
+    @Autowired AccountFactory accountFactory;
     @Autowired PasswordEncoder passwordEncoder;
     Account savedAccount;
-    Account savedAccount2;
+    Account otherSavedAccount;
 
     @BeforeEach
     public void setUp() {
-        SignUpForm form = new SignUpForm();
-        form.setEmail("savedAccount@email.com");
-        form.setName("savedAccount");
-        form.setNickname("savedAccount");
-        form.setPassword("000000000");
-        form.setConfirmPassword("000000000");
-        savedAccount = accountService.signUp(form);
+        savedAccount = accountFactory.createAccount("savedAccount");
+        accountRepository.save(savedAccount);
 
-        SignUpForm form2 = new SignUpForm();
-        form2.setEmail("savedAccount2@email.com");
-        form2.setName("savedAccount2");
-        form2.setNickname("savedAccount2");
-        form2.setPassword("000000000");
-        form2.setConfirmPassword("000000000");
-        savedAccount2 = accountService.signUp(form2);
+        otherSavedAccount = accountFactory.createAccount("otherSavedAccount");
+        accountRepository.save(otherSavedAccount);
     }
 
     @WithUserDetails(value = "savedAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
@@ -74,10 +57,10 @@ class SettingsControllerTest {
     @DisplayName("기본 정보 변경 처리 - 입력 값 오류(이미 사용중인 닉네임 입력)")
     @Test
     public void UpdateBasicInfo_Fail_When_InputDuplicatedNickname() throws Exception {
-    
+
         // given
-        String updateNickname = savedAccount2.getNickname();
-                
+        String updateNickname = otherSavedAccount.getNickname();
+
         // when, then
         mockMvc.perform(post("/accounts/edit/basicinfo")
                         .param("name", savedAccount.getName())

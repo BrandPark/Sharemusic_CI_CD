@@ -1,0 +1,9 @@
+1633341944522|103|statement|connection 101|url jdbc:h2:tcp://localhost/~/sharemusic|drop table if exists account CASCADE |drop table if exists account CASCADE 
+1633341944522|102|statement|connection 100|url jdbc:h2:tcp://localhost/~/sharemusic|drop table if exists persistent_logins CASCADE |drop table if exists persistent_logins CASCADE 
+1633341944523|0|statement|connection 101|url jdbc:h2:tcp://localhost/~/sharemusic|drop table if exists album CASCADE |drop table if exists album CASCADE 
+1633341944523|0|statement|connection 100|url jdbc:h2:tcp://localhost/~/sharemusic|drop table if exists track CASCADE |drop table if exists track CASCADE 
+1633341944523|0|statement|connection 101|url jdbc:h2:tcp://localhost/~/sharemusic|drop table if exists persistent_logins CASCADE |drop table if exists persistent_logins CASCADE 
+1633341944524|0|statement|connection 101|url jdbc:h2:tcp://localhost/~/sharemusic|drop table if exists track CASCADE |drop table if exists track CASCADE 
+1633345127382|102|statement|connection 102|url jdbc:h2:tcp://localhost/~/sharemusic|drop table if exists album CASCADE |drop table if exists album CASCADE 
+1633345127383|0|statement|connection 102|url jdbc:h2:tcp://localhost/~/sharemusic|drop table if exists persistent_logins CASCADE |drop table if exists persistent_logins CASCADE 
+1633345127383|0|statement|connection 102|url jdbc:h2:tcp://localhost/~/sharemusic|drop table if exists track CASCADE |drop table if exists track CASCADE 

@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules.albums;
+package com.brandpark.sharemusic.modules.album;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

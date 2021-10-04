@@ -5,7 +5,7 @@ import com.brandpark.sharemusic.modules.account.domain.CurrentAccount;
 import com.brandpark.sharemusic.modules.account.dto.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
-import com.brandpark.sharemusic.modules.account.validator.Validation;
+import com.brandpark.sharemusic.modules.FormValidator;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
@@ -25,7 +25,7 @@ public class SettingsController {
 
     private final AccountService accountService;
     private final ModelMapper modelMapper;
-    private final Validation validation;
+    private final FormValidator formValidator;
 
     @GetMapping("/basicinfo")
     public String basicInfoForm(@CurrentAccount Account account, Model model) {
@@ -43,7 +43,7 @@ public class SettingsController {
     public String basicInfoSubmit(@CurrentAccount Account account, @Valid UpdateBasicInfoForm form
             , BindingResult errors, Model model, RedirectAttributes attributes) {
 
-        validation.validateBasicInfoForm(account, form, errors);
+        formValidator.validateBasicInfoForm(account, form, errors);
         if (errors.hasErrors()) {
             model.addAttribute(form);
             model.addAttribute(account);
@@ -72,7 +72,7 @@ public class SettingsController {
     public String passwordForm(@CurrentAccount Account account, @Valid UpdatePasswordForm form, BindingResult errors
             , Model model, RedirectAttributes attributes) {
 
-        validation.validatePasswordForm(account, form, errors);
+        formValidator.validatePasswordForm(account, form, errors);
 
         if (errors.hasErrors()) {
             model.addAttribute(account);

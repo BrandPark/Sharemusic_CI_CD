@@ -1,22 +1,20 @@
 package com.brandpark.sharemusic.modules.account;
 
+import com.brandpark.sharemusic.infra.MockMvcTest;
+import com.brandpark.sharemusic.infra.mail.MailMessage;
+import com.brandpark.sharemusic.infra.mail.MailService;
+import com.brandpark.sharemusic.modules.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.modules.account.dto.SignUpForm;
-import com.brandpark.sharemusic.modules.account.service.AccountService;
-import com.brandpark.sharemusic.infra.mail.MailMessage;
-import com.brandpark.sharemusic.infra.mail.MailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,28 +27,20 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@AutoConfigureMockMvc
-@Transactional
-@SpringBootTest
+@MockMvcTest
 class AccountControllerTest {
 
     @Autowired MockMvc mockMvc;
-    @Autowired AccountService accountService;
     @Autowired AccountRepository accountRepository;
     @Autowired PasswordEncoder passwordEncoder;
+    @Autowired AccountFactory accountFactory;
     @MockBean MailService mailService;
     Account savedAccount;
 
     @BeforeEach
     public void setUp() {
-        SignUpForm form = new SignUpForm();
-        form.setEmail("savedAccount@email.com");
-        form.setName("savedAccount");
-        form.setNickname("savedAccount");
-        form.setPassword("000000000");
-        form.setConfirmPassword("000000000");
-
-        savedAccount = accountService.createAccount(form);
+        savedAccount = accountFactory.createAccount("savedAccount");
+        accountRepository.save(savedAccount);
     }
 
     @DisplayName("회원가입 화면출력")
@@ -66,7 +56,7 @@ class AccountControllerTest {
     @Test
     public void SignUpSubmit_Fail_When_InputNotEmailFormat() throws Exception {
         // given
-        SignUpForm form = createForm();
+        SignUpForm form = accountFactory.createSignUpForm("newAccount");
         form.setEmail("wrong-email-format");
 
         // when, then
@@ -87,7 +77,7 @@ class AccountControllerTest {
     @Test
     public void SignUpSubmit_Fail_When_InputDifferentPassword() throws Exception {
         // given
-        SignUpForm form = createForm();
+        SignUpForm form = accountFactory.createSignUpForm("newAccount");
         form.setPassword("123123123");
         form.setConfirmPassword("456456456");
 
@@ -109,7 +99,7 @@ class AccountControllerTest {
     @Test
     public void SignUpSubmit_Fail_When_InputDuplicateEmail() throws Exception {
         // given
-        SignUpForm form = createForm();
+        SignUpForm form = accountFactory.createSignUpForm("newAccount");
         form.setEmail(savedAccount.getEmail());
         form.setNickname(savedAccount.getNickname() + "diff");
 
@@ -131,7 +121,7 @@ class AccountControllerTest {
     @Test
     public void SignUpSubmit_Fail_When_InputDuplicateNickname() throws Exception {
         // given
-        SignUpForm form = createForm();
+        SignUpForm form = accountFactory.createSignUpForm("");
         form.setEmail(savedAccount.getEmail() + "diff");
         form.setNickname(savedAccount.getNickname());
 
@@ -153,7 +143,7 @@ class AccountControllerTest {
     @Test
     public void SignUpSubmit_Success() throws Exception {
         // given
-        SignUpForm form = createForm();
+        SignUpForm form = accountFactory.createSignUpForm("newAccount");
 
         // when, then
         mockMvc.perform(post("/accounts/signup")
@@ -175,18 +165,5 @@ class AccountControllerTest {
         assertThat(account.getEmailCheckTokenGeneratedAt()).isNotNull();
         assertThat(account.getRole()).isEqualTo(Role.GUEST);
         assertTrue(passwordEncoder.matches(form.getPassword(), account.getPassword()));
-    }
-
-    private SignUpForm createForm() {
-
-        SignUpForm form = new SignUpForm();
-
-        form.setName("newAccount");
-        form.setNickname("newAccount");
-        form.setPassword("111111111");
-        form.setConfirmPassword("111111111");
-        form.setEmail("newAccount@email.com");
-
-        return form;
     }
 }

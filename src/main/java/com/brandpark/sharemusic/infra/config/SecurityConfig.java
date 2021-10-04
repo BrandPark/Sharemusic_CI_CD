@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,6 +13,8 @@ import org.springframework.security.web.authentication.rememberme.JdbcTokenRepos
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import javax.sql.DataSource;
+
+import static org.springframework.http.HttpMethod.*;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -26,21 +27,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        // Role
-        http.authorizeRequests()
-                .mvcMatchers("/verify-email-result").hasRole("USER");
-
-        // Authentication
-        http.authorizeRequests()
+        // Authorization
+        http.httpBasic()
+                .and()
+                .authorizeRequests()
                 .mvcMatchers("/", "/accounts/signup").permitAll()
-                .mvcMatchers(HttpMethod.GET, "/accounts/*").permitAll()
+                .mvcMatchers(GET, "/accounts/*").permitAll()
+                .mvcMatchers("/accounts/edit/*").authenticated()
+                .mvcMatchers(GET, "/albums/*").permitAll()
+                .mvcMatchers(POST, "/resend-verify-mail").hasRole("GUEST")
+                .mvcMatchers("/albums/**").hasRole("USER")
+                .mvcMatchers("/api/v1/**").hasRole("USER")
                 .anyRequest().authenticated();
 
         // login & logout
         http.formLogin()
                 .loginPage("/login").permitAll()
                 .and()
-                .logout().logoutSuccessUrl("/").deleteCookies("JSESSIONID");
+                .logout().logoutSuccessUrl("/").deleteCookies("JSESSIONID", "SESSION");
 
         // RememberMe
         http.rememberMe()

@@ -45,11 +45,14 @@ public class Account extends BaseTimeEntity implements Serializable {
     private LocalDateTime emailCheckTokenGeneratedAt;
 
     public void generateEmailCheckToken() {
-        emailCheckToken = UUID.randomUUID().toString();
-        emailCheckTokenGeneratedAt = LocalDateTime.now();
+        if (emailCheckToken == null) {
+            emailCheckToken = UUID.randomUUID().toString();
+            emailCheckTokenGeneratedAt = LocalDateTime.now();
+        }
     }
 
     public void assignRole(Role role) {
-        this.role = role;
+        if(this.role != role)
+            this.role = role;
     }
 }
