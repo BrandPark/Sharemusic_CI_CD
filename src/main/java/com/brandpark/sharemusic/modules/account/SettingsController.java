@@ -1,13 +1,12 @@
 package com.brandpark.sharemusic.modules.account;
 
+import com.brandpark.sharemusic.modules.FormValidator;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.CurrentAccount;
-import com.brandpark.sharemusic.modules.account.dto.UpdateBasicInfoForm;
-import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordForm;
+import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
+import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
-import com.brandpark.sharemusic.modules.FormValidator;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,13 +23,12 @@ import javax.validation.Valid;
 public class SettingsController {
 
     private final AccountService accountService;
-    private final ModelMapper modelMapper;
     private final FormValidator formValidator;
 
     @GetMapping("/basicinfo")
     public String basicInfoForm(@CurrentAccount Account account, Model model) {
 
-        UpdateBasicInfoForm form = modelMapper.map(account, UpdateBasicInfoForm.class);
+        UpdateBasicInfoForm form = accountService.entityToForm(account);
         form.setBio(NewLineUtil.toEscape(form.getBio()));
 
         model.addAttribute(account);

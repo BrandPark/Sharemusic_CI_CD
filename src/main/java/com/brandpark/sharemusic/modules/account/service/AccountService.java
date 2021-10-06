@@ -4,9 +4,9 @@ import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.CustomUserDetails;
 import com.brandpark.sharemusic.modules.account.domain.Role;
-import com.brandpark.sharemusic.modules.account.dto.SignUpForm;
-import com.brandpark.sharemusic.modules.account.dto.UpdateBasicInfoForm;
-import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordForm;
+import com.brandpark.sharemusic.modules.account.form.SignUpForm;
+import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
+import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,21 +34,13 @@ public class AccountService implements UserDetailsService {
     @Transactional
     public Account signUp(SignUpForm form) {
 
-        Account newAccount = createAccount(form);
+        SignUpForm encodedForm = encodingPassword(form);
+
+        Account newAccount = createAccount(encodedForm);
 
         accountRepository.save(newAccount);
 
         login(newAccount);
-        return newAccount;
-    }
-
-    private Account createAccount(SignUpForm form) {
-        form.setPassword(passwordEncoder.encode(form.getPassword()));
-
-        Account newAccount = modelMapper.map(form, Account.class);
-        newAccount.generateEmailCheckToken();
-        newAccount.assignRole(Role.GUEST);
-
         return newAccount;
     }
 
@@ -66,23 +58,17 @@ public class AccountService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
 
-         Account account = accountRepository.findByEmail(emailOrNickname);
-        if (account == null) {
-            account = accountRepository.findByNickname(emailOrNickname);
-        }
-
-        if (account == null) {
-            throw new UsernameNotFoundException(emailOrNickname);
-        }
+        Account account = accountRepository.findByEmailOrNickname(emailOrNickname)
+                .orElseThrow(() -> new UsernameNotFoundException(emailOrNickname));
 
         return new CustomUserDetails(account);
     }
 
     @Transactional
     public void updateBasicInfo(UpdateBasicInfoForm form, Account account) {
-        account = accountRepository.findByEmail(form.getEmail());
+        Account persistentAccount  = accountRepository.findByEmail(form.getEmail());
 
-        modelMapper.map(form, account);
+        fieldMapping(form, persistentAccount);
 
         login(account);
     }
@@ -90,13 +76,48 @@ public class AccountService implements UserDetailsService {
     @Transactional
     public void updatePassword(UpdatePasswordForm form, Account account) {
 
-        Account persistAccount = accountRepository.findById(account.getId()).get();
+        Account persistentAccount = accountRepository.findById(account.getId()).get();
 
+        UpdatePasswordForm encodedForm = encodingPassword(form);
+
+        fieldMapping(encodedForm, persistentAccount);
+
+        login(persistentAccount);
+    }
+
+    public Account fieldMapping(UpdateBasicInfoForm form, Account account) {
+        modelMapper.map(form, account);
+        return account;
+    }
+
+    public Account fieldMapping(UpdatePasswordForm form, Account account) {
+        modelMapper.map(form, account);
+        return account;
+    }
+
+    public UpdateBasicInfoForm entityToForm(Account account) {
+        return modelMapper.map(account, UpdateBasicInfoForm.class);
+    }
+
+    private Account createAccount(SignUpForm form) {
+
+        Account newAccount = form.toEntity();
+
+        newAccount.generateEmailCheckToken();
+        newAccount.assignRole(Role.GUEST);
+
+        return newAccount;
+    }
+
+    private UpdatePasswordForm encodingPassword(UpdatePasswordForm form) {
         String encodedPassword = passwordEncoder.encode(form.getPassword());
         form.setPassword(encodedPassword);
 
-        modelMapper.map(form, persistAccount);
+        return form;
+    }
 
-        login(persistAccount);
+    private SignUpForm encodingPassword(SignUpForm form) {
+        form.setPassword(passwordEncoder.encode(form.getPassword()));
+        return form;
     }
 }

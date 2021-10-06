@@ -3,7 +3,7 @@ package com.brandpark.sharemusic.infra.config;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
-import com.brandpark.sharemusic.modules.account.dto.SignUpForm;
+import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Profile;

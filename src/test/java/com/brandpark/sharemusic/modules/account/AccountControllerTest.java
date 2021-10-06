@@ -7,7 +7,7 @@ import com.brandpark.sharemusic.modules.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
-import com.brandpark.sharemusic.modules.account.dto.SignUpForm;
+import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

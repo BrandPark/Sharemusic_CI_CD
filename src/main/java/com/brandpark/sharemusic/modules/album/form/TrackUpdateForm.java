@@ -1,9 +1,9 @@
-package com.brandpark.sharemusic.modules.album.dto;
+package com.brandpark.sharemusic.modules.album.form;
 
 import lombok.Data;
 
 @Data
-public class TrackUpdateRequestDto {
+public class TrackUpdateForm {
 
     private Long id;
     private String name;

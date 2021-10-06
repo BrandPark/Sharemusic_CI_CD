@@ -19,7 +19,7 @@
                         <br>
                         <div class="form-group">
                             <label class="col-form-label" for="album-title">앨범 제목</label>
-                            <input type="album" class="form-control" id="album-title" aria-describedby="albumHelp" th:value="${albumDto.title}">
+                            <input type="text" name="title" class="form-control" id="album-title" aria-describedby="albumHelp" th:value="${album.title}">
                             <small id="albumHelp" class="form-text text-muted">We'll never share your album with anyone else.</small>
                         </div>
                     </div>
@@ -37,15 +37,15 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="trackDto : ${trackDtos}">
-                                    <td>
-                                        <input type="text" class="form-control" th:value="${trackDto.id}">
+                                <tr th:each="track : ${tracks}">
+                                    <td hidden>
+                                        <input type="text" class="form-control" th:value="${track.id}">
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" th:value="${trackDto.name}">
+                                        <input type="text" class="form-control" th:value="${track.name}">
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" th:value="${trackDto.artist}">
+                                        <input type="text" class="form-control" th:value="${track.artist}">
                                     </td>
                                     <td class="text-center">
                                         <button class="btn btn-danger btn-remove">

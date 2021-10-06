@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules.album.dto;
+package com.brandpark.sharemusic.api.album.dto;
 
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.Track;
@@ -10,11 +10,11 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 @Data
-public class AlbumSaveDto {
+public class AlbumSaveRequest {
 
     private String title;
 
-    private List<TrackSaveDto> tracks = new ArrayList<>();
+    private List<TrackSaveRequest> tracks = new ArrayList<>();
 
     public Album toEntity(Long accountId) {
         Album album = Album.builder()

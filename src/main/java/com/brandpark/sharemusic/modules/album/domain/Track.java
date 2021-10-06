@@ -27,4 +27,10 @@ public class Track extends BaseTimeEntity {
     @JoinColumn(name = "album_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Album album;
+
+    public void initAlbum(Album album) {
+        if (album == null) {
+            this.album = album;
+        }
+    }
 }

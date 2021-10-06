@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules.account.dto;
+package com.brandpark.sharemusic.modules.account.form;
 
 import lombok.Data;
 

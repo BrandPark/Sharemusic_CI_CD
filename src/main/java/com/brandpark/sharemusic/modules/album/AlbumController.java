@@ -3,9 +3,9 @@ package com.brandpark.sharemusic.modules.album;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.CurrentAccount;
 import com.brandpark.sharemusic.modules.album.domain.Album;
-import com.brandpark.sharemusic.modules.album.dto.AlbumUpdateRequestDto;
+import com.brandpark.sharemusic.modules.album.form.AlbumUpdateForm;
+import com.brandpark.sharemusic.modules.album.service.AlbumService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 public class AlbumController {
 
-    private final ModelMapper modelMapper;
+    private final AlbumService albumService;
 
     @GetMapping("/albums")
     public String createAlbumForm(@CurrentAccount Account account, Model model) {
@@ -28,10 +28,10 @@ public class AlbumController {
 
         model.addAttribute(account);
 
-        AlbumUpdateRequestDto albumDto = modelMapper.map(album, AlbumUpdateRequestDto.class);
+        AlbumUpdateForm form = albumService.entityToForm(album);
 
-        model.addAttribute("albumDto", albumDto);
-        model.addAttribute("trackDtos", albumDto.getTracks());
+        model.addAttribute("album", form);
+        model.addAttribute("tracks", form.getTracks());
 
         return "albums/update";
     }

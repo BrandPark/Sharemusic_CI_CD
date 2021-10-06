@@ -1,11 +1,11 @@
 package com.brandpark.sharemusic.modules.account;
 
+import com.brandpark.sharemusic.modules.FormValidator;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.account.dto.SignUpForm;
+import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import com.brandpark.sharemusic.modules.account.service.VerifyMailService;
-import com.brandpark.sharemusic.modules.FormValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

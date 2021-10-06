@@ -2,7 +2,7 @@ package com.brandpark.sharemusic.modules.account;
 
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.CurrentAccount;
-import com.brandpark.sharemusic.modules.account.dto.VerificationEmailToken;
+import com.brandpark.sharemusic.modules.account.form.VerificationEmailToken;
 import com.brandpark.sharemusic.modules.account.service.VerifyMailService;
 import com.brandpark.sharemusic.modules.FormValidator;
 import lombok.RequiredArgsConstructor;

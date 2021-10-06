@@ -11,8 +11,8 @@ import com.brandpark.sharemusic.modules.account.service.AccountService;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.album.domain.Track;
-import com.brandpark.sharemusic.modules.album.dto.AlbumSaveDto;
-import com.brandpark.sharemusic.modules.album.dto.TrackSaveDto;
+import com.brandpark.sharemusic.api.album.dto.AlbumSaveRequest;
+import com.brandpark.sharemusic.api.album.dto.TrackSaveRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -61,8 +61,8 @@ class AlbumApiControllerTest {
     public void SaveAlbum_Fail_When_NotInputEssentialValue() throws Exception {
 
         // given : 앨범 타이틀에 아무것도 적지 않는다.
-        TrackSaveDto trackDto = albumFactory.createTrackSaveDto("음원명1", "아티스트1");
-        AlbumSaveDto albumDto = new AlbumSaveDto();
+        TrackSaveRequest trackDto = albumFactory.createTrackSaveDto("음원명1", "아티스트1");
+        AlbumSaveRequest albumDto = new AlbumSaveRequest();
         albumDto.setTitle(" ");
         albumDto.setTracks(List.of(trackDto));
 
@@ -95,10 +95,10 @@ class AlbumApiControllerTest {
 
         // given : 트랙들을 허용 값 이상 넣는다.
         int manyCount = 6;
-        List<TrackSaveDto> trackDtos = albumFactory.createTrackSaveDtoList("음원명", "아티스트", manyCount);
+        List<TrackSaveRequest> trackDtos = albumFactory.createTrackSaveDtoList("음원명", "아티스트", manyCount);
         assertThat(trackDtos.size()).isEqualTo(manyCount);
 
-        AlbumSaveDto albumDto = albumFactory.createAlbumSaveDto("앨범 제목", trackDtos);
+        AlbumSaveRequest albumDto = albumFactory.createAlbumSaveDto("앨범 제목", trackDtos);
         String requestJson = objectMapper.writeValueAsString(albumDto);
 
         // when
@@ -127,9 +127,9 @@ class AlbumApiControllerTest {
     public void SaveAlbum_Fail_When_GuestAccount() throws Exception {
 
         // given : 이메일 인증을 하지 않은 GUEST 계정으로 로그인한다.
-        List<TrackSaveDto> trackDtos = albumFactory.createTrackSaveDtoList("음원명", "아티스트", 5);
+        List<TrackSaveRequest> trackDtos = albumFactory.createTrackSaveDtoList("음원명", "아티스트", 5);
 
-        AlbumSaveDto albumDto = albumFactory.createAlbumSaveDto("앨범 제목", trackDtos);
+        AlbumSaveRequest albumDto = albumFactory.createAlbumSaveDto("앨범 제목", trackDtos);
         String requestJson = objectMapper.writeValueAsString(albumDto);
 
         // when
@@ -150,9 +150,9 @@ class AlbumApiControllerTest {
 
         // given : 이메일 인증을 하지 않은 GUEST 계정으로 로그인한다.
         int trackCount = 5;
-        List<TrackSaveDto> trackDtos = albumFactory.createTrackSaveDtoList("음원명", "아티스트", trackCount);
+        List<TrackSaveRequest> trackDtos = albumFactory.createTrackSaveDtoList("음원명", "아티스트", trackCount);
 
-        AlbumSaveDto albumDto = albumFactory.createAlbumSaveDto("앨범 제목", trackDtos);
+        AlbumSaveRequest albumDto = albumFactory.createAlbumSaveDto("앨범 제목", trackDtos);
         String requestJson = objectMapper.writeValueAsString(albumDto);
 
         // when

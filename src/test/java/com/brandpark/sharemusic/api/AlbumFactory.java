@@ -1,7 +1,9 @@
 package com.brandpark.sharemusic.api;
 
-import com.brandpark.sharemusic.modules.album.dto.AlbumSaveDto;
-import com.brandpark.sharemusic.modules.album.dto.TrackSaveDto;
+import com.brandpark.sharemusic.api.album.dto.AlbumSaveRequest;
+import com.brandpark.sharemusic.api.album.dto.TrackSaveRequest;
+import com.brandpark.sharemusic.modules.album.domain.Album;
+import com.brandpark.sharemusic.modules.album.domain.Track;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -10,28 +12,66 @@ import java.util.List;
 @Component
 public class AlbumFactory {
 
-    public TrackSaveDto createTrackSaveDto(String name, String artist) {
-        TrackSaveDto dto = new TrackSaveDto();
+    public Album createAlbum(String title) {
+
+        Album album = Album.builder()
+                .title(title)
+                .albumImage("image")
+                .build();
+
+        List<Track> tracks = createTrackList("name", "artist", 5);
+        for (Track track : tracks) {
+            track.initAlbum(album);
+        }
+
+        album.getTracks().addAll(tracks);
+        return album;
+    }
+
+    public List<Track> createTrackList(String name, String artist, int count) {
+
+        List<Track> tracks = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            tracks.add(createTrack(name + i, artist + i));
+        }
+
+        return tracks;
+    }
+
+    public Track createTrack(String name, String artist) {
+        return Track.builder()
+                .name(name)
+                .artist(artist)
+                .build();
+    }
+
+    public TrackSaveRequest createTrackSaveDto(String name, String artist) {
+        TrackSaveRequest dto = new TrackSaveRequest();
         dto.setName(name);
         dto.setArtist(artist);
 
         return dto;
     }
 
-    public List<TrackSaveDto> createTrackSaveDtoList(String name, String artist, int count) {
-        List<TrackSaveDto> trackDtos = new ArrayList<>();
+    public List<TrackSaveRequest> createTrackSaveDtoList(String name, String artist, int count) {
+        List<TrackSaveRequest> trackDtos = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            TrackSaveDto trackDto = createTrackSaveDto(name + i, artist + i);
+            TrackSaveRequest trackDto = createTrackSaveDto(name + i, artist + i);
             trackDtos.add(trackDto);
         }
 
         return trackDtos;
     }
 
-    public AlbumSaveDto createAlbumSaveDto(String title, List<TrackSaveDto> trackSaveDtos) {
-        AlbumSaveDto albumDto = new AlbumSaveDto();
+    public AlbumSaveRequest createAlbumSaveDto(String title) {
+        List<TrackSaveRequest> trackDtos = createTrackSaveDtoList("name", "artist", 5);
+        return createAlbumSaveDto(title, trackDtos);
+    }
+
+    public AlbumSaveRequest createAlbumSaveDto(String title, List<TrackSaveRequest> trackSaveRequests) {
+        AlbumSaveRequest albumDto = new AlbumSaveRequest();
         albumDto.setTitle(title);
-        albumDto.setTracks(trackSaveDtos);
+        albumDto.setTracks(trackSaveRequests);
 
         return albumDto;
     }
