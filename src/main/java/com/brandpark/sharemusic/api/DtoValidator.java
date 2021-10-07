@@ -1,5 +1,7 @@
 package com.brandpark.sharemusic.api;
 
+import com.brandpark.sharemusic.api.album.dto.AlbumUpdateRequest;
+import com.brandpark.sharemusic.api.album.dto.TrackUpdateRequest;
 import com.brandpark.sharemusic.api.exception.ApiException;
 import com.brandpark.sharemusic.api.album.dto.AlbumSaveRequest;
 import com.brandpark.sharemusic.api.album.dto.TrackSaveRequest;
@@ -18,19 +20,55 @@ public class DtoValidator {
 
     public void validateAlbumSaveDto(AlbumSaveRequest requestDto) {
 
-        if (!StringUtils.hasText(requestDto.getTitle())) {
-            throw new ApiException(BLANK_FIELD_EXCEPTION, "'title' 이 비어있습니다.");
-        }
-
         List<TrackSaveRequest> tracks = requestDto.getTracks();
-        if (tracks.size() > 5 || tracks.size() < 1) {
-            throw new ApiException(INVALID_TRACKS_COUNT_EXCEPTION, "tracks 의 요소는 1개 이상 5개 이하여야 합니다.");
-        }
 
-        for (TrackSaveRequest track : tracks) {
-            if (!StringUtils.hasText(track.getName()) || !StringUtils.hasText(track.getArtist())) {
-                throw new ApiException(BLANK_FIELD_EXCEPTION, "'tracks' 의 요소에 'name' 또는 'artist' 가 비어있습니다.");
-            }
+        checkTitle(requestDto.getTitle());
+        checkTrackCount(tracks.size());
+        checkAllTrackSaveDto(tracks);
+    }
+
+    public void validateAlbumUpdateDto(AlbumUpdateRequest requestDto) {
+
+        List<TrackUpdateRequest> tracks = requestDto.getTracks();
+
+        checkTitle(requestDto.getTitle());
+        checkTrackCount(tracks.size());
+        checkAllTrackUpdateDto(tracks);
+    }
+
+    private void checkAllTrackUpdateDto(List<TrackUpdateRequest> tracks) {
+        for (TrackUpdateRequest track : tracks) {
+            checkTrackInfo(track.getName(), track.getArtist());
         }
     }
+
+    private void checkAllTrackSaveDto(List<TrackSaveRequest> tracks) {
+        for (TrackSaveRequest track : tracks) {
+            checkTrackInfo(track.getName(), track.getArtist());
+        }
+    }
+
+    private void checkTrackInfo(String name, String artist) {
+        if (!hasText(name) || !hasText(artist)) {
+            throw new ApiException(BLANK_FIELD_EXCEPTION, "'tracks' 의 요소에 'name' 또는 'artist' 가 비어있습니다.");
+        }
+    }
+
+    private void checkTrackCount(int count) {
+        if (count > 5 || count < 1) {
+            throw new ApiException(INVALID_TRACKS_COUNT_EXCEPTION, "tracks 의 요소는 1개 이상 5개 이하여야 합니다.");
+        }
+    }
+
+    private void checkTitle(String title) {
+        if (!hasText(title)) {
+            throw new ApiException(BLANK_FIELD_EXCEPTION, "'title' 이 비어있습니다.");
+        }
+    }
+
+    private boolean hasText(String name) {
+        return StringUtils.hasText(name);
+    }
+
+
 }

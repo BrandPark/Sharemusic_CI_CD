@@ -2,14 +2,13 @@ package com.brandpark.sharemusic.api.album;
 
 import com.brandpark.sharemusic.api.DtoValidator;
 import com.brandpark.sharemusic.api.album.dto.AlbumSaveRequest;
+import com.brandpark.sharemusic.api.album.dto.AlbumUpdateRequest;
 import com.brandpark.sharemusic.infra.config.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.service.AlbumService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -25,5 +24,16 @@ public class AlbumApiController {
         dtoValidator.validateAlbumSaveDto(requestDto);
 
         return albumService.saveAlbum(account, requestDto);
+    }
+
+    @PutMapping("/albums/{albumId}")
+    public Long updateAlbum(@LoginAccount SessionAccount account, @RequestBody AlbumUpdateRequest requestDto
+            , @PathVariable("albumId") Album album) {
+
+        dtoValidator.validateAlbumUpdateDto(requestDto);
+
+        albumService.updateAlbum(requestDto, album);
+
+        return album.getId();
     }
 }

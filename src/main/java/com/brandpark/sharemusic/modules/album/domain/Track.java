@@ -29,7 +29,7 @@ public class Track extends BaseTimeEntity {
     private Album album;
 
     public void initAlbum(Album album) {
-        if (album == null) {
+        if (album != null) {
             this.album = album;
         }
     }

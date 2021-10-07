@@ -106,13 +106,14 @@
                 };
 
                 $.ajax({
-                    url: "/api/v1/albums"
-                    , method: 'POST'
-                    , contentType: 'application/json;charset=utf-8'
-                    , dataType: 'json'
-                    , data: JSON.stringify(data)
+                    url: "/api/v1/albums",
+                    method: 'POST',
+                    contentType: 'application/json;charset=utf-8',
+                    dataType: 'json',
+                    data: JSON.stringify(data)
                 }).done(function (data) {
                     alert("앨범을 생성하였습니다.");
+                    window.location.href = "/";
                 }).fail(function (e) {
                     alert("앨범 저장 실패" + e);
                 });

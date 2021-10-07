@@ -1,5 +1,8 @@
 package com.brandpark.sharemusic.api;
 
+import com.brandpark.sharemusic.api.album.dto.AlbumSaveRequest;
+import com.brandpark.sharemusic.api.album.dto.AlbumUpdateRequest;
+import com.brandpark.sharemusic.api.album.dto.TrackSaveRequest;
 import com.brandpark.sharemusic.api.exception.ApiException;
 import com.brandpark.sharemusic.api.exception.dto.ExceptionResult;
 import com.brandpark.sharemusic.infra.MockMvcTest;
@@ -11,8 +14,6 @@ import com.brandpark.sharemusic.modules.account.service.AccountService;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.album.domain.Track;
-import com.brandpark.sharemusic.api.album.dto.AlbumSaveRequest;
-import com.brandpark.sharemusic.api.album.dto.TrackSaveRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +32,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @MockMvcTest
@@ -148,7 +150,7 @@ class AlbumApiControllerTest {
     @Test
     public void SaveAlbum_Success() throws Exception {
 
-        // given : 이메일 인증을 하지 않은 GUEST 계정으로 로그인한다.
+        // given
         int trackCount = 5;
         List<TrackSaveRequest> trackDtos = albumFactory.createTrackSaveDtoList("음원명", "아티스트", trackCount);
 
@@ -183,5 +185,100 @@ class AlbumApiControllerTest {
                     assertThat(track.getName()).contains("음원명");
                     assertThat(track.getArtist()).contains("아티스트");
                 });
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 실패 - 입력 값 오류(누락된 필수 항목)")
+    @Test
+    public void UpdateAlbum_Fail_When_NotInputEssentialValue() throws Exception {
+
+        // given : 앨범을 수정할 때 앨범 제목에 아무것도 적지 않는다.
+        Album album = albumFactory.createAlbum("앨범 제목");
+        albumRepository.save(album);
+
+        AlbumUpdateRequest albumDto = albumFactory.createAlbumUpdateDto(album);
+
+        // when
+        albumDto.setTitle(null);
+
+        String requestJson = objectMapper.writeValueAsString(albumDto);
+
+        mockMvc.perform(put("/api/v1/albums/" + album.getId())
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(requestJson))
+
+                // then
+                .andExpect(status().is4xxClientError())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException() instanceof ApiException).isTrue();
+
+                    ExceptionResult exceptionResult
+                            = objectMapper.readValue(result.getResponse().getContentAsString(UTF_8), ExceptionResult.class);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(BLANK_FIELD_EXCEPTION.getCode());
+                    assertThat(exceptionResult.getErrorMessage()).isEqualTo("'title' 이 비어있습니다.");
+                });
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 실패 - 입력 값 오류(너무 많은 Track)")
+    @Test
+    public void UpdateAlbum_Fail_When_InputTooManyTracks() throws Exception {
+
+        // given : 트랙의 숫자가 5개보다 많다.
+        Album album = albumFactory.createAlbum("앨범 제목");
+        albumRepository.save(album);
+
+        AlbumUpdateRequest albumDto = albumFactory.createAlbumUpdateDto(album);
+        albumDto.getTracks().add(albumFactory.createTrackUpdateDto());
+
+        // when
+        assertThat(albumDto.getTracks().size()).isGreaterThan(5);
+
+        String requestJson = objectMapper.writeValueAsString(albumDto);
+
+        mockMvc.perform(put("/api/v1/albums/" + album.getId())
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(requestJson))
+
+                // then
+                .andExpect(status().is4xxClientError())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException() instanceof ApiException).isTrue();
+
+                    ExceptionResult exceptionResult
+                            = objectMapper.readValue(result.getResponse().getContentAsString(UTF_8), ExceptionResult.class);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(INVALID_TRACKS_COUNT_EXCEPTION.getCode());
+                    assertThat(exceptionResult.getErrorMessage()).isEqualTo("tracks 의 요소는 1개 이상 5개 이하여야 합니다.");
+                });
+    }
+
+    @WithUserDetails(value = "guestAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 실패 - 권한 오류(GUEST 계정 : 이메일 인증을 하지 않은 계정)")
+    @Test
+    public void UpdateAlbum_Fail_When_GuestAccount() throws Exception {
+
+        // given : 이메일 인증을 하지 않은 GUEST 계정으로 로그인한다.
+        Album album = albumFactory.createAlbum("앨범 제목");
+        albumRepository.save(album);
+
+        AlbumUpdateRequest albumDto = albumFactory.createAlbumUpdateDto(album);
+
+        String requestJson = objectMapper.writeValueAsString(albumDto);
+
+        // when
+        mockMvc.perform(put("/api/v1/albums/" + album.getId())
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(requestJson))
+
+                // then
+                .andExpect(status().isForbidden());
     }
 }
