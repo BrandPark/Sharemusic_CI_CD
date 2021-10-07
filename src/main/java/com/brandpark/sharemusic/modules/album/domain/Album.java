@@ -23,6 +23,9 @@ public class Album extends BaseTimeEntity {
     @Column(name = "album_title", nullable = false, length = 50)
     private String title;
 
+    @Column(length = 100)
+    private String bio;
+
     @Lob
     private String albumImage;
 

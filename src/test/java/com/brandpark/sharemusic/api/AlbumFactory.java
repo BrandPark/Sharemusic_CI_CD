@@ -71,6 +71,7 @@ public class AlbumFactory {
     public AlbumSaveRequest createAlbumSaveDto(String title, List<TrackSaveRequest> trackSaveRequests) {
         AlbumSaveRequest albumDto = new AlbumSaveRequest();
         albumDto.setTitle(title);
+        albumDto.setBio("My name is " + title);
         albumDto.setTracks(trackSaveRequests);
 
         return albumDto;

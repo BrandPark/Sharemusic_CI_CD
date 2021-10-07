@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.modules.main;
 
-import com.brandpark.sharemusic.modules.account.domain.Account;
-import com.brandpark.sharemusic.modules.account.domain.CurrentAccount;
+import com.brandpark.sharemusic.infra.config.LoginAccount;
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -15,9 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 public class HomeController implements ErrorController {
 
     @GetMapping("/")
-    public String viewHome(@CurrentAccount Account account, Model model) {
+    public String viewHome(@LoginAccount SessionAccount account, Model model) {
         if (account != null) {
-            model.addAttribute(account);
+            model.addAttribute("account", account);;
         }
 
         return "home";

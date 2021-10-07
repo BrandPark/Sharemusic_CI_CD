@@ -171,7 +171,9 @@ class AlbumApiControllerTest {
 
                     Album album = albumRepository.findById(albumId).get();
                     assertThat(album).isNotNull();
-                    assertThat(album.getTitle()).isEqualTo("앨범 제목");
+                    assertThat(album.getTitle()).isEqualTo(albumDto.getTitle());
+                    assertThat(album.getBio()).isEqualTo(albumDto.getBio());
+                    assertThat(album.getAlbumImage()).isEqualTo(albumDto.getAlbumImage());
 
                     List<Track> tracks = album.getTracks();
                     assertThat(tracks.size()).isEqualTo(trackCount);

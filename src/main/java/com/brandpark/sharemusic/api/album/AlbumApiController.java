@@ -1,11 +1,10 @@
 package com.brandpark.sharemusic.api.album;
 
 import com.brandpark.sharemusic.api.DtoValidator;
-import com.brandpark.sharemusic.modules.account.domain.Account;
-import com.brandpark.sharemusic.modules.account.domain.CurrentAccount;
-import com.brandpark.sharemusic.modules.album.domain.Album;
-import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.api.album.dto.AlbumSaveRequest;
+import com.brandpark.sharemusic.infra.config.LoginAccount;
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.modules.album.service.AlbumService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,16 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AlbumApiController {
 
-    private final AlbumRepository albumRepository;
+    private final AlbumService albumService;
     private final DtoValidator dtoValidator;
 
     @PostMapping("/albums")
-    public Long createAlbum(@CurrentAccount Account account, @RequestBody AlbumSaveRequest requestDto) {
+    public Long createAlbum(@LoginAccount SessionAccount account, @RequestBody AlbumSaveRequest requestDto) {
 
         dtoValidator.validateAlbumSaveDto(requestDto);
 
-        Album album = requestDto.toEntity(account.getId());
-
-        return albumRepository.save(album).getId();
+        return albumService.saveAlbum(account, requestDto);
     }
 }

@@ -3,6 +3,7 @@ package com.brandpark.sharemusic.modules;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
@@ -26,13 +27,13 @@ public class FormValidator {
         validatePasswordDiff(form.getPassword(), form.getConfirmPassword(), errors);
     }
 
-    public void validateBasicInfoForm(Account account, UpdateBasicInfoForm form, BindingResult errors) {
+    public void validateBasicInfoForm(SessionAccount account, UpdateBasicInfoForm form, BindingResult errors) {
         if (!form.getNickname().equals(account.getNickname())) {
             validateDuplicateNickname(form.getNickname(), errors);
         }
     }
 
-    public void validatePasswordForm(Account account, UpdatePasswordForm form, BindingResult errors) {
+    public void validatePasswordForm(SessionAccount account, UpdatePasswordForm form, BindingResult errors) {
         validatePasswordDiff(form.getPassword(), form.getConfirmPassword(), errors);
         validateInputCurrentPassword(form.getCurrentPassword(), account.getPassword(), errors);
     }

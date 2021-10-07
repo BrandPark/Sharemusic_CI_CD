@@ -1,11 +1,10 @@
 package com.brandpark.sharemusic.modules.account.service;
 
-import com.brandpark.sharemusic.modules.account.domain.Account;
-import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.infra.config.AppProperties;
 import com.brandpark.sharemusic.infra.mail.MailMessage;
 import com.brandpark.sharemusic.infra.mail.MailService;
+import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,7 @@ public class VerifyMailService {
     private final AppProperties appProperties;
 
     @Transactional
-    public void sendSignUpConfirmMail(Account account) {
+    public void sendSignUpConfirmMail(SessionAccount account) {
 
         Context context = new Context();
         context.setVariable("nickname", account.getNickname());
@@ -43,13 +42,4 @@ public class VerifyMailService {
 
         mailService.send(message);
     }
-
-    @Transactional
-    public void succeedVerifyEmailCheckToken(Account account) {
-        account.assignRole(Role.USER);
-        accountRepository.save(account);
-
-        accountService.login(account);
-    }
-
 }

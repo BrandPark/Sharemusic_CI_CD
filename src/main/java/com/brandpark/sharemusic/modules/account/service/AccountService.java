@@ -1,8 +1,10 @@
 package com.brandpark.sharemusic.modules.account.service;
 
+import com.brandpark.sharemusic.infra.config.CustomUserDetails;
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.modules.MyUtil;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.account.domain.CustomUserDetails;
 import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
@@ -40,19 +42,8 @@ public class AccountService implements UserDetailsService {
 
         accountRepository.save(newAccount);
 
-        login(newAccount);
+        login(mapToSessionAccount(newAccount));
         return newAccount;
-    }
-
-    public void login(Account newAccount) {
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                new CustomUserDetails(newAccount)
-                , newAccount.getPassword()
-                , Collections.singleton(new SimpleGrantedAuthority(newAccount.getRole().getKey()))
-        );
-
-        SecurityContext context = SecurityContextHolder.getContext();
-        context.setAuthentication(authenticationToken);
     }
 
     @Override
@@ -61,11 +52,17 @@ public class AccountService implements UserDetailsService {
         Account account = accountRepository.findByEmailOrNickname(emailOrNickname)
                 .orElseThrow(() -> new UsernameNotFoundException(emailOrNickname));
 
-        return new CustomUserDetails(account);
+        SessionAccount sessionAccount = mapToSessionAccount(account);
+
+        return new CustomUserDetails(sessionAccount);
     }
 
     @Transactional
-    public void updateBasicInfo(UpdateBasicInfoForm form, Account account) {
+    public void updateBasicInfo(UpdateBasicInfoForm form, SessionAccount account) {
+
+        form.setEmail(account.getEmail());
+        form.setBio(MyUtil.toBrTag(form.getBio()));
+
         Account persistentAccount  = accountRepository.findByEmail(form.getEmail());
 
         fieldMapping(form, persistentAccount);
@@ -74,28 +71,39 @@ public class AccountService implements UserDetailsService {
     }
 
     @Transactional
-    public void updatePassword(UpdatePasswordForm form, Account account) {
-
-        Account persistentAccount = accountRepository.findById(account.getId()).get();
+    public void updatePassword(UpdatePasswordForm form, SessionAccount account) {
 
         UpdatePasswordForm encodedForm = encodingPassword(form);
 
+        Account persistentAccount = accountRepository.findById(account.getId()).get();
         fieldMapping(encodedForm, persistentAccount);
 
-        login(persistentAccount);
+        login(mapToSessionAccount(persistentAccount));
     }
 
-    public Account fieldMapping(UpdateBasicInfoForm form, Account account) {
+    @Transactional
+    public void succeedVerifyEmailCheckToken(SessionAccount account) {
+        Account persistAccount = accountRepository.findByEmail(account.getEmail());
+        persistAccount.assignRole(Role.USER);
+
+        login(mapToSessionAccount(persistAccount));
+    }
+
+    public SessionAccount mapToSessionAccount(Account account) {
+        return modelMapper.map(account, SessionAccount.class);
+    }
+
+    private Account fieldMapping(UpdateBasicInfoForm form, Account account) {
         modelMapper.map(form, account);
         return account;
     }
 
-    public Account fieldMapping(UpdatePasswordForm form, Account account) {
+    private Account fieldMapping(UpdatePasswordForm form, Account account) {
         modelMapper.map(form, account);
         return account;
     }
 
-    public UpdateBasicInfoForm entityToForm(Account account) {
+    public UpdateBasicInfoForm mapToForm(SessionAccount account) {
         return modelMapper.map(account, UpdateBasicInfoForm.class);
     }
 
@@ -119,5 +127,16 @@ public class AccountService implements UserDetailsService {
     private SignUpForm encodingPassword(SignUpForm form) {
         form.setPassword(passwordEncoder.encode(form.getPassword()));
         return form;
+    }
+
+    private void login(SessionAccount account) {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                new CustomUserDetails(account)
+                , account.getPassword()
+                , Collections.singleton(new SimpleGrantedAuthority(account.getRole().getKey()))
+        );
+
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(authenticationToken);
     }
 }

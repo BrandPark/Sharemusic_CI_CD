@@ -14,13 +14,18 @@
             </div>
             <div class="col-9">
                 <div class="tab-content" id="nav-tabContent">
-                    <div class="tab-pane fade show active" id="album_info" role="tabpanel" aria-labelledby="list_album_info">
+                    <div class="tab-pane fade show active col-6" id="album_info" role="tabpanel" aria-labelledby="list_album_info" th:object="${album}">
                         <h2>앨범 정보</h2>
                         <br>
                         <div class="form-group">
                             <label class="col-form-label" for="album-title">앨범 제목</label>
-                            <input type="text" name="title" class="form-control" id="album-title" aria-describedby="albumHelp" th:value="${album.title}">
-                            <small id="albumHelp" class="form-text text-muted">We'll never share your album with anyone else.</small>
+                            <input type="text" name="title" class="form-control" id="album-title" aria-describedby="albumHelp" th:field="*{title}">
+                            <small id="titleHelp" class="form-text text-muted">We'll never share your album with anyone else.</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label" for="album-title">앨범 소개</label>
+                            <textarea name="bio" id="bio" class="form-control" th:field="*{bio}" rows="3" ></textarea>
+                            <small id="bioHelp" class="form-text text-muted">We'll never share your album with anyone else.</small>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="tracks_info" role="tabpanel" aria-labelledby="list_track_info">
@@ -56,7 +61,7 @@
                             </tbody>
                         </table>
                         <div class="row d-flex justify-content-center pt-5">
-                            <button class="btn btn-success" id="btn-save">수정하기</button>
+                            <button class="btn btn-success" id="btn-update">수정하기</button>
                         </div>
                     </div>
                 </div>
@@ -87,20 +92,22 @@
                 $('tbody').prepend(rowTag);
             });
 
-            $('#btn-save').on('click', function () {
+            $('#btn-update').on('click', function () {
 
                 var tracks = [];
 
                 $('tbody > tr').each(function () {
                     tracks.push({
-                        name: $(this).find("input:eq(0)").val()
-                        , artist: $(this).find("input:eq(1)").val()
+                        id: $(this).find("input:eq(0)").val(),
+                        name: $(this).find("input:eq(1)").val(),
+                        artist: $(this).find("input:eq(2)").val()
                     });
                 });
 
                 var data = {
-                    title: $('#album-title').val()
-                    , tracks: tracks
+                    title: $('#album-title').val(),
+                    bio: $('#album-bio').val(),
+                    tracks: tracks
                 };
 
                 $.ajax({
@@ -110,8 +117,9 @@
                     , dataType: 'json'
                     , data: JSON.stringify(data)
                 }).done(function (data) {
+                    alert("앨범이 수정되었습니다.");
                 }).fail(function (e) {
-                    e['readyState']
+                    alert(e);
                 });
 
             });

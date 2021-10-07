@@ -2,9 +2,11 @@ package com.brandpark.sharemusic.modules.account.service;
 
 import com.brandpark.sharemusic.modules.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.framework.AopProxyUtils;
@@ -27,12 +29,16 @@ class AccountServiceTest {
     @Autowired AccountFactory accountFactory;
     @Autowired PasswordEncoder passwordEncoder;
 
+    @BeforeEach
+    public void setUp() {
+        accountService = (AccountService) AopProxyUtils.getSingletonTarget(this.accountService);
+    }
+
     @DisplayName("회원가입 시 비밀번호 인코딩")
     @Test
     public void PasswordEncoding_When_SignUp() throws Exception {
 
         // given
-        accountService = (AccountService) AopProxyUtils.getSingletonTarget(this.accountService);
         Method method = accountService.getClass().getDeclaredMethod("encodingPassword", SignUpForm.class);
         method.setAccessible(true);
 
@@ -51,7 +57,6 @@ class AccountServiceTest {
     public void PasswordEncoding_When_UpdatePassword() throws Exception {
 
         // given
-        accountService = (AccountService) AopProxyUtils.getSingletonTarget(this.accountService);
         Method method = accountService.getClass().getDeclaredMethod("encodingPassword", UpdatePasswordForm.class);
         method.setAccessible(true);
 
@@ -65,15 +70,15 @@ class AccountServiceTest {
         assertThat(passwordEncoder.matches(rawPassword, encodedForm.getPassword())).isTrue();
     }
 
-    @DisplayName("Account -> UpdateBasicInfoForm 필드 단순 삽입")
+    @DisplayName("SessionAccount -> UpdateBasicInfoForm 필드 단순 삽입")
     @Test
     public void Account_To_UpdateBasicInfoForm() throws Exception {
 
         // given
-        Account account = accountFactory.createAccount("newAccount");
+        SessionAccount account = accountFactory.createSessionAccount("newAccount");
 
         // when
-        UpdateBasicInfoForm form = accountService.entityToForm(account);
+        UpdateBasicInfoForm form = accountService.mapToForm(account);
 
         // then
         assertThat(form.getEmail()).isEqualTo(account.getEmail());
@@ -88,11 +93,14 @@ class AccountServiceTest {
     public void UpdateBasicInfoForm_SimpleInsertTo_Account() throws Exception {
 
         // given
+        Method method = accountService.getClass().getDeclaredMethod("fieldMapping", UpdateBasicInfoForm.class, Account.class);
+        method.setAccessible(true);
+
         Account account = accountFactory.createAccount("newAccount");
         UpdateBasicInfoForm form = accountFactory.createUpdateBasicInfoForm("updateAccount");
 
         // when
-        accountService.fieldMapping(form, account);
+        method.invoke(accountService, form, account);
 
         // then
         assertThat(account.getEmail()).isEqualTo(form.getEmail());
@@ -107,11 +115,14 @@ class AccountServiceTest {
     public void UpdatePasswordForm_SimpleInsertTo_Account() throws Exception {
 
         // given
+        Method method = accountService.getClass().getDeclaredMethod("fieldMapping", UpdatePasswordForm.class, Account.class);
+        method.setAccessible(true);
+
         Account account = accountFactory.createAccount("newAccount");
         UpdatePasswordForm form = accountFactory.createUpdatePasswordForm();
 
         // when
-        accountService.fieldMapping(form, account);
+        method.invoke(accountService, form, account);
 
         // then
         assertThat(account.getPassword()).isEqualTo(form.getPassword());

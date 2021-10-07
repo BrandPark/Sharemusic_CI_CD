@@ -3,6 +3,7 @@ package com.brandpark.sharemusic.modules;
 
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.Role;
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
@@ -19,6 +20,11 @@ public class AccountFactory {
 
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+
+    public SessionAccount createSessionAccount(String name) {
+        Account account = createAccount(name);
+        return modelMapper.map(account, SessionAccount.class);
+    }
 
     public Account createAccount(String name) {
         SignUpForm signUpForm = createSignUpForm(name);

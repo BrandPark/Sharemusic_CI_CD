@@ -10,5 +10,9 @@ public class AlbumUpdateForm {
 
     private String title;
 
+    private String bio;
+
+    private String albumImage;
+
     private List<TrackUpdateForm> tracks = new ArrayList<>();
 }

@@ -14,12 +14,18 @@ public class AlbumSaveRequest {
 
     private String title;
 
+    private String bio;
+
+    private String albumImage;
+
     private List<TrackSaveRequest> tracks = new ArrayList<>();
 
     public Album toEntity(Long accountId) {
         Album album = Album.builder()
                 .accountId(accountId)
                 .title(title)
+                .bio(bio)
+                .albumImage(albumImage)
                 .build();
 
         List<Track> trackEntities = tracks.stream()

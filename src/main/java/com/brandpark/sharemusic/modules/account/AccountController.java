@@ -3,6 +3,7 @@ package com.brandpark.sharemusic.modules.account;
 import com.brandpark.sharemusic.modules.FormValidator;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import com.brandpark.sharemusic.modules.account.service.VerifyMailService;
@@ -43,7 +44,9 @@ public class AccountController {
         }
 
         Account newAccount = accountService.signUp(form);
-        verifyMailService.sendSignUpConfirmMail(newAccount);
+
+        SessionAccount sessionAccount = accountService.mapToSessionAccount(newAccount);
+        verifyMailService.sendSignUpConfirmMail(sessionAccount);
 
         return "redirect:/send-mail-info";
     }
@@ -56,7 +59,7 @@ public class AccountController {
             throw new IllegalArgumentException(nickname + "은(는) 존재하지 않는 닉네임 입니다.");
         }
 
-        model.addAttribute(account);
+        model.addAttribute("account", account);;
 
         return "accounts/profile";
     }
