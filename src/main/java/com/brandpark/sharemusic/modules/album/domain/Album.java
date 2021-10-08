@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
-        uniqueConstraints = @UniqueConstraint(name = "UK_ALBUM", columnNames = {"album_id", "album_title"})
+        uniqueConstraints = @UniqueConstraint(name = "UK_ALBUM", columnNames = {"account_id", "album_title"})
 )
 @Entity
 public class Album extends BaseTimeEntity {
@@ -29,7 +29,7 @@ public class Album extends BaseTimeEntity {
     @Lob
     private String albumImage;
 
-    @Column(nullable = false)
+    @Column(name="account_id", nullable = false)
     private Long accountId;
 
     @Builder.Default

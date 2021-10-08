@@ -16,7 +16,7 @@ class AlbumSaveRequestTest {
     void toEntity() {
 
         // given
-        AlbumSaveRequest dto = albumFactory.createAlbumSaveDto("앨범 제목");
+        AlbumSaveRequest dto = albumFactory.createAlbumSaveDto();
         Long accountId = 1L;
 
         // when

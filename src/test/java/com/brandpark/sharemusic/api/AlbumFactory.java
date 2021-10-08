@@ -20,32 +20,37 @@ public class AlbumFactory {
 
     @Autowired ModelMapper modelMapper;
 
-    public Album createAlbum(String title) {
-
+    public Album createAlbumWithTracks(String title, int trackCount, Long accountId) {
         Album album = Album.builder()
                 .title(title)
-                .accountId(1L)
-                .bio("My name is " + title)
-                .albumImage("image")
+                .accountId(accountId)
+                .bio("앨범 소개")
+                .albumImage("앨범 이미지")
                 .build();
 
-        List<Track> tracks = createTrackList(title+".name", title+".artist", 5, album);
-
+        List<Track> tracks = createTracksContainingAlbum(trackCount, album);
         album.getTracks().addAll(tracks);
+
         return album;
     }
 
-    public List<Track> createTrackList(String name, String artist, int count, Album album) {
+    public Album createAlbumWithTracks(int trackCount, Long accountId) {
+        Album album = createAlbumWithTracks("앨범 제목", trackCount, accountId);
+
+        return album;
+    }
+
+    public List<Track> createTracksContainingAlbum(int count, Album album) {
 
         List<Track> tracks = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            tracks.add(createTrack(name + i, artist + i, album));
+            tracks.add(createTrackContainingAlbum("이름" + i, "아티스트" + i, album));
         }
 
         return tracks;
     }
 
-    public Track createTrack(String name, String artist, Album album) {
+    public Track createTrackContainingAlbum(String name, String artist, Album album) {
         return Track.builder()
                 .name(name)
                 .artist(artist)
@@ -53,48 +58,40 @@ public class AlbumFactory {
                 .build();
     }
 
-    public AlbumSaveRequest createAlbumSaveDto(String title) {
-        List<TrackSaveRequest> trackDtos = createTrackSaveDtoList("name", "artist", 5);
-        return createAlbumSaveDto(title, trackDtos);
-    }
-
-    public AlbumSaveRequest createAlbumSaveDto(String title, List<TrackSaveRequest> trackSaveRequests) {
-        AlbumSaveRequest albumDto = new AlbumSaveRequest();
-        albumDto.setTitle(title);
-        albumDto.setBio("My name is " + title);
-        albumDto.setTracks(trackSaveRequests);
-
-        return albumDto;
+    public List<TrackSaveRequest> createTrackSaveDtos(int trackCount) {
+        List<TrackSaveRequest> tracks = new ArrayList<>();
+        for (int i = 0; i < trackCount; i++) {
+            TrackSaveRequest trackDto = createTrackSaveDto("이름" + i, "아티스트" + i);
+            tracks.add(trackDto);
+        }
+        return tracks;
     }
 
     public TrackSaveRequest createTrackSaveDto(String name, String artist) {
-        TrackSaveRequest dto = new TrackSaveRequest();
-        dto.setName(name);
-        dto.setArtist(artist);
+        TrackSaveRequest trackDto = new TrackSaveRequest();
+        trackDto.setName(name);
+        trackDto.setArtist(artist);
 
-        return dto;
+        return trackDto;
     }
 
-    public List<TrackSaveRequest> createTrackSaveDtoList(String name, String artist, int count) {
-        List<TrackSaveRequest> trackDtos = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            TrackSaveRequest trackDto = createTrackSaveDto(name + i, artist + i);
-            trackDtos.add(trackDto);
-        }
-
-        return trackDtos;
+    public AlbumSaveRequest createAlbumSaveDto() {
+        AlbumSaveRequest albumDto = new AlbumSaveRequest();
+        albumDto.setTitle("앨범 제목");
+        albumDto.setBio("앨범 소개");
+        albumDto.setAlbumImage("앨범 이미지");
+        return albumDto;
     }
 
-    public AlbumUpdateRequest createAlbumUpdateDto(Album album) {
+    public AlbumUpdateRequest createAlbumUpdateDtoByEntity(Album album) {
         return modelMapper.map(album, AlbumUpdateRequest.class);
     }
 
-    public TrackUpdateRequest createTrackUpdateDto() {
-        Track track = createTrack("음원명", "아티스트", createAlbum("title"));
-        return createTrackUpdateDto(track);
-    }
+    public TrackUpdateRequest createTrackUpdateDto(String name, String artist) {
+        TrackUpdateRequest trackDto = new TrackUpdateRequest();
+        trackDto.setName(name);
+        trackDto.setArtist(artist);
 
-    public TrackUpdateRequest createTrackUpdateDto(Track track) {
-        return modelMapper.map(track, TrackUpdateRequest.class);
+        return trackDto;
     }
 }

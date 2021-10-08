@@ -17,8 +17,8 @@ class TrackSaveRequestTest {
     void toEntity() {
 
         // given
-        Album album = albumFactory.createAlbum("제목");
-        TrackSaveRequest dto = albumFactory.createTrackSaveDto("음원명", "아티스트");
+        Album album = albumFactory.createAlbumWithTracks(5, 1L);
+        TrackSaveRequest dto = albumFactory.createTrackSaveDto("이름", "아티스트");
 
         // when
         Track track = dto.toEntity(album);

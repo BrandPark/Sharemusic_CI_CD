@@ -21,7 +21,7 @@ public class AlbumApiController {
     @PostMapping("/albums")
     public Long createAlbum(@LoginAccount SessionAccount account, @RequestBody AlbumSaveRequest requestDto) {
 
-        dtoValidator.validateAlbumSaveDto(requestDto);
+        dtoValidator.validateAlbumSaveDto(requestDto, account.getId());
 
         return albumService.saveAlbum(account, requestDto);
     }
@@ -30,7 +30,7 @@ public class AlbumApiController {
     public Long updateAlbum(@LoginAccount SessionAccount account, @RequestBody AlbumUpdateRequest requestDto
             , @PathVariable("albumId") Album album) {
 
-        dtoValidator.validateAlbumUpdateDto(requestDto);
+        dtoValidator.validateAlbumUpdateDto(requestDto, account.getId(), album.getId());
 
         albumService.updateAlbum(requestDto, album);
 

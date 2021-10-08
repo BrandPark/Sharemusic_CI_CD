@@ -23,7 +23,7 @@ class AlbumServiceTest {
     public void Album_To_AlbumUpdateForm() throws Exception {
 
         // given
-        Album album = albumFactory.createAlbum("albumTitle");
+        Album album = albumFactory.createAlbumWithTracks(5, 1L);
 
         // when
         AlbumUpdateForm form = albumService.entityToForm(album);
@@ -36,5 +36,4 @@ class AlbumServiceTest {
             assertThat(form.getTracks().get(i).getArtist()).isEqualTo(album.getTracks().get(i).getArtist());
         }
     }
-
 }
