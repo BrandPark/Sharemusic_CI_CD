@@ -1,0 +1,26 @@
+/*
+ * FilePond Custom Styles
+ */
+
+.filepond--drop-label, .filepond--drop-label>label {
+    color: #4c4e53;
+    cursor: pointer;
+}
+
+
+.filepond--label-action {
+    text-decoration-color: #babdc0;
+}
+
+.filepond--panel-root {
+    background-color: #edf0f4;
+}
+
+.filepond--root.filepond-albumImage {
+    width: 170px;
+    margin: 0 auto;
+}
+.filepond--root.filepond-profile {
+    width: 38px;
+    margin-bottom: 0;
+}

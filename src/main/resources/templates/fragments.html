@@ -83,5 +83,28 @@
             });
         });
     </script>
+
+    <!-- File Pond -->
+    <div th:fragment="filepond-css">
+        <link rel="stylesheet" property="stylesheet" href="/node_modules/filepond/dist/filepond.min.css"/>
+        <link rel="stylesheet" property="stylesheet" href="/node_modules/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css"/>
+        <link rel="stylesheet" property="stylesheet" href="/node_modules/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.min.css"/>
+        <link rel="stylesheet" property="stylesheet" href="/custom/css/filepond.css"/>
+    </div>
+    <div th:fragment="filepond-js">
+        <script src="/node_modules/filepond/dist/filepond.min.js"></script>
+        <script src="/node_modules/jquery-filepond/filepond.jquery.js"></script>
+        <script src="/node_modules/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.min.js"></script>
+        <script src="/node_modules/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.min.js"></script>
+        <script src="/node_modules/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.min.js"></script>
+        <script src="/node_modules/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.min.js"></script>
+        <script src="/node_modules/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js"></script>
+        <script src="/node_modules/filepond-plugin-image-resize/dist/filepond-plugin-image-resize.min.js"></script>
+        <script src="/node_modules/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.min.js"></script>
+        <script src="/node_modules/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.min.js"></script>
+        <script src="/node_modules/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.min.js"></script>
+        <script src="/custom/js/filepond.js"></script>
+    </div>
+
 </body>
 </html>
