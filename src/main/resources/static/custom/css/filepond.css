@@ -2,7 +2,7 @@
  * FilePond Custom Styles
  */
 
-.filepond--drop-label, .filepond--drop-label>label {
+.filepond--drop-label, .filepond--drop-label>label, .filepond--image-preview-wrapper{
     color: #4c4e53;
     cursor: pointer;
 }

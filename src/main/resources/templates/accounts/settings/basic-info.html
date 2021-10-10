@@ -3,12 +3,12 @@
 <head th:replace="fragments.html :: head"></head>
 
 <body class="background">
+    <div th:replace="fragments.html::filepond-css"></div>
     <style>
-        .filepond--file-action-button {
-            display: none;
+        .filepond--action-remove-item {
+            display:none;
         }
     </style>
-    <div th:replace="fragments.html::filepond-css"></div>
     <nav th:replace="fragments.html:: nav"></nav>
     <div th:if="${updateMessage}" class="alert alert-success alert-dismissible fade show text-center" role="alert">
         <strong th:text="${updateMessage}">프로필이 수정되었습니다.</strong>
@@ -23,15 +23,15 @@
                 </div>
             </div>
             <div class="col-8">
-                <form th:action="@{/accounts/edit/basicinfo}" method="post" th:object="${updateBasicInfoForm}" class="pt-4">
+                <form th:action="@{/accounts/edit/basicinfo}" id="update-form" method="post" th:object="${updateBasicInfoForm}" class="pt-4">
                     <div class="form-group" hidden>
-                        <input name="profileImage" type="hidden" th:field="*{profileImage}" class="form-control"/>
+                        <input name="profileImage" type="text" th:field="*{profileImage}" class="form-control filepond-upload-data"/>
                     </div>
                     <div class="form-group row">
                         <label class="font-weight-bold col-3 col-form-label text-right pr-4 d-flex justify-content-end align-items-center">
                             <input type="file" id="file-input" class="filepond filepond-input filepond-profile" name="filepond" accept="image/jpeg, image/png"/>
                         </label>
-                        <a class="font-weight-bold text-primary pt-4 text-decoration-none" role="button"
+                        <a class="font-weight-bold text-primary pt-3 text-decoration-none" role="button"
                             onclick="document.getElementById('file-input').click()">
                             프로필 사진 바꾸기
                         </a>
@@ -58,7 +58,7 @@
                     </div>
                     <div class="form-group row mt-5 justify-content-center">
                         <div class="col-8">
-                            <button type="submit" class="form-control btn btn-primary col-3">변경</button>
+                            <button type="submit" id="btn-update" class="form-control btn btn-primary col-3">변경</button>
                         </div>
                     </div>
                 </form>
@@ -67,6 +67,17 @@
     </div>
     <div th:replace="fragments.html::footer"></div>
     <div th:replace="fragments.html::filepond-js"></div>
+    <script>
+        $.fn.filepond.setDefaults({
+            styleLoadIndicatorPosition: 'center center',
+        });
+        pond.on('init', function(){
+            pond.addFile($('input[name="profileImage"]').val());
+        })
+        pond.on('updatefiles', function(files) {
+            $('.filepond--image-preview-overlay').text("");
+        });
+    </script>
 </body>
 </html>
 

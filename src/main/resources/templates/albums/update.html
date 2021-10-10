@@ -140,15 +140,15 @@
             $('tbody').on('click', '.btn-remove', function () {
                 $(this).closest('tr').remove();
             });
-
-            pond.on('init', function () {
-                var dataUrl = $('.filepond-origin').val();
-                if (dataUrl) {
-                    pond.addFile(dataUrl);
-                }
-            });
-
         })
+    </script>
+    <script>
+        pond.on('init', function () {
+            var dataUrl = $('.filepond-origin').val();
+            if (dataUrl) {
+                pond.addFile(dataUrl);
+            }
+        });
     </script>
 </body>
 </html>

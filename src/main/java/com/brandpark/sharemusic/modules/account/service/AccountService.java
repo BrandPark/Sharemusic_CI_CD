@@ -67,7 +67,7 @@ public class AccountService implements UserDetailsService {
 
         fieldMapping(form, persistentAccount);
 
-        login(account);
+        login(mapToSessionAccount(persistentAccount));
     }
 
     @Transactional

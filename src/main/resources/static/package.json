@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^4.6.0",
-    "cropper": "^4.1.0",
     "filepond": "^4.30.3",
     "filepond-plugin-file-encode": "^2.1.10",
     "filepond-plugin-file-validate-size": "^2.2.5",
@@ -23,7 +22,6 @@
     "filepond-plugin-image-transform": "^3.8.7",
     "font-awesome": "^4.7.0",
     "jquery": "^3.6.0",
-    "jquery-cropper": "^1.0.1",
     "jquery-filepond": "^1.0.0",
     "popper.js": "^1.16.1"
   },

@@ -23,7 +23,7 @@ const pond = FilePond.create(
             imageCropAspectRatio: '1:1',
             imageResizeTargetWidth: 200,
             imageResizeTargetHeight: 200,
-            imagePreviewMaxFileSize: '3MB',
+            imagePreviewMaxFileSize: '1MB',
             acceptedFileTypes: ['image/jpg', 'image/png'],
             stylePanelLayout: 'compact circle',
             styleLoadIndicatorPosition: 'center bottom',
@@ -34,15 +34,25 @@ const pond = FilePond.create(
 );
 
 $.fn.filepond.setDefaults({
-    maxFileSize: '3MB',
+    maxFileSize: '1MB',
     labelMaxFileSize: '파일의 크기가 너무 큽니다. 3MB 이하의 사진을 사용해 주세요',
     fileValidateTypeLabelExpectedTypes: 'image/jpeg, image/png 형식의 파일만 가능합니다.',
 });
 
 pond.on('addfile', function(_error, _file){
     if(_error){
-        alert(error['sub']);
+        alert(_error['sub']);
         pond.removeFile(_file);
         return;
+    }
+    var reader = new FileReader();
+    reader.addEventListener('load', function(){
+        $('.filepond-upload-data').val(reader.result);
+    });
+
+    if(_file){
+        if(_file.file){
+            reader.readAsDataURL(_file.file);
+        }
     }
 });
