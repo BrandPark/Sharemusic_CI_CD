@@ -14,7 +14,7 @@ public class AlbumSaveRequest {
 
     private String title;
 
-    private String bio;
+    private String description;
 
     private String albumImage;
 
@@ -24,7 +24,7 @@ public class AlbumSaveRequest {
         Album album = Album.builder()
                 .accountId(accountId)
                 .title(title)
-                .bio(bio)
+                .description(description)
                 .albumImage(albumImage)
                 .build();
 
@@ -32,7 +32,7 @@ public class AlbumSaveRequest {
                 .map(t -> t.toEntity(album))
                 .collect(toList());
 
-        album.getTracks().addAll(trackEntities);
+        album.addAllTrack(trackEntities);
 
         return album;
     }

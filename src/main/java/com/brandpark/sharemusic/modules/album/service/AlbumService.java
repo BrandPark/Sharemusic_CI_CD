@@ -33,7 +33,7 @@ public class AlbumService {
     @Transactional
     public Long saveAlbum(SessionAccount account, AlbumSaveRequest requestDto) {
 
-        requestDto.setBio(MyUtil.toBrTag(requestDto.getBio()));
+        requestDto.setDescription(MyUtil.toBrTag(requestDto.getDescription()));
         Album album = requestDto.toEntity(account.getId());
 
         return albumRepository.save(album).getId();
@@ -42,7 +42,7 @@ public class AlbumService {
     @Transactional
     public void updateAlbum(AlbumUpdateRequest requestDto, Album album) {
         // 앨범 정보 변경
-        album.updateAlbum(requestDto.getTitle(), requestDto.getAlbumImage(), requestDto.getBio());
+        album.updateAlbum(requestDto.getTitle(), requestDto.getAlbumImage(), requestDto.getDescription());
 
         // 트랙들 순회하며 변경
         Map<Long, Track> lookupTracksMap = album.getTracks().stream().collect(Collectors.toMap(Track::getId, Function.identity()));

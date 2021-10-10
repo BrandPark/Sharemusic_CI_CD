@@ -24,7 +24,7 @@ public class Album extends BaseTimeEntity {
     private String title;
 
     @Column(length = 100)
-    private String bio;
+    private String description;
 
     @Lob
     private String albumImage;
@@ -32,26 +32,36 @@ public class Album extends BaseTimeEntity {
     @Column(name="account_id", nullable = false)
     private Long accountId;
 
+    @Column(nullable=false)
+    private int trackCount;
+
     @Builder.Default
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Track> tracks = new ArrayList<>();
 
-    public void updateAlbum(String title, String albumImage, String bio) {
+    public void updateAlbum(String title, String albumImage, String description) {
         this.title = title;
         this.albumImage = albumImage;
-        this.bio = bio;
+        this.description = description;
     }
 
     public void addTrack(Track track) {
         if (tracks != null) {
             track.initAlbum(this);
             tracks.add(track);
+            trackCount++;
         }
     }
 
     public void removeTrack(Track track) {
         if (track != null) {
             tracks.remove(track);
+            trackCount++;
         }
+    }
+
+    public void addAllTrack(List<Track> trackEntities) {
+        tracks.addAll(trackEntities);
+        trackCount += trackEntities.size();
     }
 }

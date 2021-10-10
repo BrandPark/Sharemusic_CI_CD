@@ -2,19 +2,30 @@ package com.brandpark.sharemusic.modules.main;
 
 import com.brandpark.sharemusic.infra.config.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.modules.album.query.AlbumQueryRepository;
+import com.brandpark.sharemusic.modules.album.query.AlbumShortDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.List;
+
+@RequiredArgsConstructor
 @Controller
 public class HomeController implements ErrorController {
+
+    private final AlbumQueryRepository albumQueryRepository;
 
     @GetMapping("/")
     public String viewHome(@LoginAccount SessionAccount account, Model model) {
         if (account != null) {
             model.addAttribute("account", account);;
         }
+
+        List<AlbumShortDto> albumPreviewList = albumQueryRepository.findAllAlbumShortDto();
+        model.addAttribute("albumPreviewList", albumPreviewList);
 
         return "home";
     }

@@ -72,7 +72,10 @@
             styleLoadIndicatorPosition: 'center center',
         });
         pond.on('init', function(){
-            pond.addFile($('input[name="profileImage"]').val());
+            var dataUrl = $('input[name="profileImage"]')?.val();
+            if (dataUrl) {
+                pond.addFile(dataUrl);
+            }
         })
         pond.on('updatefiles', function(files) {
             $('.filepond--image-preview-overlay').text("");

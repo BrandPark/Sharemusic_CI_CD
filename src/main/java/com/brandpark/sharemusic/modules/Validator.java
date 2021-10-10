@@ -1,12 +1,13 @@
 package com.brandpark.sharemusic.modules;
 
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
+import com.brandpark.sharemusic.modules.exception.ForbiddenAccessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,7 @@ import org.springframework.validation.BindingResult;
 
 @RequiredArgsConstructor
 @Component
-public class FormValidator {
+public class Validator {
 
     private final AccountRepository accountRepository;
 
@@ -82,6 +83,12 @@ public class FormValidator {
 
             String message = "이미 인증이 완료된 계정입니다.";
             errors.reject("error.alreadyVerified", message);
+        }
+    }
+
+    public void validateAlbumHost(Long loginId, Long albumHostId) {
+        if (loginId != albumHostId) {
+            throw new ForbiddenAccessException("올바르지 않은 접근입니다. ");
         }
     }
 }

@@ -4,13 +4,35 @@
 
 <body class="background">
     <nav th:replace="fragments.html:: nav"></nav>
-
-    <div th:if="${account != null && account.role.name() != 'USER'}" class="alert alert-warning alert-dismissible fade show" role="alert">
-        <i class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i>&nbsp;
-        가입을 완료하려면 <a class="alert-link" th:href="@{/send-mail-info}">이메일 계정을 인증</a>해주세요.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
+    <div class="container" style="padding-top:5em;">
+        <div class="row">
+            <div class="col-md-4" th:each="albumPreview: ${albumPreviewList}">
+                <div class="card mb-4 shadow-sm h-80">
+                    <div class="d-flex justify-content-center bg-light py-3" style="height: 180px">
+                        <img th:src="${albumPreview.albumImage}" class="col-6 card-img-top bg-light rounded-circle" th:alt="${albumPreview.title}" >
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title font-weight-bold" th:text="${albumPreview.title}">title</h5>
+                        <p class="card-text text-truncate" th:text="${albumPreview.description}">Short description</p>
+<!--                        <p class="card-text context">-->
+<!--                        </p>-->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fa fa-music pr-2" aria-hidden="true"></i>
+                                <span th:text="${albumPreview.trackCount}"></span>곡
+                            </small>
+                        </div>
+                        <div>
+                            <small>
+                                <i th:if="${#strings.isEmpty(albumPreview.creatorProfileImage)}" class="fa fa-user-circle"></i>
+                                <img width="23" height="23" th:if="${!#strings.isEmpty(albumPreview.creatorProfileImage)}" th:src="${albumPreview.creatorProfileImage}">
+                                <span class="font-weight-bold" th:text="${albumPreview.creator}"></span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div th:replace="fragments.html::footer"></div>
 </body>

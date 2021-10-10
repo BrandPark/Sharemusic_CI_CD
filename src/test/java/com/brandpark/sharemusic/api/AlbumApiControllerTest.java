@@ -247,7 +247,7 @@ class AlbumApiControllerTest {
                     Album album = albumRepository.findById(albumId).get();
                     assertThat(album).isNotNull();
                     assertThat(album.getTitle()).isEqualTo(albumDto.getTitle());
-                    assertThat(album.getBio()).isEqualTo(albumDto.getBio());
+                    assertThat(album.getDescription()).isEqualTo(albumDto.getDescription());
                     assertThat(album.getAlbumImage()).isEqualTo(albumDto.getAlbumImage());
 
                     List<Track> tracks = album.getTracks();
@@ -419,7 +419,7 @@ class AlbumApiControllerTest {
         // when : 앨범 정보 수정, 트랙 추가, 삭제, 수정
         albumDto.setTitle("수정된 제목");
         albumDto.setAlbumImage("수정된 이미지");
-        albumDto.setBio("수정된 소개");
+        albumDto.setDescription("수정된 소개");
 
         List<TrackUpdateRequest> trackDtos = albumDto.getTracks();
         trackDtos.add(0, albumFactory.createTrackUpdateDto("추가된 트랙 이름", "추가된 트랙 아티스트"));
@@ -444,7 +444,7 @@ class AlbumApiControllerTest {
                     Album album = albumRepository.findById(albumId).get();
                     assertThat(album).isNotNull();
                     assertThat(album.getTitle()).isEqualTo("수정된 제목");
-                    assertThat(album.getBio()).isEqualTo("수정된 소개");
+                    assertThat(album.getDescription()).isEqualTo("수정된 소개");
                     assertThat(album.getAlbumImage()).isEqualTo("수정된 이미지");
 
                     // 트랙 이름순 정렬

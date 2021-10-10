@@ -24,7 +24,7 @@ public class AlbumFactory {
         Album album = Album.builder()
                 .title(title)
                 .accountId(accountId)
-                .bio("앨범 소개")
+                .description("앨범 소개")
                 .albumImage("앨범 이미지")
                 .build();
 
@@ -78,7 +78,7 @@ public class AlbumFactory {
     public AlbumSaveRequest createAlbumSaveDto() {
         AlbumSaveRequest albumDto = new AlbumSaveRequest();
         albumDto.setTitle("앨범 제목");
-        albumDto.setBio("앨범 소개");
+        albumDto.setDescription("앨범 소개");
         albumDto.setAlbumImage("앨범 이미지");
         return albumDto;
     }

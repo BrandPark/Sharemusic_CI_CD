@@ -2,6 +2,7 @@ package com.brandpark.sharemusic.modules.album;
 
 import com.brandpark.sharemusic.infra.config.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.modules.Validator;
 import com.brandpark.sharemusic.modules.MyUtil;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.form.AlbumUpdateForm;
@@ -17,20 +18,23 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class AlbumController {
 
     private final AlbumService albumService;
+    private final Validator validator;
 
     @GetMapping("/albums")
     public String createAlbumForm(@LoginAccount SessionAccount account, Model model) {
-        model.addAttribute("account", account);;
+        model.addAttribute("account", account);
         return "albums/create";
     }
 
-    @GetMapping("/albums/{albumId}")
+    @GetMapping("/albums/{albumId}/update")
     public String updateAlbumForm(@LoginAccount SessionAccount account, Model model, @PathVariable("albumId") Album album) {
+
+        validator.validateAlbumHost(account.getId(), album.getAccountId());
 
         model.addAttribute("account", account);;
 
         AlbumUpdateForm form = albumService.entityToForm(album);
-        form.setBio(MyUtil.toEscape(form.getBio()));
+        form.setDescription(MyUtil.toEscape(form.getDescription()));
 
         model.addAttribute("album", form);
         model.addAttribute("tracks", form.getTracks());

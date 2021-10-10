@@ -10,7 +10,7 @@ public class AlbumUpdateForm {
 
     private String title;
 
-    private String bio;
+    private String description;
 
     private String albumImage;
 

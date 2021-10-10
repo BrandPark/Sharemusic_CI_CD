@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.modules.account;
 
-import com.brandpark.sharemusic.modules.FormValidator;
+import com.brandpark.sharemusic.modules.Validator;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
@@ -26,7 +26,7 @@ public class AccountController {
     private final AccountService accountService;
     private final VerifyMailService verifyMailService;
     private final AccountRepository accountRepository;
-    private final FormValidator formValidator;
+    private final Validator formValidator;
 
     @GetMapping("/signup")
     public String signUpForm(Model model) {
