@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Profile("local")
@@ -24,15 +25,25 @@ public class InitAccount {
     @PostConstruct
     public void initAccount() {
         SignUpForm form = new SignUpForm();
-        form.setEmail("test@email.com");
-        form.setNickname("test");
-        form.setPassword(passwordEncoder.encode("123123123"));
+
+        form.setEmail("user@email.com");
+        form.setNickname("user");
+        form.setPassword(passwordEncoder.encode("1q2w3e4r"));
         form.setName("박민곤");
 
-        Account account = modelMapper.map(form, Account.class);
-        account.generateEmailCheckToken();
-        account.assignRole(Role.GUEST);
+        Account userAccount = modelMapper.map(form, Account.class);
+        userAccount.generateEmailCheckToken();
+        userAccount.assignRole(Role.USER);
 
-        accountRepository.save(account);
+        form.setEmail("guest@email.com");
+        form.setNickname("guest");
+        form.setPassword(passwordEncoder.encode("1q2w3e4r"));
+        form.setName("박민곤");
+
+        Account guestAccount = modelMapper.map(form, Account.class);
+        guestAccount.generateEmailCheckToken();
+        guestAccount.assignRole(Role.USER);
+
+        accountRepository.saveAll(List.of(userAccount, guestAccount));
     }
 }
