@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.modules.account;
 
 import com.brandpark.sharemusic.modules.Validator;
-import com.brandpark.sharemusic.infra.config.LoginAccount;
+import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.form.VerificationEmailToken;
 import com.brandpark.sharemusic.modules.account.service.AccountService;

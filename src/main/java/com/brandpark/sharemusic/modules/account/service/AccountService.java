@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.modules.account.service;
 
-import com.brandpark.sharemusic.infra.config.CustomUserDetails;
+import com.brandpark.sharemusic.infra.config.auth.CustomUserDetails;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.MyUtil;
 import com.brandpark.sharemusic.modules.account.domain.Account;

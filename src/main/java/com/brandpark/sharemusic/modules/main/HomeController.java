@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.modules.main;
 
-import com.brandpark.sharemusic.infra.config.LoginAccount;
+import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.modules.album.query.AlbumShortDto;

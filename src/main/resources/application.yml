@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    include: local
   jpa:
     hibernate:
       ddl-auto: create-drop

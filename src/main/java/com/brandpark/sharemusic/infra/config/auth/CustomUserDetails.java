@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.infra.config;
+package com.brandpark.sharemusic.infra.config.auth;
 
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import lombok.Getter;

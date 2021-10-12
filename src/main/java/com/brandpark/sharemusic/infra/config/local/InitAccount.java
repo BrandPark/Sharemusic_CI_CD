@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.infra.config;
+package com.brandpark.sharemusic.infra.config.local;
 
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
@@ -42,7 +42,7 @@ public class InitAccount {
 
         Account guestAccount = modelMapper.map(form, Account.class);
         guestAccount.generateEmailCheckToken();
-        guestAccount.assignRole(Role.USER);
+        guestAccount.assignRole(Role.GUEST);
 
         accountRepository.saveAll(List.of(userAccount, guestAccount));
     }

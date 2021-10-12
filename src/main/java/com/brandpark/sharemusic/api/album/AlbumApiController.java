@@ -3,7 +3,7 @@ package com.brandpark.sharemusic.api.album;
 import com.brandpark.sharemusic.api.DtoValidator;
 import com.brandpark.sharemusic.api.album.dto.AlbumSaveRequest;
 import com.brandpark.sharemusic.api.album.dto.AlbumUpdateRequest;
-import com.brandpark.sharemusic.infra.config.LoginAccount;
+import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.service.AlbumService;

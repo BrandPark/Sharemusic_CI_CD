@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    active: test
+
+app:
+  host: http://localhost:8080

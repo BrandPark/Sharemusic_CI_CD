@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.infra.config;
+package com.brandpark.sharemusic.infra.config.auth;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 

@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.infra.config;
+package com.brandpark.sharemusic.infra.config.auth;
 
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
