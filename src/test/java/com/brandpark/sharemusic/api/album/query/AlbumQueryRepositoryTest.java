@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules.album.query;
+package com.brandpark.sharemusic.api.album.query;
 
 import com.brandpark.sharemusic.api.AlbumFactory;
 import com.brandpark.sharemusic.modules.AccountFactory;
@@ -11,6 +11,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,21 +40,29 @@ class AlbumQueryRepositoryTest {
         
         savedAlbum = albumFactory.createAlbumWithTracks("저장되어있는 앨범", 5, user.getId());
         albumRepository.save(savedAlbum);
-        albumRepository.save(albumFactory.createAlbumWithTracks("또다른 앨범", 5, user.getId()));
+
+        for (int i = 0; i < 30; i++) {
+            albumRepository.save(albumFactory.createAlbumWithTracks("또다른 앨범" + i, 5, user.getId()));
+        }
+
     }
 
-    @DisplayName("모든 앨범의 간략한 정보 조회")
+    @DisplayName("한 페이지 앨범의 간략한 정보 조회")
     @Test
     public void RetrieveAlbumShortDto() throws Exception {
 
         // given
-        // when
-        List<AlbumShortDto> result = queryRepository.findAllAlbumShortDto();
+        PageRequest pageRequest = PageRequest.of(0, 10);
 
-        AlbumShortDto resultOne = result.get(0);
+        // when
+        Page<AlbumShortDto> result = queryRepository.findAllAlbumShortDto(pageRequest);
+
+        List<AlbumShortDto> pageContent = result.getContent();
+        AlbumShortDto resultOne = pageContent.get(0);
 
         // then
-        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.getTotalElements()).isEqualTo(31);
+        assertThat(pageContent.size()).isEqualTo(10);
         assertThat(resultOne.getTitle()).isEqualTo(savedAlbum.getTitle());
         assertThat(resultOne.getAlbumImage()).isEqualTo(savedAlbum.getAlbumImage());
         assertThat(resultOne.getDescription()).isEqualTo(savedAlbum.getDescription());

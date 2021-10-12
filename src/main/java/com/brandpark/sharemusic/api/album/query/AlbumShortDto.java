@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules.album.query;
+package com.brandpark.sharemusic.api.album.query;
 
 import lombok.Data;
 

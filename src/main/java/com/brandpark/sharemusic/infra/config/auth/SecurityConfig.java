@@ -28,16 +28,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         // Authorization
-        http.httpBasic()
-                .and()
-                .authorizeRequests()
-                .mvcMatchers("/", "/accounts/signup", "/error").permitAll()
+        http.authorizeRequests()
+                .mvcMatchers("/", "/accounts/signup", "/error", "/api/v1/**").permitAll()
                 .mvcMatchers(GET, "/accounts/*").permitAll()
                 .mvcMatchers("/accounts/edit/*").authenticated()
                 .mvcMatchers(GET, "/albums/*").permitAll()
                 .mvcMatchers(POST, "/resend-verify-mail").hasRole("GUEST")
                 .mvcMatchers("/albums/**").hasRole("USER")
-                .mvcMatchers("/api/v1/**").hasRole("USER")
                 .anyRequest().authenticated();
 
         // login & logout

@@ -1,14 +1,16 @@
-package com.brandpark.sharemusic.modules.album.query;
+package com.brandpark.sharemusic.api.album.query;
 
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -17,11 +19,11 @@ public class AlbumQueryRepository {
 
     private final JPAQueryFactory query;
 
-    public List<AlbumShortDto> findAllAlbumShortDto() {
+    public Page<AlbumShortDto> findAllAlbumShortDto(Pageable pageable) {
         QAlbum album = QAlbum.album;
         QAccount account = QAccount.account;
 
-        return query.select(
+        QueryResults<AlbumShortDto> result = query.select(
                         Projections.bean(AlbumShortDto.class,
                                 album.title,
                                 album.albumImage,
@@ -32,7 +34,11 @@ public class AlbumQueryRepository {
                         ))
                 .from(album)
                 .innerJoin(account).on(album.accountId.eq(account.id))
-                .fetch();
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        return new PageImpl<>(result.getResults(), pageable, result.getTotal());
     }
 
 }

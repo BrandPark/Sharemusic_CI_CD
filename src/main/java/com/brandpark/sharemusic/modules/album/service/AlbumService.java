@@ -3,7 +3,6 @@ package com.brandpark.sharemusic.modules.album.service;
 import com.brandpark.sharemusic.api.album.dto.AlbumSaveRequest;
 import com.brandpark.sharemusic.api.album.dto.AlbumUpdateRequest;
 import com.brandpark.sharemusic.api.album.dto.TrackUpdateRequest;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.MyUtil;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
@@ -31,10 +30,10 @@ public class AlbumService {
     }
 
     @Transactional
-    public Long saveAlbum(SessionAccount account, AlbumSaveRequest requestDto) {
+    public Long saveAlbum(Long accountId, AlbumSaveRequest requestDto) {
 
         requestDto.setDescription(MyUtil.toBrTag(requestDto.getDescription()));
-        Album album = requestDto.toEntity(account.getId());
+        Album album = requestDto.toEntity(accountId);
 
         return albumRepository.save(album).getId();
     }
