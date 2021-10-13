@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html :: head"></head>
+
+<body class="background">
+    <nav th:replace="fragments.html:: nav"></nav>
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-3 d-flex justify-content-center">
+                <i th:if="${#strings.isEmpty(account.profileImage)}" class="fa fa-user-circle text-white "
+                   aria-hidden="true" style="font-size: 9em;"></i>
+                <img th:if="${!#strings.isEmpty(account.profileImage)}" class="img-fluid float-left rounded-circle img-thumbnail p-0"
+                     th:src="${account.profileImage}" width="125" height="125"/>
+            </div>
+            <div class="col-md-9">
+                <div class="row mb-2">
+                    <h2 th:text="${account.nickname}" style="font-weight: 300">nickname</h2>
+                    <div th:if="${account.nickname == #authentication.name}" class="ml-4">
+                        <a th:href="@{/accounts/edit/basicinfo}" class="btn btn-outline-primary" role="btn">프로필 편집</a>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-md-2 p-0">게시물</div>
+                    <div class="col-md-2 p-0">팔로워</div>
+                    <div class="col-md-2 p-0">팔로우</div>
+                </div>
+                <div class="row">
+                    <p>
+                        <strong th:text="${account.name}">이름</strong>
+                        <br>
+                        <span th:utext="${account.bio}">
+                            자기소개
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="fragments.html::footer"></div>
+</body>
+</html>
+
