@@ -3,7 +3,6 @@
 <head th:replace="fragments.html :: head"></head>
 
 <body class="background">
-    <div th:replace="fragments.html::filepond-css"></div>
     <nav th:replace="fragments.html:: nav"></nav>
     <div class="container my-5">
         <div class="col-7">
@@ -14,7 +13,10 @@
                 </div>
                 <div class="col-7">
                     <div class="row justify-content-start pb-3">
-                        <h5 th:text="${albumDetailView.getTitle()}">제목</h5>
+                        <h3><span th:text="${albumDetailView.getTitle()}" class="pr-3">제목</span></h3>
+                        <a th:if="${#authentication.name.equals(albumDetailView.getCreator())}" th:href="@{'/albums/' + ${albumDetailView.getId()} + '/update'}" class="text-decoration-none btn btn-outline-info" role="button">
+                            <h5 class="m-0">수정 <i class="fa fa-cog pl-1"></i></h5>
+                        </a>
                     </div>
                     <div class="row justify-content-start">
                         <p th:text="${albumDetailView.getDescription()}"></p>

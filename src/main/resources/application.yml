@@ -16,6 +16,6 @@ logging:
 server:
   tomcat:
     max-http-form-post-size: 5MB
-  error:
-    whitelabel:
-      enabled: false
+#  error:
+#    whitelabel:
+#      enabled: false

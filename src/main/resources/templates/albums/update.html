@@ -118,13 +118,13 @@
 
                 var data = {
                     title: $('#album-title').val(),
-                    bio: $('#album-bio').val(),
+                    description: $('#album-description').val(),
                     albumImage: document.querySelector('.filepond-input canvas')?.toDataURL(),
                     tracks: tracks
                 };
 
                 $.ajax({
-                    url: "/api/v1" + window.location.pathname,
+                    url: "/api/v1/albums/[[${album.getId()}]]",
                     method: 'PUT',
                     contentType: 'application/json;charset=utf-8',
                     dataType: 'json',

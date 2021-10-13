@@ -5,7 +5,6 @@ import com.brandpark.sharemusic.api.album.query.AlbumShortDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RequiredArgsConstructor
 @Controller
-public class HomeController implements ErrorController {
+public class HomeController /*implements ErrorController*/ {
 
     private final AlbumQueryRepository albumQueryRepository;
 
@@ -52,9 +51,9 @@ public class HomeController implements ErrorController {
 //        return "error/error";
 //    }
 
-    @Override
-    public String getErrorPath() {
-        // deprecated method
-        return null;
-    }
+//    @Override
+//    public String getErrorPath() {
+//        // deprecated method
+//        return null;
+//    }
 }

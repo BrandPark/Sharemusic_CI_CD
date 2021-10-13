@@ -87,7 +87,7 @@ public class Validator {
     }
 
     public void validateAlbumHost(Long loginId, Long albumHostId) {
-        if (loginId != albumHostId) {
+        if (!loginId.equals(albumHostId)) {
             throw new ForbiddenAccessException("올바르지 않은 접근입니다. ");
         }
     }

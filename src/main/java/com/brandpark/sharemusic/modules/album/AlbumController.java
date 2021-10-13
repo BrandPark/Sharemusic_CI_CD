@@ -29,21 +29,12 @@ public class AlbumController {
         return "albums/create";
     }
 
-    @GetMapping("/albums/{albumId}")
-    public String detailAlbumView(@LoginAccount SessionAccount account, Model model, @PathVariable Long albumId) {
-        AlbumDetailDto albumDetail = albumQueryRepository.findAlbumDetailDtoById(albumId);
-        model.addAttribute("albumDetailView", albumDetail);
-
-        return "albums/detail";
-    }
-
     @GetMapping("/albums/{albumId}/update")
     public String updateAlbumForm(@LoginAccount SessionAccount account, Model model, @PathVariable("albumId") Album album) {
 
         validator.validateAlbumHost(account.getId(), album.getAccountId());
 
         model.addAttribute("account", account);
-        ;
 
         AlbumUpdateForm form = albumService.entityToForm(album);
         form.setDescription(MyUtil.toEscape(form.getDescription()));
@@ -52,5 +43,18 @@ public class AlbumController {
         model.addAttribute("tracks", form.getTracks());
 
         return "albums/update";
+    }
+
+    @GetMapping("/albums/{albumId}")
+    public String detailAlbumView(@LoginAccount SessionAccount account, Model model, @PathVariable Long albumId) {
+
+        AlbumDetailDto albumDetail = albumQueryRepository.findAlbumDetailDtoById(albumId);
+
+        if (account != null) {
+            model.addAttribute("account", account);
+        }
+        model.addAttribute("albumDetailView", albumDetail);
+
+        return "albums/detail";
     }
 }

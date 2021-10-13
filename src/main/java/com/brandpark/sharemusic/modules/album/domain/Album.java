@@ -56,7 +56,7 @@ public class Album extends BaseTimeEntity {
     public void removeTrack(Track track) {
         if (track != null) {
             tracks.remove(track);
-            trackCount++;
+            trackCount--;
         }
     }
 
