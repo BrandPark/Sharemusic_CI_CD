@@ -63,11 +63,37 @@ class AlbumQueryRepositoryTest {
         // then
         assertThat(result.getTotalElements()).isEqualTo(31);
         assertThat(pageContent.size()).isEqualTo(10);
+        assertThat(resultOne.getId()).isEqualTo(savedAlbum.getId());
         assertThat(resultOne.getTitle()).isEqualTo(savedAlbum.getTitle());
         assertThat(resultOne.getAlbumImage()).isEqualTo(savedAlbum.getAlbumImage());
         assertThat(resultOne.getDescription()).isEqualTo(savedAlbum.getDescription());
         assertThat(resultOne.getTrackCount()).isEqualTo(savedAlbum.getTrackCount());
         assertThat(resultOne.getCreator()).isEqualTo(user.getNickname());
         assertThat(resultOne.getCreatorProfileImage()).isEqualTo(user.getProfileImage());
+    }
+
+    @DisplayName("앨범의 디테일 정보 조회")
+    @Test
+    public void RetrieveAlbumDetailDto() throws Exception {
+
+        // given
+        Long retrieveAlbumId = savedAlbum.getId();
+
+        // when
+        AlbumDetailDto result = queryRepository.findAlbumDetailDtoById(retrieveAlbumId);
+
+        // then
+        assertThat(result.getId()).isEqualTo(savedAlbum.getId());
+        assertThat(result.getTitle()).isEqualTo(savedAlbum.getTitle());
+        assertThat(result.getAlbumImage()).isEqualTo(savedAlbum.getAlbumImage());
+        assertThat(result.getDescription()).isEqualTo(savedAlbum.getDescription());
+        assertThat(result.getCreator()).isEqualTo(user.getNickname());
+        assertThat(result.getCreatorProfileImage()).isEqualTo(user.getProfileImage());
+
+        List<TrackDetailDto> tracks = result.getTracks();
+        assertThat(tracks.size()).isEqualTo(savedAlbum.getTracks().size());
+        assertThat(tracks.get(0).getId()).isEqualTo(savedAlbum.getTracks().get(0).getId());
+        assertThat(tracks.get(0).getName()).isEqualTo(savedAlbum.getTracks().get(0).getName());
+        assertThat(tracks.get(0).getArtist()).isEqualTo(savedAlbum.getTracks().get(0).getArtist());
     }
 }

@@ -20,13 +20,14 @@ public class HomeController implements ErrorController {
     private final AlbumQueryRepository albumQueryRepository;
 
     @GetMapping("/")
-    public String viewHome(@LoginAccount SessionAccount account, Model model, @PageableDefault Pageable pageable) {
+    public String viewHome(@LoginAccount SessionAccount account, Model model, @PageableDefault(size = 6) Pageable pageable) {
+
         if (account != null) {
-            model.addAttribute("account", account);;
+            model.addAttribute("account", account);
         }
 
-        Page<AlbumShortDto> albumPreviewList = albumQueryRepository.findAllAlbumShortDto(pageable);
-        model.addAttribute("albumPreviewList", albumPreviewList);
+        Page<AlbumShortDto> albumPages = albumQueryRepository.findAllAlbumShortDto(pageable);
+        model.addAttribute("albumPages", albumPages);
 
         return "home";
     }

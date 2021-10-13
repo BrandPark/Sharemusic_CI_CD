@@ -13,33 +13,41 @@
     </div>
     <div class="container" style="padding-top:5em;">
         <div class="row">
-            <div class="col-md-4" th:each="albumPreview: ${albumPreviewList}">
-                <div class="card mb-4 shadow-sm h-80">
-                    <div class="d-flex justify-content-center bg-light py-3" style="height: 180px">
-                        <img th:src="${albumPreview.albumImage}" class="col-6 card-img-top bg-light rounded-circle" th:alt="${albumPreview.title}" >
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title font-weight-bold" th:text="${albumPreview.title}">title</h5>
-                        <p class="card-text text-truncate" th:text="${albumPreview.description}">Short description</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">
-                                <i class="fa fa-music pr-2" aria-hidden="true"></i>
-                                <span th:text="${albumPreview.trackCount}"></span>곡
-                            </small>
-                        </div>
-                        <div>
-                            <small>
-                                <i th:if="${#strings.isEmpty(albumPreview.creatorProfileImage)}" class="fa fa-user-circle"></i>
-                                <img width="23" height="23" th:if="${!#strings.isEmpty(albumPreview.creatorProfileImage)}" th:src="${albumPreview.creatorProfileImage}">
-                                <span class="font-weight-bold" th:text="${albumPreview.creator}"></span>
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div th:replace="fragments.html::album-list(${albumPages.getContent()})"></div>
+        </div>
+        <div class="row justify-content-center">
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${!albumPages.hasPrevious()} ? disabled">
+                        <a th:href="@{'/?page=' + ${albumPages.getNumber() - 1}}" class="page-link">Previous</a>
+                    </li>
+                    <li class="page-item" th:each="i: ${#numbers.sequence(0, albumPages.getTotalPages() - 1)}"
+                        th:classappend="${albumPages.getNumber() == i} ? active">
+
+                        <a th:href="@{'/?page=' + ${i}}" class="page-link" th:text="${i+1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${!albumPages.hasNext()} ? disabled">
+                        <a th:href="@{'/?page=' + ${albumPages.getNumber() + 1}}" class="page-link">Next</a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
+
     <div th:replace="fragments.html::footer"></div>
+    <script>
+        $(function () {
+            home.init();
+        });
+        var home = {
+            init: function () {
+                $('div[id^="album_"]').on('click', function () {
+                    var albumId = $(this).attr('id').replace('album_', '');
+                    window.location.href='/albums/' + albumId;
+                });
+            }
+        }
+    </script>
 </body>
 </html>
 

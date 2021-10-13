@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html :: head"></head>
+
+<body class="background">
+    <div th:replace="fragments.html::filepond-css"></div>
+    <nav th:replace="fragments.html:: nav"></nav>
+    <div class="container my-5">
+        <div class="col-7">
+            <div class="row pb-5" th:object="${albumDetailView}">
+                <div class="col-5 ">
+                    <img th:if="${#strings.isEmpty(albumDetailView.getAlbumImage())}" src="/images/album-default.jpg" class="col-9 rounded-circle">
+                    <img th:if="${!#strings.isEmpty(albumDetailView.getAlbumImage())}" th:src="${albumDetailView.getAlbumImage()}" class="col-9 rounded-circle">
+                </div>
+                <div class="col-7">
+                    <div class="row justify-content-start pb-3">
+                        <h5 th:text="${albumDetailView.getTitle()}">제목</h5>
+                    </div>
+                    <div class="row justify-content-start">
+                        <p th:text="${albumDetailView.getDescription()}"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <table id="tracks_table" class="table table-hover w-100 table-dark">
+                    <thead>
+                        <tr>
+                            <th scope="col">음원 명</th>
+                            <th scope="col">아티스트</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="track: ${albumDetailView.getTracks()}">
+                            <td th:text="${track.getName()}"></td>
+                            <td th:text="${track.getArtist()}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div th:replace="fragments.html::footer"></div>
+</body>
+</html>
+

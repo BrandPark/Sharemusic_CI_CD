@@ -9,6 +9,7 @@ import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.service.AlbumService;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,9 +26,8 @@ public class AlbumApiController {
     private final AlbumQueryRepository albumQueryRepository;
 
     @GetMapping("/albums")
-    public Result<Page<AlbumShortDto>> getAllAlbumShort(@PageableDefault(size = 9) Pageable pageable) {
-        Page<AlbumShortDto> albumDtos = albumQueryRepository.findAllAlbumShortDto(pageable);
-        return new Result<>(albumDtos, (int) albumDtos.getTotalElements());
+    public Page<AlbumShortDto> getAllAlbumShort(@PageableDefault(size = 9) Pageable pageable) {
+        return albumQueryRepository.findAllAlbumShortDto(pageable);
     }
 
     @PostMapping("/albums")
@@ -49,9 +49,12 @@ public class AlbumApiController {
         return album.getId();
     }
 
-    @RequiredArgsConstructor
-    private static class Result<T> {
-        private final T data;
-        private final int count;
+    @Builder
+    public static class ResultPage<T> {
+        private T data;
+        private int totalPages;
+        private long totalElements;
+        private int pageNumber;
+        private int numberOfElements;
     }
 }
