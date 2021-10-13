@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html :: head"></head>
+
+<body class="background">
+    <div class="container" style="padding: 7em 0;">
+        <div class="row justify-content-center py-3">
+            <h1 class="text-center">ShareMusic</h1>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-sm-7 col-lg-4 ">
+                <form th:action="@{/login}" method="post">
+                    <div class="form-group">
+                        <input type="text" name="username" class="form-control" placeholder="이메일 또는 닉네임"/>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" class="form-control" placeholder="비밀번호"/>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="form-control btn btn-primary">로그인</button>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe" name="remember-me" checked/>
+                        <label class="form-check-label" for="rememberMe" aria-describedby="rememberMeHelp">로그인 기억하기</label>
+                    </div>
+                </form>
+                <div class="row justify-content-center">
+                    <div th:if="${param.error}" class="text-danger">
+                        <p>입력하신 계정 정보가 정확하지 않습니다.</p>
+                    </div>
+                </div>
+                <div class="row justify-content-center py-3">
+                    <a href="#" class="text-decoration-none">비밀번호를 잊으셨나요?</a>
+                </div>
+                <div class="row justify-content-center py-3">
+                    <span class="px-1">계정이 없으신가요?</span><a th:href="@{/accounts/signup}" class="font-weight-bold text-decoration-none">가입하기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="fragments.html::footer"></div>
+</body>
+</html>
+

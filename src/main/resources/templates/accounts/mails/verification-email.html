@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>회원가입 이메일 인증</title>
+</head>
+<body>
+    <div>
+        <h4>안녕하세요. <span th:text="${nickname}"></span> 님.</h4>
+        <h2 th:text="${message}">메시지</h2>
+        <div>
+            <a role="button" href="#" th:href="${host + link}" th:text="${linkText}"
+               style="box-sizing:border-box;border-color:#348eda;font-weight:400;text-decoration:none;display:inline-block;margin:0;color:#ffffff;background-color:#348eda;border:solid 1px #348eda;border-radius:2px;font-size:14px;padding:12px 45px"></a>
+        </div>
+    </div>
+</body>
+</html>

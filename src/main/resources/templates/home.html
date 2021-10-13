@@ -1,12 +1,53 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-    <title>Hello</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-</head>
-<body>
-<div class="container">
-    hello
-</div> <!-- /container -->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html :: head"></head>
+
+<body class="background">
+    <nav th:replace="fragments.html:: nav"></nav>
+    <div th:if="${account != null && account.role.name() != 'USER'}" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i>&nbsp;
+        가입을 완료하려면 <a class="alert-link" th:href="@{/send-mail-info}">이메일 계정을 인증</a>해주세요.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="container" style="padding-top:5em;">
+        <div class="row">
+            <div th:replace="fragments.html::album-list(${albumPages.getContent()})"></div>
+        </div>
+        <div class="row justify-content-center">
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${!albumPages.hasPrevious()} ? disabled">
+                        <a th:href="@{'/?page=' + ${albumPages.getNumber() - 1}}" class="page-link">Previous</a>
+                    </li>
+                    <li class="page-item" th:each="i: ${#numbers.sequence(0, albumPages.getTotalPages() - 1)}"
+                        th:classappend="${albumPages.getNumber() == i} ? active">
+
+                        <a th:href="@{'/?page=' + ${i}}" class="page-link" th:text="${i+1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${!albumPages.hasNext()} ? disabled">
+                        <a th:href="@{'/?page=' + ${albumPages.getNumber() + 1}}" class="page-link">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div th:replace="fragments.html::footer"></div>
+    <script>
+        $(function () {
+            home.init();
+        });
+        var home = {
+            init: function () {
+                $('div[id^="album_"]').on('click', function () {
+                    var albumId = $(this).attr('id').replace('album_', '');
+                    window.location.href='/albums/' + albumId;
+                });
+            }
+        }
+    </script>
 </body>
 </html>
+

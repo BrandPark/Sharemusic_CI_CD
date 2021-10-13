@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html :: head"></head>
+
+<body class="background">
+    <div th:replace="fragments.html::filepond-css"></div>
+    <nav th:replace="fragments.html:: nav"></nav>
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-3">
+                <div class="list-group" id="list-tab" role="tablist">
+                    <a class="list-group-item list-group-item-action active" id="list_album_info" data-toggle="list" href="#album_info" role="tab" aria-controls="album">앨범 정보</a>
+                    <a class="list-group-item list-group-item-action" id="list_track_info" data-toggle="list" href="#tracks_info" role="tab" aria-controls="tracks">음원 리스트 정보</a>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane fade show active col-6" id="album_info" role="tabpanel" aria-labelledby="list_album_info">
+                        <h2>앨범 정보</h2>
+                        <br>
+                        <div class="form-group">
+                            <label class="col-form-label" for="album-title">앨범 이미지</label>
+                            <input type="file" id="album-image" class="filepond filepond-input filepond-albumImage" name="filepond" accept="image/jpeg, image/png"/>
+                            <small id="imageHelp" class="form-text text-muted">We'll never share your album with anyone else.</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label" for="album-title">앨범 제목</label>
+                            <input type="text" class="form-control" id="album-title" aria-describedby="titleHelp">
+                            <small id="titleHelp" class="form-text text-muted">We'll never share your album with anyone else.</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label" for="album-title">앨범 소개</label>
+                            <textarea name="description" id="album-description" class="form-control" rows="3" aria-describedby="descriptionHelp"></textarea>
+                            <small id="descriptionHelp" class="form-text text-muted">We'll never share your album with anyone else.</small>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="tracks_info" role="tabpanel" aria-labelledby="list_track_info">
+                        <h2>음원 리스트 정보</h2>
+                        <br>
+                        <button id="btn-add" class="btn btn-primary mb-2">추가하기</button>
+                        <table id="tracks_table" class="table table-hover w-100">
+                            <thead>
+                                <tr>
+                                    <th scope="col">음원 명</th>
+                                    <th scope="col">아티스트</th>
+                                    <th scope="col" class="w-10"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <input type="text" class="form-control">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control">
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-danger btn-remove">
+                                            <i class="fa fa-minus" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="row d-flex justify-content-center pt-5">
+                            <button class="btn btn-success" id="btn-save">저장하기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="fragments.html::footer"></div>
+    <script th:replace="fragments.html::ajax-csrf-header"></script>
+    <div th:replace="fragments.html::filepond-js"></div>
+    <script>
+        $(function(){
+            var $tracksTable = $("#tracks_table");
+            $("#btn-add").on('click', function(){
+                $('tbody').closest
+                var rowTag =
+                    `<tr>
+                        <td>
+                            <input type="text" class="form-control">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control">
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-danger btn-remove">
+                                <i class="fa fa-minus" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+
+                $('tbody').prepend(rowTag);
+            });
+
+            $('#btn-save').on('click', function () {
+
+                var tracks = [];
+
+                $('tbody > tr').each(function () {
+                    tracks.push({
+                        name: $(this).find("input:eq(0)").val(),
+                        artist: $(this).find("input:eq(1)").val()
+                    });
+                });
+
+                var data = {
+                    title: $('#album-title').val(),
+                    description: $('#album-description').val(),
+                    albumImage: document.querySelector('.filepond-input canvas')?.toDataURL(),
+                    tracks: tracks
+                };
+
+                $.ajax({
+                    url: "/api/v1/albums",
+                    method: 'POST',
+                    contentType: 'application/json;charset=utf-8',
+                    dataType: 'json',
+                    data: JSON.stringify(data)
+                }).done(function (data) {
+                    alert("앨범을 생성하였습니다.");
+                    window.location.href = "/";
+                }).fail(function (e) {
+                    alert("앨범 저장 실패" + e);
+                });
+
+            });
+
+            $('tbody').on('click', '.btn-remove', function () {
+                $(this).closest('tr').remove();
+            });
+        })
+    </script>
+</body>
+</html>
+

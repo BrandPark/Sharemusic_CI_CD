@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments.html :: head"></head>
+
+<body class="background">
+<div class="container" style="padding: 10em 0;">
+    <div class="row justify-content-center py-3">
+        <h1 class="text-center">ShareMusic</h1>
+    </div>
+    <div th:object="${verificationEmailToken}" class="row justify-content-center py-5">
+        <div th:if="${!#fields.hasGlobalErrors()}" class="col-md-8 text-center">
+            <h2 th:text="${successMessage}">Message</h2>
+            <h5>이제 더 많은 활동을 하실 수 있습니다. 사람들과 음악을 공유해주세요!</h5>
+        </div>
+        <div th:if="${#fields.hasGlobalErrors()}" class="col-md-8 ">
+            <h4 th:each="err : ${#fields.globalErrors()}" th:text="${err}">Message</h4>
+        </div>
+    </div>
+    <div class="row justify-content-center py-3">
+        <a class="btn btn-outline-primary" th:href="@{/}">홈으로 이동 </a>
+    </div>
+</div>
+
+<div th:replace="fragments.html::footer"></div>
+</body>
+</html>
+

@@ -1,7 +1,14 @@
 .idea/
-application-oauth.properties
+**/generated/
+**/static/images/
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,java-web,gradle
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,java-web,gradle
+
+## security config
+application-dev.*
+
+### NPM ###
+node_modules/
 
 ### Intellij ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider

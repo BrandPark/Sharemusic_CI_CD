@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html :: head"></head>
+
+<body class="background">
+    <div th:replace="fragments.html::filepond-css"></div>
+    <style>
+        .filepond--action-remove-item {
+            display:none;
+        }
+    </style>
+    <nav th:replace="fragments.html:: nav"></nav>
+    <div th:if="${updateMessage}" class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong th:text="${updateMessage}">프로필이 수정되었습니다.</strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-3">
+                <div th:replace="fragments.html::accountSettingList('basicInfo')">
+                </div>
+            </div>
+            <div class="col-8">
+                <form th:action="@{/accounts/edit/basicinfo}" id="update-form" method="post" th:object="${updateBasicInfoForm}" class="pt-4">
+                    <div class="form-group" hidden>
+                        <input name="profileImage" type="text" th:field="*{profileImage}" class="form-control filepond-upload-data"/>
+                    </div>
+                    <div class="form-group row">
+                        <label class="font-weight-bold col-3 col-form-label text-right pr-4 d-flex justify-content-end align-items-center">
+                            <input type="file" id="file-input" class="filepond filepond-input filepond-profile" name="filepond" accept="image/jpeg, image/png"/>
+                        </label>
+                        <a class="font-weight-bold text-primary pt-3 text-decoration-none" role="button"
+                            onclick="document.getElementById('file-input').click()">
+                            프로필 사진 바꾸기
+                        </a>
+                    </div>
+                    <div class="form-group row">
+                        <label class="font-weight-bold col-3 col-form-label text-right pr-4" for="email">이메일</label>
+                        <input name="email" id="email" type="email" th:field="*{email}" class="form-control col-6 text-muted" disabled/>
+                        <small class="form-text text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
+                    </div>
+                    <div class="form-group row">
+                        <label class="font-weight-bold col-3 col-form-label text-right pr-4" for="name">이름</label>
+                        <input name="name" id="name" type="text" th:field="*{name}" class="form-control col-6"/>
+                        <small class="form-text text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
+                    </div>
+                    <div class="form-group row">
+                        <label class="font-weight-bold col-3 col-form-label text-right pr-4" for="nickname">닉네임</label>
+                        <input name="nickname" id="nickname" type="text" th:field="*{nickname}" class="form-control col-6"/>
+                        <small class="form-text text-danger" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}"></small>
+                    </div>
+                    <div class="form-group row">
+                        <label class="font-weight-bold col-3 col-form-label text-right pr-4" for="bio">소개</label>
+                        <textarea name="bio" id="bio" class="form-control col-6 " th:field="*{bio}" rows="3" ></textarea>
+                        <small class="form-text text-danger" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}"></small>
+                    </div>
+                    <div class="form-group row mt-5 justify-content-center">
+                        <div class="col-8">
+                            <button type="submit" id="btn-update" class="form-control btn btn-primary col-3">변경</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div th:replace="fragments.html::footer"></div>
+    <div th:replace="fragments.html::filepond-js"></div>
+    <script>
+        $.fn.filepond.setDefaults({
+            styleLoadIndicatorPosition: 'center center',
+        });
+        pond.on('init', function(){
+            var dataUrl = $('input[name="profileImage"]')?.val();
+            if (dataUrl) {
+                pond.addFile(dataUrl);
+            }
+        })
+        pond.on('updatefiles', function(files) {
+            $('.filepond--image-preview-overlay').text("");
+        });
+    </script>
+</body>
+</html>
+
