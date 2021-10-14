@@ -106,6 +106,7 @@
         <script src="/custom/js/filepond.js"></script>
     </div>
 
+    <!-- Album Preview -->
     <div th:fragment="album-list(albumList)" class="col-md-4" th:each="albumPreview: ${albumList}">
         <div th:id="'album_' + ${albumPreview.id}" class="card mb-4 shadow-sm h-80" style="cursor:pointer">
             <div class="d-flex justify-content-center bg-light py-2" style="height: 150px">
