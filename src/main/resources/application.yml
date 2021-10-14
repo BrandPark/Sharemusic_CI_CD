@@ -1,6 +1,4 @@
 spring:
-  profiles:
-    include: local
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -16,6 +14,9 @@ logging:
 server:
   tomcat:
     max-http-form-post-size: 5MB
+
+jwt:
+  secret: default
 #  error:
 #    whitelabel:
 #      enabled: false

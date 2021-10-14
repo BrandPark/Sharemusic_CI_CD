@@ -76,7 +76,7 @@ public class AlbumControllerTest {
         // given, when, then
         mockMvc.perform(get("/albums/" + savedAlbum.getId() + "/update"))
                 .andExpect(status().isForbidden())
-                .andExpect(view().name("error/error"));
+                .andExpect(view().name("error"));
     }
 
     @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)

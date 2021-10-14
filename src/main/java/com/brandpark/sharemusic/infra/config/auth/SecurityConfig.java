@@ -64,6 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/accounts/edit/*").authenticated()
                 .mvcMatchers(GET, "/albums/*").permitAll()
                 .mvcMatchers(POST, "/resend-verify-mail").hasRole("GUEST")
+                .mvcMatchers("/api/v1/**").hasRole("USER")
                 .mvcMatchers("/albums/**").hasRole("USER")
                 .anyRequest().authenticated()
                 .and()

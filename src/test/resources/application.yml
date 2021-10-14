@@ -1,6 +1,7 @@
 spring:
   profiles:
     active: test
-
+jwt:
+  secret: test
 app:
   host: http://localhost:8080
