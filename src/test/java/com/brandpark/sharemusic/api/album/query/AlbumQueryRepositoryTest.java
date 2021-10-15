@@ -6,6 +6,8 @@ import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
+import com.brandpark.sharemusic.modules.comment.Comment;
+import com.brandpark.sharemusic.modules.comment.CommentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,7 @@ class AlbumQueryRepositoryTest {
     @Autowired AccountFactory accountFactory;
     @Autowired AlbumRepository albumRepository;
     @Autowired AccountRepository accountRepository;
+    @Autowired CommentRepository commentRepository;
     Account user;
     Album savedAlbum;
 
@@ -41,13 +44,19 @@ class AlbumQueryRepositoryTest {
         savedAlbum = albumFactory.createAlbumWithTracks("저장되어있는 앨범", 5, user.getId());
         albumRepository.save(savedAlbum);
 
-        for (int i = 0; i < 30; i++) {
-            albumRepository.save(albumFactory.createAlbumWithTracks("또다른 앨범" + i, 5, user.getId()));
+        for (int i = 0; i < 9; i++) {
+            Comment comment = albumFactory.createComment(savedAlbum.getId(), user.getId(), savedAlbum.getTitle() + ".댓글_" + i);
+            commentRepository.save(comment);
         }
 
+        for (int i = 0; i < 30; i++) {
+            Album album = albumFactory.createAlbumWithTracks("또다른 앨범" + i, 5, user.getId());
+
+            albumRepository.save(album);
+        }
     }
 
-    @DisplayName("한 페이지 앨범의 간략한 정보 조회")
+    @DisplayName("한 페이지 앨범의 간략한 정보 DB 조회")
     @Test
     public void RetrieveAlbumShortDto() throws Exception {
 
@@ -55,7 +64,7 @@ class AlbumQueryRepositoryTest {
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // when
-        Page<AlbumShortDto> result = queryRepository.findAllAlbumShortDto(pageRequest);
+        Page<AlbumShortDto> result = queryRepository.findAllAlbumShortDtos(pageRequest);
 
         List<AlbumShortDto> pageContent = result.getContent();
         AlbumShortDto resultOne = pageContent.get(0);
@@ -72,7 +81,7 @@ class AlbumQueryRepositoryTest {
         assertThat(resultOne.getCreatorProfileImage()).isEqualTo(user.getProfileImage());
     }
 
-    @DisplayName("앨범의 디테일 정보 조회")
+    @DisplayName("앨범의 디테일 정보 DB 조회")
     @Test
     public void RetrieveAlbumDetailDto() throws Exception {
 

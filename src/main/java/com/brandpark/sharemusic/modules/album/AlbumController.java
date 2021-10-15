@@ -50,10 +50,9 @@ public class AlbumController {
 
         AlbumDetailDto albumDetail = albumQueryRepository.findAlbumDetailDtoById(albumId);
 
-        if (account != null) {
-            model.addAttribute("account", account);
-        }
+        model.addAttribute("account", account);
         model.addAttribute("albumDetailView", albumDetail);
+        model.addAttribute("trackList", albumDetail.getTracks());
 
         return "albums/detail";
     }

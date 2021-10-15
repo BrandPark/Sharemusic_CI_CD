@@ -5,6 +5,7 @@ import com.brandpark.sharemusic.api.album.dto.AlbumSaveRequest;
 import com.brandpark.sharemusic.api.album.dto.AlbumUpdateRequest;
 import com.brandpark.sharemusic.api.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.api.album.query.AlbumShortDto;
+import com.brandpark.sharemusic.api.album.query.CommentDetailDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.album.domain.Album;
@@ -27,7 +28,7 @@ public class AlbumApiController {
 
     @GetMapping("/albums")
     public Page<AlbumShortDto> getAllAlbumShort(@PageableDefault(size = 9) Pageable pageable) {
-        return albumQueryRepository.findAllAlbumShortDto(pageable);
+        return albumQueryRepository.findAllAlbumShortDtos(pageable);
     }
 
     @PostMapping("/albums")
@@ -47,6 +48,11 @@ public class AlbumApiController {
         albumService.updateAlbum(requestDto, album);
 
         return album.getId();
+    }
+
+    @GetMapping("/albums/{albumId}/comments")
+    public Page<CommentDetailDto> getAllComments(@PathVariable Long albumId, @PageableDefault(size = 10) Pageable pageable) {
+        return albumQueryRepository.findAllCommentDetailDtosByAlbumId(albumId, pageable);
     }
 
     @Builder

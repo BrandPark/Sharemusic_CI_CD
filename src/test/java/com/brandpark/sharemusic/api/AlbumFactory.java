@@ -6,6 +6,7 @@ import com.brandpark.sharemusic.api.album.dto.TrackSaveRequest;
 import com.brandpark.sharemusic.api.album.dto.TrackUpdateRequest;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.Track;
+import com.brandpark.sharemusic.modules.comment.Comment;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -94,4 +95,13 @@ public class AlbumFactory {
 
         return trackDto;
     }
+
+    public Comment createComment(Long albumId, Long accountId, String content) {
+        return Comment.builder()
+                .albumId(albumId)
+                .accountId(accountId)
+                .content(content)
+                .build();
+    }
+
 }

@@ -3,6 +3,7 @@ package com.brandpark.sharemusic.api.album.query;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.album.domain.QTrack;
+import com.brandpark.sharemusic.modules.comment.QComment;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -21,10 +22,12 @@ import java.util.List;
 public class AlbumQueryRepository {
 
     private final JPAQueryFactory query;
+    QAlbum album = QAlbum.album;
+    QAccount account = QAccount.account;
+    QTrack track = QTrack.track;
+    QComment comment = QComment.comment;
 
-    public Page<AlbumShortDto> findAllAlbumShortDto(Pageable pageable) {
-        QAlbum album = QAlbum.album;
-        QAccount account = QAccount.account;
+    public Page<AlbumShortDto> findAllAlbumShortDtos(Pageable pageable) {
 
         QueryResults<AlbumShortDto> result = query.select(
                         Projections.bean(AlbumShortDto.class,
@@ -46,9 +49,6 @@ public class AlbumQueryRepository {
     }
 
     public AlbumDetailDto findAlbumDetailDtoById(Long albumId) {
-        QAlbum album = QAlbum.album;
-        QAccount account = QAccount.account;
-        QTrack track = QTrack.track;
 
         AlbumDetailDto albumDetailDto = query.select(
                         Projections.bean(AlbumDetailDto.class,
@@ -56,6 +56,8 @@ public class AlbumQueryRepository {
                                 album.title,
                                 album.albumImage,
                                 album.description,
+                                album.createDate,
+                                album.modifiedDate,
                                 account.nickname.as("creator"),
                                 account.profileImage.as("creatorProfileImage")
                         )
@@ -75,5 +77,26 @@ public class AlbumQueryRepository {
         albumDetailDto.setTracks(trackDetailDtos);
 
         return albumDetailDto;
+    }
+
+    public Page<CommentDetailDto> findAllCommentDetailDtosByAlbumId(Long albumId, Pageable pageable) {
+
+        QueryResults<CommentDetailDto> results = query.select(Projections.bean(CommentDetailDto.class,
+                        comment.id,
+                        account.nickname.as("writer"),
+                        comment.content,
+                        comment.createDate,
+                        comment.modifiedDate,
+                        account.profileImage.as("writerProfileImage")
+                ))
+                .from(album)
+                .innerJoin(comment).on(album.id.eq(comment.albumId))
+                .innerJoin(account).on(account.id.eq(comment.accountId))
+                .where(album.id.eq(albumId))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        return new PageImpl<>(results.getResults(), pageable, results.getTotal());
     }
 }

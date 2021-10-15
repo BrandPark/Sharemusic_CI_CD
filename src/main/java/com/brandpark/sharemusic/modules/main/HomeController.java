@@ -25,7 +25,7 @@ public class HomeController /*implements ErrorController*/ {
             model.addAttribute("account", account);
         }
 
-        Page<AlbumShortDto> albumPages = albumQueryRepository.findAllAlbumShortDto(pageable);
+        Page<AlbumShortDto> albumPages = albumQueryRepository.findAllAlbumShortDtos(pageable);
         model.addAttribute("albumPages", albumPages);
 
         return "home";

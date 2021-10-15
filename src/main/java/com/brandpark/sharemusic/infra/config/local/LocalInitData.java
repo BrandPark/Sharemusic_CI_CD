@@ -7,6 +7,8 @@ import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.album.domain.Track;
+import com.brandpark.sharemusic.modules.comment.Comment;
+import com.brandpark.sharemusic.modules.comment.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Profile;
@@ -25,6 +27,7 @@ public class LocalInitData {
     private final PasswordEncoder passwordEncoder;
     private final AccountRepository accountRepository;
     private final AlbumRepository albumRepository;
+    private final CommentRepository commentRepository;
     private Account userAccount;
     private Account guestAccount;
 
@@ -78,8 +81,20 @@ public class LocalInitData {
 
                 album.addTrack(track);
             }
-
             albumRepository.save(album);
+
+            initComments(album.getId());
+        }
+    }
+    private void initComments(Long albumId) {
+        for (int j = 0; j < 30; j++) {
+            Comment comment = Comment.builder()
+                    .accountId(userAccount.getId())
+                    .albumId(albumId)
+                    .content("댓글" + j)
+                    .build();
+
+            commentRepository.save(comment);
         }
     }
 }
