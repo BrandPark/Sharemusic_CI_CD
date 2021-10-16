@@ -1,4 +1,4 @@
-<div class="row pb-1" th:each="comment: ${commentList}">
+<div class="row pb-1 comments" th:each="comment: ${commentList}">
     <div class="col-2 d-flex pt-2 justify-content-center">
         <i th:if="${#strings.isEmpty(comment.writerProfileImage)}"
            class="fa fa-user-circle text-dark "
@@ -7,7 +7,7 @@
              class="img-fluid float-left rounded-circle img-thumbnail p-0"
              th:src="${comment.writerProfileImage}"/>
     </div>
-    <div class="col-10">
+    <div class="col-8">
         <div class="row pb-1">
             <span class="font-weight-bold" th:text="${comment.writer}">작성자 닉네임</span>
         </div>
@@ -15,6 +15,11 @@
             <span class="text-break" style="font-size: 0.8em" th:utext="${comment.content}"></span>
         </div>
         <small class="row text-muted" style="font-size:0.6em" th:text="${comment.modifiedDate}"></small>
+    </div>
+    <div class="col-2 d-flex" th:if="${account.getNickname().equals(comment.getWriter())}">
+        <button type="button" th:id="'comment_' + ${comment.id}" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
 </div>
 

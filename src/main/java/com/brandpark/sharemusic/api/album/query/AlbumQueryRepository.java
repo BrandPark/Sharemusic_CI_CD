@@ -27,7 +27,7 @@ public class AlbumQueryRepository {
     QTrack track = QTrack.track;
     QComment comment = QComment.comment;
 
-    public Page<AlbumShortDto> findAllAlbumShortDtos(Pageable pageable) {
+    public Page<AlbumShortDto> findAllAlbumShortDto(Pageable pageable) {
 
         QueryResults<AlbumShortDto> result = query.select(
                         Projections.bean(AlbumShortDto.class,
@@ -79,7 +79,7 @@ public class AlbumQueryRepository {
         return albumDetailDto;
     }
 
-    public Page<CommentDetailDto> findAllCommentDetailDtosByAlbumId(Long albumId, Pageable pageable) {
+    public Page<CommentDetailDto> findAllCommentDetailDtoByAlbumId(Long albumId, Pageable pageable) {
 
         QueryResults<CommentDetailDto> results = query.select(Projections.bean(CommentDetailDto.class,
                         comment.id,
@@ -89,11 +89,10 @@ public class AlbumQueryRepository {
                         comment.modifiedDate,
                         account.profileImage.as("writerProfileImage")
                 ))
-                .from(album)
-                .innerJoin(comment).on(album.id.eq(comment.albumId))
+                .from(comment)
                 .innerJoin(account).on(account.id.eq(comment.accountId))
-                .where(album.id.eq(albumId))
-                .orderBy(album.createDate.desc())
+                .where(comment.albumId.eq(albumId))
+                .orderBy(comment.createDate.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();

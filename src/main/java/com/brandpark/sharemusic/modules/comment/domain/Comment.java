@@ -9,7 +9,6 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(indexes = @Index(name="i_comment", columnList = "createDate desc"))
 @Entity
 public class Comment extends BaseTimeEntity {
 

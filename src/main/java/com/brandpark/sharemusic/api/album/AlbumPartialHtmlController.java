@@ -2,6 +2,8 @@ package com.brandpark.sharemusic.api.album;
 
 import com.brandpark.sharemusic.api.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.api.album.query.CommentDetailDto;
+import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,21 +25,25 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 @RequestMapping("/api/v2")
 @RestController
-public class AlbumHtmlController {
+public class AlbumPartialHtmlController {
 
     private final AlbumQueryRepository albumQueryRepository;
     private final TemplateEngine templateEngine;
 
     @GetMapping("/albums/{albumId}/comments")
-    public CommentHtmlResult getCommentListHtml(@PageableDefault Pageable pageable, Model model, @PathVariable Long albumId
+    public CommentHtmlResult getCommentListHtml(@LoginAccount SessionAccount account, @PageableDefault Pageable pageable, Model model, @PathVariable Long albumId
     , HttpServletRequest request, HttpServletResponse response) {
-        Page<CommentDetailDto> commentPages = albumQueryRepository.findAllCommentDetailDtosByAlbumId(albumId, pageable);
 
-        Context context = new Context();
-        context.setVariable("commentList", commentPages.getContent());
+        Page<CommentDetailDto> commentPages = albumQueryRepository.findAllCommentDetailDtoByAlbumId(albumId, pageable);
 
-        String commentHtml = templateEngine.process("albums/partial/comments", context);
+        String commentHtml = getCommentsHtml(account, commentPages);
 
+        String paginationHtml = getPaginationButtonGroupHtml(request, response, commentPages);
+
+        return new CommentHtmlResult(commentHtml, paginationHtml);
+    }
+
+    private String getPaginationButtonGroupHtml(HttpServletRequest request, HttpServletResponse response, Page<CommentDetailDto> commentPages) {
         WebContext context2 = new WebContext(request, response, request.getServletContext());
         context2.setVariable("commentPages", commentPages);
 
@@ -52,8 +58,16 @@ public class AlbumHtmlController {
         context2.setVariable("pageArray", pageArray);
 
         String paginationHtml = templateEngine.process("albums/partial/pagination", context2);
+        return paginationHtml;
+    }
 
-        return new CommentHtmlResult(commentHtml, paginationHtml);
+    private String getCommentsHtml(SessionAccount account, Page<CommentDetailDto> commentPages) {
+        Context context = new Context();
+        context.setVariable("commentList", commentPages.getContent());
+        context.setVariable("account", account);
+
+        String commentHtml = templateEngine.process("albums/partial/comments", context);
+        return commentHtml;
     }
 
     @RequiredArgsConstructor

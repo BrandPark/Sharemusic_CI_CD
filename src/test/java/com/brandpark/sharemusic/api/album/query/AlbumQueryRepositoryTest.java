@@ -64,7 +64,7 @@ class AlbumQueryRepositoryTest {
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // when
-        Page<AlbumShortDto> result = queryRepository.findAllAlbumShortDtos(pageRequest);
+        Page<AlbumShortDto> result = queryRepository.findAllAlbumShortDto(pageRequest);
 
         List<AlbumShortDto> pageContent = result.getContent();
         AlbumShortDto resultOne = pageContent.get(0);

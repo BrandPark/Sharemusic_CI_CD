@@ -88,8 +88,8 @@
     <div th:replace="fragments.html::ajax-csrf-header"></div>
     <script>
         $(function () {
-            detail.init();
             detail.loadComments(0);
+            detail.init();
         });
         var albumId = "[[${albumDetailView.id}]]";
         var detail = {
@@ -99,21 +99,23 @@
                     var gotoPage = $(this).attr('data-index');
                     _this.loadComments(gotoPage);
                 });
+
                 $('#btn-submit-comment').on('click', function () {
                     var content = $('#input-comment').val();
                     _this.submitComment(content);
+                    $('#input-comment').val("");
                 });
-
             },
             loadComments: function (page) {
+                var _this = this;
+
                 $.ajax({
                     url: '/api/v2/albums/' + albumId + '/comments?page=' + page,
                     method: 'GET',
                 }).done(function (data) {
-                    $('#comments').empty();
-                    $('#pagination').empty();
-                    $('#comments').append(data['commentsHtml']);
-                    $('#pagination').append(data['paginationHtml']);
+                    _this._clearComments();
+                    _this._appendComments(data);
+                    _this._addEventToRemoveCommentBtn();
                 }).fail(function (){
                     alert("댓글들을 로드하는데 실패했습니다.");
                 });
@@ -126,12 +128,39 @@
                     contentType: 'application/json;charset=utf-8',
                     dataType: 'json',
                     data: content
-                }).done(function (data) {
+                }).done(function () {
                     _this.loadComments(0);
                 }).fail(function (error) {
                     console.log(error);
                 });
             },
+            removeComment: function (commentId) {
+                var _this = this;
+
+                $.ajax({
+                    url: "/api/v1/albums/" + albumId + "/comments/" + commentId,
+                    method: 'delete',
+                }).done(function () {
+                    _this.loadComments(0);
+                }).fail(function (error) {
+                    console.log(error);
+                });
+            },
+            _addEventToRemoveCommentBtn: function () {
+                var _this = this;
+                $('button[id^=comment_]').on('click', function () {
+                    var commentId = $(this).attr('id').replace("comment_", "");
+                    _this.removeComment(commentId);
+                });
+            },
+            _clearComments: function () {
+                $('#comments').empty();
+                $('#pagination').empty();
+            },
+            _appendComments: function (data) {
+                $('#comments').append(data['commentsHtml']);
+                $('#pagination').append(data['paginationHtml']);
+            }
         }
     </script>
 </body>
