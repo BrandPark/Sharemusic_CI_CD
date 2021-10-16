@@ -12,7 +12,7 @@
             <span class="font-weight-bold" th:text="${comment.writer}">작성자 닉네임</span>
         </div>
         <div class="row">
-            <span class="text-break" style="font-size: 0.8em" th:text="${comment.content}"></span>
+            <span class="text-break" style="font-size: 0.8em" th:utext="${comment.content}"></span>
         </div>
         <small class="row text-muted" style="font-size:0.6em" th:text="${comment.modifiedDate}"></small>
     </div>

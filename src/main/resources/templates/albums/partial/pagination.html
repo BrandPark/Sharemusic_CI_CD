@@ -1,5 +1,5 @@
 <nav>
-    <ul class="pagination">
+    <ul class="pagination" style="cursor:pointer">
         <li class="page-item" th:classappend="${!commentPages.hasPrevious()} ? disabled">
             <a th:data-index="${commentPages.getNumber() - 1}" class="page-link btn-page">
                 <span aria-hidden="true">&laquo;</span>

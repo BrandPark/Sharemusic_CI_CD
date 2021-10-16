@@ -3,7 +3,7 @@ package com.brandpark.sharemusic.api.album.query;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.album.domain.QTrack;
-import com.brandpark.sharemusic.modules.comment.QComment;
+import com.brandpark.sharemusic.modules.comment.domain.QComment;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -93,6 +93,7 @@ public class AlbumQueryRepository {
                 .innerJoin(comment).on(album.id.eq(comment.albumId))
                 .innerJoin(account).on(account.id.eq(comment.accountId))
                 .where(album.id.eq(albumId))
+                .orderBy(album.createDate.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();

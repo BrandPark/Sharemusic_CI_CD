@@ -56,20 +56,42 @@
                 </div>
 
                 <!-- 댓글들 -->
-                <div id="comments" class="mb-3" style="overflow:scroll; height: 350px; overflow-x:hidden">
+                <div id="comments" class="mb-3" style="overflow:scroll; height: 300px; overflow-x:hidden"></div>
 
+                <!-- 댓글 입력 창 -->
+                <div class="row pb-4 sticky-top">
+                    <div th:if="${account == null}" class="w-100">
+                        <div class="col-12 text-center">
+                            <span class="font-weight-bold text-muted">
+                                댓글은
+                                <a th:href="@{/login}" class="text-primary text-decoration-none font-weight-bold">로그인</a>
+                                후 이용하실 수 있습니다.
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row w-100 pl-4" th:if="${account != null}">
+                        <div  class="col-10">
+                            <textarea id="input-comment" class="form-control auto-size" placeholder="댓글 달기..." style="height: 40px; resize:none"></textarea>
+                        </div>
+                        <div class="col-2 p-0 d-flex align-items-center">
+                            <button id="btn-submit-comment" class="btn  btn-primary">게시</button>
+                        </div>
+                    </div>
                 </div>
-                <div id="pagination" class="row justify-content-center"></div>
+
+                <div id="pagination" class="row justify-content-center" style="font-size:0.8em"></div>
             </div>
         </div>
 
     </div>
     <div th:replace="fragments.html::footer"></div>
+    <div th:replace="fragments.html::ajax-csrf-header"></div>
     <script>
         $(function () {
             detail.init();
             detail.loadComments(0);
         });
+        var albumId = "[[${albumDetailView.id}]]";
         var detail = {
             init: function () {
                 var _this = this;
@@ -77,11 +99,15 @@
                     var gotoPage = $(this).attr('data-index');
                     _this.loadComments(gotoPage);
                 });
-            },
+                $('#btn-submit-comment').on('click', function () {
+                    var content = $('#input-comment').val();
+                    _this.submitComment(content);
+                });
 
+            },
             loadComments: function (page) {
                 $.ajax({
-                    url: '/api/v2/albums/[[${albumDetailView.id}]]/comments?page=' + page,
+                    url: '/api/v2/albums/' + albumId + '/comments?page=' + page,
                     method: 'GET',
                 }).done(function (data) {
                     $('#comments').empty();
@@ -91,7 +117,21 @@
                 }).fail(function (){
                     alert("댓글들을 로드하는데 실패했습니다.");
                 });
-            }
+            },
+            submitComment: function (content) {
+                var _this = this;
+                $.ajax({
+                    url: "/api/v1/albums/" + albumId + "/comments",
+                    method: 'post',
+                    contentType: 'application/json;charset=utf-8',
+                    dataType: 'json',
+                    data: content
+                }).done(function (data) {
+                    _this.loadComments(0);
+                }).fail(function (error) {
+                    console.log(error);
+                });
+            },
         }
     </script>
 </body>
