@@ -12,35 +12,47 @@
         </button>
     </div>
     <div class="container" style="padding-top:5em;">
-        <div class="row">
-            <div th:replace="fragments.html::album-list(${albumPages.getContent()})"></div>
-        </div>
-        <div class="row justify-content-center">
-            <nav>
-                <ul class="pagination">
-                    <li class="page-item" th:classappend="${!albumPages.hasPrevious()} ? disabled">
-                        <a th:href="@{'/?page=' + ${albumPages.getNumber() - 1}}" class="page-link">Previous</a>
-                    </li>
-                    <li class="page-item" th:each="i: ${#numbers.sequence(0, albumPages.getTotalPages() - 1)}"
-                        th:classappend="${albumPages.getNumber() == i} ? active">
-
-                        <a th:href="@{'/?page=' + ${i}}" class="page-link" th:text="${i+1}">1</a>
-                    </li>
-                    <li class="page-item" th:classappend="${!albumPages.hasNext()} ? disabled">
-                        <a th:href="@{'/?page=' + ${albumPages.getNumber() + 1}}" class="page-link">Next</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+        <div id="album-list" class="row"></div>
+        <div id="pagination" class="row justify-content-center"></div>
     </div>
 
     <div th:replace="fragments.html::footer"></div>
     <script>
         $(function () {
+            home.loadAlbums(0);
             home.init();
         });
         var home = {
             init: function () {
+                var _this = this;
+                $('#pagination').on('click', '.btn-page', function () {
+                    var gotoPage = $(this).attr('data-index');
+                    _this.loadAlbums(gotoPage);
+                });
+            },
+            loadAlbums: function (page) {
+                var _this = this;
+
+                $.ajax({
+                    url: '/api/v2/albums?page=' + page,
+                    method: 'GET',
+                }).done(function (data) {
+                    _this._clearAlbums();
+                    _this._appendAlbums(data);
+                    _this._addEventToAlbumButton();
+                }).fail(function (){
+                    alert("앨범들을 로드하는데 실패했습니다.");
+                });
+            },
+            _clearAlbums: function () {
+                $('#album-list').empty();
+                $('#pagination').empty();
+            },
+            _appendAlbums: function (data) {
+                $('#album-list').append(data['albumsHtml']);
+                $('#pagination').append(data['paginationHtml']);
+            },
+            _addEventToAlbumButton: function () {
                 $('div[id^="album_"]').on('click', function () {
                     var albumId = $(this).attr('id').replace('album_', '');
                     window.location.href='/albums/' + albumId;

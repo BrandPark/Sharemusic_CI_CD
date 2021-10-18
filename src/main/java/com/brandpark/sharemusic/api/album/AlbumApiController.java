@@ -71,6 +71,8 @@ public class AlbumApiController {
     public void deleteComment(@LoginAccount SessionAccount account, @PathVariable Long albumId
             , @PathVariable("commentId") Comment comment) {
 
+        dtoValidator.validateDeleteComment(comment, account);
+
         commentRepository.delete(comment);
     }
 

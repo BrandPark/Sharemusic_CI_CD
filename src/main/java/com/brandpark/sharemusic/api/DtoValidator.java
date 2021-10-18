@@ -6,7 +6,9 @@ import com.brandpark.sharemusic.api.album.dto.TrackSaveRequest;
 import com.brandpark.sharemusic.api.album.dto.TrackUpdateRequest;
 import com.brandpark.sharemusic.api.exception.ApiException;
 import com.brandpark.sharemusic.api.exception.Error;
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
+import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -106,9 +108,14 @@ public class DtoValidator {
         });
     }
 
+    public void validateDeleteComment(Comment comment, SessionAccount loginAccount) {
+        if (!comment.getAccountId().equals(loginAccount.getId())) {
+            throw new ApiException(ILLEGAL_ACCESS_EXCEPTION);
+        }
+    }
+
     private boolean hasText(String name) {
         return StringUtils.hasText(name);
     }
-
 
 }

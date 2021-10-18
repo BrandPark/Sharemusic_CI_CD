@@ -50,7 +50,9 @@
                     </div>
                     <div class="col-10">
                         <div class="row pb-1">
-                            <span class="font-weight-bold" style="font-size: 1.1em" th:text="${albumDetailView.creator}">작성자 닉네임</span>
+                            <a th:href="@{'/accounts/' + ${albumDetailView.creator}}" class="text-dark">
+                                <span class="font-weight-bold" style="font-size: 1.1em" th:text="${albumDetailView.creator}">작성자 닉네임</span>
+                            </a>
                         </div>
                     </div>
                 </div>

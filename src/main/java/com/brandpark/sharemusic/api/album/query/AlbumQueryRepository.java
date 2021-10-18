@@ -40,6 +40,7 @@ public class AlbumQueryRepository {
                                 account.profileImage.as("creatorProfileImage")
                         ))
                 .from(album)
+                .orderBy(album.createDate.desc())
                 .innerJoin(account).on(album.accountId.eq(account.id))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

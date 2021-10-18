@@ -59,7 +59,7 @@ public class AccountController {
             throw new IllegalArgumentException(nickname + "은(는) 존재하지 않는 닉네임 입니다.");
         }
 
-        model.addAttribute("account", account);;
+        model.addAttribute("account", account);
 
         return "accounts/profile";
     }
