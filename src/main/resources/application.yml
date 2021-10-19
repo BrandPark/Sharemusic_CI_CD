@@ -8,6 +8,17 @@ spring:
     store-type: jdbc
     jdbc:
       initialize-schema: always
+#  web:
+#    resources:
+#      cache:
+#        cachecontrol:
+#          max-age: 30d
+#        use-last-modified: on
+#      chain:
+#        strategy:
+#          content:
+#            enabled: true
+#            paths: /**
 
 logging:
   level:
