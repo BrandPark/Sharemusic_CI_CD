@@ -8,18 +8,18 @@ spring:
     store-type: jdbc
     jdbc:
       initialize-schema: always
-#  web:
-#    resources:
-#      cache:
-#        cachecontrol:
-#          max-age: 30d
-#        use-last-modified: on
-#      chain:
-#        strategy:
-#          content:
-#            enabled: true
-#            paths: /**
-
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          max-age: 365d
+          cache-private: true
+        use-last-modified: true
+      chain:
+        strategy:
+          content:
+            enabled: true
+            paths: /**
 logging:
   level:
     org.hibernate.SQL: debug
