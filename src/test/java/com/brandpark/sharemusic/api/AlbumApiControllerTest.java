@@ -1,11 +1,11 @@
 package com.brandpark.sharemusic.api;
 
-import com.brandpark.sharemusic.api.album.dto.AlbumSaveRequest;
-import com.brandpark.sharemusic.api.album.dto.AlbumUpdateRequest;
-import com.brandpark.sharemusic.api.album.dto.TrackSaveRequest;
-import com.brandpark.sharemusic.api.album.dto.TrackUpdateRequest;
-import com.brandpark.sharemusic.api.exception.ApiException;
-import com.brandpark.sharemusic.api.exception.dto.ExceptionResult;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumSaveRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.TrackSaveRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.TrackUpdateRequest;
+import com.brandpark.sharemusic.api.v1.exception.ApiException;
+import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
 import com.brandpark.sharemusic.infra.MockMvcTest;
 import com.brandpark.sharemusic.modules.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.brandpark.sharemusic.api.exception.Error.*;
+import static com.brandpark.sharemusic.api.v1.exception.Error.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;

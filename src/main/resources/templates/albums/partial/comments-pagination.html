@@ -1,17 +1,17 @@
 <nav>
     <ul class="pagination" style="cursor:pointer">
         <li class="page-item" th:classappend="${!commentPages.hasPrevious()} ? disabled">
-            <a th:data-index="${commentPages.getNumber() - 1}" class="page-link btn-page">
+            <a th:data-index="${commentPages.getPageNumber() - 1}" class="page-link btn-page">
                 <span aria-hidden="true">&laquo;</span>
             </a>
         </li>
         <li class="page-item" th:each="i: ${pageArray}"
-            th:classappend="${commentPages.getNumber() == i} ? active">
+            th:classappend="${commentPages.getPageNumber() == i} ? active">
 
             <a th:data-index="${i}" class="page-link btn-page" th:text="${i+1}">1</a>
         </li>
         <li class="page-item" th:classappend="${!commentPages.hasNext()} ? disabled">
-            <a th:data-index="${commentPages.getNumber() + 1}" class="page-link btn-page">
+            <a th:data-index="${commentPages.getPageNumber() + 1}" class="page-link btn-page">
                 <span aria-hidden="true">&raquo;</span>
             </a>
         </li>

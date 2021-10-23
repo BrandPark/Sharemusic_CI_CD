@@ -29,13 +29,13 @@ public class Album extends BaseTimeEntity {
     @Lob
     private String albumImage;
 
-    @Column(name="account_id", nullable = false)
+    @Column(name = "account_id", nullable = false)
     private Long accountId;
 
-    @Column(nullable=false)
+    @Column(nullable = false)
     private int trackCount;
 
-    @Column(nullable=false)
+    @Column(nullable = false)
     private int commentCount;
 
     @Builder.Default

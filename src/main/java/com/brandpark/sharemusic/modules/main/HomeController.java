@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.modules.main;
 
-import com.brandpark.sharemusic.api.album.query.AlbumQueryRepository;
+import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import lombok.RequiredArgsConstructor;
