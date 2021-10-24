@@ -486,7 +486,7 @@ class AlbumApiControllerTest {
 
                     AlbumShortDto firstAlbum = resultAlbums.get(0);
                     Album expectedAlbumInfo = album2;
-                    assertThat(firstAlbum.getCreateDate()).isAfter(resultAlbums.get(1).getCreateDate());
+                    assertThat(firstAlbum.getCreateDate()).isAfterOrEqualTo(resultAlbums.get(1).getCreateDate());
                     assertThat(firstAlbum.getTitle()).isEqualTo("앨범2");
                     assertThat(firstAlbum.getAlbumImage()).isEqualTo(expectedAlbumInfo.getAlbumImage());
                     assertThat(firstAlbum.getCreator()).isEqualTo(userAccount.getNickname());

@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,29 +38,23 @@ class AlbumQueryRepositoryTest {
     @Autowired AccountRepository accountRepository;
     @Autowired CommentRepository commentRepository;
     Account user;
-    Album savedAlbum;
+    Album firstAlbum;
+    List<Album> savedAlbums = new ArrayList<>();
 
     @BeforeEach
     public void setUp() {
         user = accountFactory.createAccount("닉네임");
         accountRepository.save(user);
-        
-        savedAlbum = albumFactory.createAlbumWithTracks("저장되어있는 앨범", 5, user.getId());
-        albumRepository.save(savedAlbum);
 
-        for (int i = 0; i < 9; i++) {
-            Comment comment = albumFactory.createComment(savedAlbum.getId(), user.getId(), savedAlbum.getTitle() + ".댓글_" + i);
-            commentRepository.save(comment);
-        }
+        firstAlbum = albumFactory.createAlbumWithTracks("처음 생성된 앨범", 5, user.getId());
+        albumRepository.save(firstAlbum);
+        savedAlbums.add(firstAlbum);
 
-        for (int i = 0; i < 30; i++) {
-            Album album = albumFactory.createAlbumWithTracks("또다른 앨범" + i, 5, user.getId());
-
-            albumRepository.save(album);
-        }
+        createComments();
+        createAndAddAlbums(savedAlbums);
     }
 
-    @DisplayName("한 페이지 앨범의 간략한 정보 DB 조회")
+    @DisplayName("한 페이지 앨범의 간략한 정보 DB 생성날짜 내림차순 조회 - 성공")
     @Test
     public void RetrieveAlbumShortDto() throws Exception {
 
@@ -70,18 +65,20 @@ class AlbumQueryRepositoryTest {
         AlbumListPagingDto responseDto = queryRepository.findAllAlbumShortDto(pageRequest);
 
         List<AlbumShortDto> pageContent = responseDto.getAlbums();
-        AlbumShortDto resultOne = pageContent.get(0);
+        AlbumShortDto resultFirst = pageContent.get(0);
 
         // then
-        assertThat(responseDto.getTotalElements()).isEqualTo(31);
+        Album lastCreateAlbum = savedAlbums.get(savedAlbums.size() - 1);
+
+        assertThat(responseDto.getTotalElements()).isEqualTo(savedAlbums.size());
         assertThat(pageContent.size()).isEqualTo(10);
-        assertThat(resultOne.getId()).isEqualTo(savedAlbum.getId());
-        assertThat(resultOne.getTitle()).isEqualTo(savedAlbum.getTitle());
-        assertThat(resultOne.getAlbumImage()).isEqualTo(savedAlbum.getAlbumImage());
-        assertThat(resultOne.getDescription()).isEqualTo(savedAlbum.getDescription());
-        assertThat(resultOne.getTrackCount()).isEqualTo(savedAlbum.getTrackCount());
-        assertThat(resultOne.getCreator()).isEqualTo(user.getNickname());
-        assertThat(resultOne.getCreatorProfileImage()).isEqualTo(user.getProfileImage());
+        assertThat(resultFirst.getId()).isEqualTo(lastCreateAlbum.getId());
+        assertThat(resultFirst.getTitle()).isEqualTo(lastCreateAlbum.getTitle());
+        assertThat(resultFirst.getAlbumImage()).isEqualTo(lastCreateAlbum.getAlbumImage());
+        assertThat(resultFirst.getDescription()).isEqualTo(lastCreateAlbum.getDescription());
+        assertThat(resultFirst.getTrackCount()).isEqualTo(lastCreateAlbum.getTrackCount());
+        assertThat(resultFirst.getCreator()).isEqualTo(user.getNickname());
+        assertThat(resultFirst.getCreatorProfileImage()).isEqualTo(user.getProfileImage());
     }
 
     @DisplayName("앨범의 디테일 정보 DB 조회")
@@ -89,23 +86,39 @@ class AlbumQueryRepositoryTest {
     public void RetrieveAlbumDetailDto() throws Exception {
 
         // given
-        Long retrieveAlbumId = savedAlbum.getId();
+        Long retrieveAlbumId = firstAlbum.getId();
 
         // when
         AlbumDetailDto result = queryRepository.findAlbumDetailDtoById(retrieveAlbumId);
 
         // then
-        assertThat(result.getId()).isEqualTo(savedAlbum.getId());
-        assertThat(result.getTitle()).isEqualTo(savedAlbum.getTitle());
-        assertThat(result.getAlbumImage()).isEqualTo(savedAlbum.getAlbumImage());
-        assertThat(result.getDescription()).isEqualTo(savedAlbum.getDescription());
+        assertThat(result.getId()).isEqualTo(firstAlbum.getId());
+        assertThat(result.getTitle()).isEqualTo(firstAlbum.getTitle());
+        assertThat(result.getAlbumImage()).isEqualTo(firstAlbum.getAlbumImage());
+        assertThat(result.getDescription()).isEqualTo(firstAlbum.getDescription());
         assertThat(result.getCreator()).isEqualTo(user.getNickname());
         assertThat(result.getCreatorProfileImage()).isEqualTo(user.getProfileImage());
 
         List<TrackDetailDto> tracks = result.getTracks();
-        assertThat(tracks.size()).isEqualTo(savedAlbum.getTracks().size());
-        assertThat(tracks.get(0).getId()).isEqualTo(savedAlbum.getTracks().get(0).getId());
-        assertThat(tracks.get(0).getName()).isEqualTo(savedAlbum.getTracks().get(0).getName());
-        assertThat(tracks.get(0).getArtist()).isEqualTo(savedAlbum.getTracks().get(0).getArtist());
+        assertThat(tracks.size()).isEqualTo(firstAlbum.getTracks().size());
+        assertThat(tracks.get(0).getId()).isEqualTo(firstAlbum.getTracks().get(0).getId());
+        assertThat(tracks.get(0).getName()).isEqualTo(firstAlbum.getTracks().get(0).getName());
+        assertThat(tracks.get(0).getArtist()).isEqualTo(firstAlbum.getTracks().get(0).getArtist());
+    }
+
+    private void createAndAddAlbums(List<Album> albums) {
+        for (int i = 0; i < 30; i++) {
+            Album album = albumFactory.createAlbumWithTracks("또다른 앨범" + i, 5, user.getId());
+            albumRepository.save(album);
+
+            albums.add(album);
+        }
+    }
+
+    private void createComments() {
+        for (int i = 0; i < 9; i++) {
+            Comment comment = albumFactory.createComment(firstAlbum.getId(), user.getId(), firstAlbum.getTitle() + ".댓글_" + i);
+            commentRepository.save(comment);
+        }
     }
 }

@@ -73,13 +73,13 @@ class CommentApiControllerTest {
                     String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
                     CommentListPagingDto responseDto = objectMapper.readValue(json, CommentListPagingDto.class);
 
-                    List<CommentDetailDto> comments = responseDto.getComments();
+                    List<CommentDetailDto> resultComments = responseDto.getComments();
 
-                    assertThat(comments.size()).isEqualTo(saveComments.size());
-                    assertThat(comments.get(0).getCreateDate()).isAfter(comments.get(1).getCreateDate());
-                    assertThat(comments.get(0).getContent()).isEqualTo("댓글2");
-                    assertThat(comments.get(0).getWriter()).isEqualTo(user.getNickname());
-                    assertThat(comments.get(0).getModifiedDate()).isEqualTo(comments.get(0).getCreateDate());
+                    assertThat(resultComments.size()).isEqualTo(saveComments.size());
+                    assertThat(resultComments.get(0).getCreateDate()).isAfterOrEqualTo(resultComments.get(1).getCreateDate());
+                    assertThat(resultComments.get(0).getContent()).isEqualTo("댓글2");
+                    assertThat(resultComments.get(0).getWriter()).isEqualTo(user.getNickname());
+                    assertThat(resultComments.get(0).getModifiedDate()).isEqualTo(resultComments.get(0).getCreateDate());
                 });
     }
 

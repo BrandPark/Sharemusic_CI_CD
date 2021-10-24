@@ -74,7 +74,7 @@ public class AlbumControllerTest {
         albumRepository.save(savedAlbum);
         
         // given, when, then
-        mockMvc.perform(get("/albums/" + savedAlbum.getId() + "/update"))
+         mockMvc.perform(get("/albums/" + savedAlbum.getId() + "/update"))
                 .andExpect(status().isForbidden())
                 .andExpect(view().name("error/error"));
     }
