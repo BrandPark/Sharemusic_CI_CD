@@ -1,8 +1,8 @@
 package com.brandpark.sharemusic.modules.album.service;
 
-import com.brandpark.sharemusic.api.album.dto.AlbumSaveRequest;
-import com.brandpark.sharemusic.api.album.dto.AlbumUpdateRequest;
-import com.brandpark.sharemusic.api.album.dto.TrackUpdateRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumSaveRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.TrackUpdateRequest;
 import com.brandpark.sharemusic.modules.MyUtil;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
@@ -41,6 +41,7 @@ public class AlbumService {
     @Transactional
     public void updateAlbum(AlbumUpdateRequest requestDto, Album album) {
         // 앨범 정보 변경
+        requestDto.setDescription(MyUtil.toBrTag(requestDto.getDescription()));
         album.updateAlbum(requestDto.getTitle(), requestDto.getAlbumImage(), requestDto.getDescription());
 
         // 트랙들 순회하며 변경

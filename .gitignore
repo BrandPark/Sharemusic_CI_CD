@@ -5,7 +5,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,java-web,gradle
 
 ## security config
-application-dev.*
+application-dev.yml
 
 ### NPM ###
 node_modules/

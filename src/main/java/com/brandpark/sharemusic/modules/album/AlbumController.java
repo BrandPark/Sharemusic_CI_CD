@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.modules.album;
 
-import com.brandpark.sharemusic.api.album.query.AlbumDetailDto;
-import com.brandpark.sharemusic.api.album.query.AlbumQueryRepository;
+import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
+import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.Validator;
@@ -50,10 +50,9 @@ public class AlbumController {
 
         AlbumDetailDto albumDetail = albumQueryRepository.findAlbumDetailDtoById(albumId);
 
-        if (account != null) {
-            model.addAttribute("account", account);
-        }
+        model.addAttribute("account", account);
         model.addAttribute("albumDetailView", albumDetail);
+        model.addAttribute("trackList", albumDetail.getTracks());
 
         return "albums/detail";
     }

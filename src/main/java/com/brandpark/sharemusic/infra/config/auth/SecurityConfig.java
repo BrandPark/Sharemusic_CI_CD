@@ -9,12 +9,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import javax.sql.DataSource;
 
-import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -23,13 +25,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final AccountService accountService;
     private final DataSource dataSource;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         // Authorization
         http.authorizeRequests()
-                .mvcMatchers("/", "/accounts/signup", "/error", "/api/v1/**").permitAll()
+                .mvcMatchers("/", "/accounts/signup", "/error").permitAll()
+                .mvcMatchers(GET, "/api/v1/**").permitAll()
+                .mvcMatchers("/api/v1/albums/*/comments/**").authenticated()
+                .mvcMatchers("/api/v1/albums/**").hasRole("USER")
+                .mvcMatchers(GET, "/api/v2/**").permitAll()
                 .mvcMatchers(GET, "/accounts/*").permitAll()
                 .mvcMatchers("/accounts/edit/*").authenticated()
                 .mvcMatchers(GET, "/albums/*").permitAll()
@@ -47,6 +54,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.rememberMe()
                 .userDetailsService(accountService)
                 .tokenRepository(tokenRepository());
+
+        http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
     }
 
     @Override

@@ -29,11 +29,14 @@ public class Album extends BaseTimeEntity {
     @Lob
     private String albumImage;
 
-    @Column(name="account_id", nullable = false)
+    @Column(name = "account_id", nullable = false)
     private Long accountId;
 
-    @Column(nullable=false)
+    @Column(nullable = false)
     private int trackCount;
+
+    @Column(nullable = false)
+    private int commentCount;
 
     @Builder.Default
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -55,8 +58,10 @@ public class Album extends BaseTimeEntity {
 
     public void removeTrack(Track track) {
         if (track != null) {
-            tracks.remove(track);
-            trackCount--;
+            boolean isRemoved = tracks.remove(track);
+            if (isRemoved) {
+                trackCount--;
+            }
         }
     }
 

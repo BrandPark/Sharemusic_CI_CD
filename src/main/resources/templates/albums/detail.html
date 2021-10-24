@@ -5,43 +5,167 @@
 <body class="background">
     <nav th:replace="fragments.html:: nav"></nav>
     <div class="container my-5">
-        <div class="col-7">
-            <div class="row pb-5" th:object="${albumDetailView}">
-                <div class="col-5 ">
-                    <img th:if="${#strings.isEmpty(albumDetailView.getAlbumImage())}" src="/images/album-default.jpg" class="col-9 rounded-circle">
-                    <img th:if="${!#strings.isEmpty(albumDetailView.getAlbumImage())}" th:src="${albumDetailView.getAlbumImage()}" class="col-9 rounded-circle">
-                </div>
-                <div class="col-7">
-                    <div class="row justify-content-start pb-3">
-                        <h3><span th:text="${albumDetailView.getTitle()}" class="pr-3">제목</span></h3>
-                        <a th:if="${#authentication.name.equals(albumDetailView.getCreator())}" th:href="@{'/albums/' + ${albumDetailView.getId()} + '/update'}" class="text-decoration-none btn btn-outline-info" role="button">
-                            <h5 class="m-0">수정 <i class="fa fa-cog pl-1"></i></h5>
-                        </a>
+        <div class="row">
+            <div class="col-7">
+                <div class="row pb-5" th:object="${albumDetailView}">
+                    <div class="col-5">
+                        <div class="image-box d-flex justify-content-center" style="height:185.3px">
+                            <img th:if="${#strings.isEmpty(albumDetailView.getAlbumImage())}" src="/images/album-default.jpg" class="col-9 rounded-circle">
+                            <img th:if="${!#strings.isEmpty(albumDetailView.getAlbumImage())}" th:src="${albumDetailView.getAlbumImage()}" class="col-9 rounded-circle">
+                        </div>
                     </div>
-                    <div class="row justify-content-start">
-                        <p th:text="${albumDetailView.getDescription()}"></p>
+                    <div class="col-7 pr-5">
+                        <div class="row justify-content-start pb-3">
+                            <h3><span th:text="${albumDetailView.getTitle()}" class="pr-3">제목</span></h3>
+                            <a th:if="${#authentication.name.equals(albumDetailView.getCreator())}" th:href="@{'/albums/' + ${albumDetailView.getId()} + '/update'}" class="text-decoration-none btn btn-outline-info" role="button">
+                                <h5 class="m-0">수정 <i class="fa fa-cog pl-1"></i></h5>
+                            </a>
+                        </div>
+                        <div class="row text-muted" style="overflow:scroll; height: 100px; overflow-x:hidden"><span th:utext="${albumDetailView.description}">앨범 소개</span></div>
+                        <div class="row justify-content-end pb-4"><small class="row text-muted" th:text="${albumDetailView.createDate}">앨범 생성 날짜</small></div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <table id="tracks_table" class="table table-hover w-100 table-dark">
-                    <thead>
+                <div class="row">
+                    <table id="tracks_table" class="table table-hover w-100 table-dark m-0">
+                        <thead>
                         <tr>
                             <th scope="col">음원 명</th>
                             <th scope="col">아티스트</th>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="track: ${albumDetailView.getTracks()}">
+                        </thead>
+                        <tbody>
+                        <tr th:each="track: ${trackList}">
                             <td th:text="${track.getName()}"></td>
                             <td th:text="${track.getArtist()}"></td>
                         </tr>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-5 bg-light pt-2">
+                <div class="row pb-1 sticky-top">
+                    <div class="col-2 d-flex pt-2 justify-content-center">
+                        <i th:if="${#strings.isEmpty(albumDetailView.creatorProfileImage)}" class="fa fa-user-circle text-dark "
+                           aria-hidden="true" style="font-size: 2.5em;"></i>
+                        <img th:if="${!#strings.isEmpty(albumDetailView.creatorProfileImage)}" class="img-fluid float-left rounded-circle img-thumbnail p-0"
+                             th:src="${albumDetailView.creatorProfileImage}"/>
+                    </div>
+                    <div class="col-10">
+                        <div class="row pb-1">
+                            <a th:href="@{'/accounts/' + ${albumDetailView.creator}}" class="text-dark">
+                                <span class="font-weight-bold" style="font-size: 1.1em" th:text="${albumDetailView.creator}">작성자 닉네임</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 댓글들 -->
+                <div id="comments" class="mb-3" style="overflow:scroll; height: 300px; overflow-x:hidden"></div>
+
+                <!-- 댓글 입력 창 -->
+                <div class="row justify-content-center">
+                    <div th:if="${account == null}" class="w-100 pb-2">
+                        <div class="col-12 text-center">
+                            <span class="font-weight-bold text-muted">
+                                댓글은
+                                <a th:href="@{/login}" class="text-primary text-decoration-none font-weight-bold">로그인</a>
+                                후 이용하실 수 있습니다.
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row w-100 pl-4 pb-2" th:if="${account != null}">
+                        <div  class="col-10">
+                            <textarea id="input-comment" class="form-control auto-size" placeholder="댓글 달기..." style="height: 40px; resize:none"></textarea>
+                        </div>
+                        <div class="col-2 p-0 d-flex align-items-center">
+                            <button id="btn-submit-comment" class="btn  btn-primary">게시</button>
+                        </div>
+                    </div>
+                    <div id="pagination" class="row" style="font-size:0.8em"></div>
+                </div>
             </div>
         </div>
+
     </div>
     <div th:replace="fragments.html::footer"></div>
+    <div th:replace="fragments.html::ajax-csrf-header"></div>
+    <script>
+        $(function () {
+            detail.loadComments(0);
+            detail.init();
+        });
+        var albumId = "[[${albumDetailView.id}]]";
+        var detail = {
+            init: function () {
+                var _this = this;
+                $('#pagination').on('click', '.btn-page', function () {
+                    var gotoPage = $(this).attr('data-index');
+                    _this.loadComments(gotoPage);
+                });
+
+                $('#btn-submit-comment').on('click', function () {
+                    var content = $('#input-comment').val();
+                    _this.submitComment(content);
+                    $('#input-comment').val("");
+                });
+            },
+            loadComments: function (page) {
+                var _this = this;
+
+                $.ajax({
+                    url: '/api/v2/albums/' + albumId + '/comments?page=' + page,
+                    method: 'GET',
+                }).done(function (data) {
+                    _this._clearComments();
+                    _this._appendComments(data);
+                    _this._addEventToRemoveCommentBtn();
+                }).fail(function (){
+                    alert("댓글들을 로드하는데 실패했습니다.");
+                });
+            },
+            submitComment: function (content) {
+                var _this = this;
+                $.ajax({
+                    url: "/api/v1/albums/" + albumId + "/comments",
+                    method: 'post',
+                    contentType: 'application/json;charset=utf-8',
+                    dataType: 'json',
+                    data: content
+                }).done(function () {
+                    _this.loadComments(0);
+                }).fail(function (error) {
+                    console.log(error);
+                });
+            },
+            removeComment: function (commentId) {
+                var _this = this;
+
+                $.ajax({
+                    url: "/api/v1/albums/" + albumId + "/comments/" + commentId,
+                    method: 'delete',
+                }).done(function () {
+                    _this.loadComments(0);
+                }).fail(function (error) {
+                    console.log(error);
+                });
+            },
+            _addEventToRemoveCommentBtn: function () {
+                var _this = this;
+                $('button[id^=comment_]').on('click', function () {
+                    var commentId = $(this).attr('id').replace("comment_", "");
+                    _this.removeComment(commentId);
+                });
+            },
+            _clearComments: function () {
+                $('#comments').empty();
+                $('#pagination').empty();
+            },
+            _appendComments: function (data) {
+                $('#comments').append(data['commentsHtml']);
+                $('#pagination').append(data['paginationHtml']);
+            }
+        }
+    </script>
 </body>
 </html>
 

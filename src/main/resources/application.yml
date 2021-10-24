@@ -1,14 +1,20 @@
 spring:
-  profiles:
-    include: local
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
   session:
     store-type: jdbc
     jdbc:
       initialize-schema: always
-
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          max-age: 365d
+          cache-private: true
+        use-last-modified: true
+      chain:
+        strategy:
+          content:
+            enabled: true
+            paths: /**
 logging:
   level:
     org.hibernate.SQL: debug
