@@ -1,9 +1,4 @@
 spring:
-  profiles:
-    include: local
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
   session:
     store-type: jdbc
     jdbc:
