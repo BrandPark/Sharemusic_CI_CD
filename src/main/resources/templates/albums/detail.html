@@ -8,9 +8,11 @@
         <div class="row">
             <div class="col-7">
                 <div class="row pb-5" th:object="${albumDetailView}">
-                    <div class="col-5 ">
-                        <img th:if="${#strings.isEmpty(albumDetailView.getAlbumImage())}" src="/images/album-default.jpg" class="col-9 rounded-circle">
-                        <img th:if="${!#strings.isEmpty(albumDetailView.getAlbumImage())}" th:src="${albumDetailView.getAlbumImage()}" class="col-9 rounded-circle">
+                    <div class="col-5">
+                        <div class="image-box d-flex justify-content-center" style="height:185.3px">
+                            <img th:if="${#strings.isEmpty(albumDetailView.getAlbumImage())}" src="/images/album-default.jpg" class="col-9 rounded-circle">
+                            <img th:if="${!#strings.isEmpty(albumDetailView.getAlbumImage())}" th:src="${albumDetailView.getAlbumImage()}" class="col-9 rounded-circle">
+                        </div>
                     </div>
                     <div class="col-7 pr-5">
                         <div class="row justify-content-start pb-3">
@@ -19,8 +21,8 @@
                                 <h5 class="m-0">수정 <i class="fa fa-cog pl-1"></i></h5>
                             </a>
                         </div>
-                        <div class="row"><span th:text="${albumDetailView.description}"></span></div>
-                        <div class="row justify-content-end"><small class="row text-muted" th:text="${albumDetailView.modifiedDate}"></small></div>
+                        <div class="row text-muted" style="overflow:scroll; height: 100px; overflow-x:hidden"><span th:utext="${albumDetailView.description}">앨범 소개</span></div>
+                        <div class="row justify-content-end pb-4"><small class="row text-muted" th:text="${albumDetailView.createDate}">앨범 생성 날짜</small></div>
                     </div>
                 </div>
                 <div class="row">
@@ -61,8 +63,8 @@
                 <div id="comments" class="mb-3" style="overflow:scroll; height: 300px; overflow-x:hidden"></div>
 
                 <!-- 댓글 입력 창 -->
-                <div class="row pb-4 sticky-top">
-                    <div th:if="${account == null}" class="w-100">
+                <div class="row justify-content-center">
+                    <div th:if="${account == null}" class="w-100 pb-2">
                         <div class="col-12 text-center">
                             <span class="font-weight-bold text-muted">
                                 댓글은
@@ -71,7 +73,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="row w-100 pl-4" th:if="${account != null}">
+                    <div class="row w-100 pl-4 pb-2" th:if="${account != null}">
                         <div  class="col-10">
                             <textarea id="input-comment" class="form-control auto-size" placeholder="댓글 달기..." style="height: 40px; resize:none"></textarea>
                         </div>
@@ -79,9 +81,8 @@
                             <button id="btn-submit-comment" class="btn  btn-primary">게시</button>
                         </div>
                     </div>
+                    <div id="pagination" class="row" style="font-size:0.8em"></div>
                 </div>
-
-                <div id="pagination" class="row justify-content-center" style="font-size:0.8em"></div>
             </div>
         </div>
 

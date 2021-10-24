@@ -9,6 +9,7 @@ import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.album.domain.QTrack;
+import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
 import com.brandpark.sharemusic.modules.comment.domain.QComment;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
@@ -27,6 +28,7 @@ import java.util.List;
 public class AlbumQueryRepository {
 
     private final JPAQueryFactory query;
+    private final CommentRepository commentRepository;
     QAlbum album = QAlbum.album;
     QAccount account = QAccount.account;
     QTrack track = QTrack.track;
@@ -42,7 +44,8 @@ public class AlbumQueryRepository {
                                 album.description,
                                 album.trackCount,
                                 account.nickname.as("creator"),
-                                account.profileImage.as("creatorProfileImage")
+                                account.profileImage.as("creatorProfileImage"),
+                                album.createDate
                         ))
                 .from(album)
                 .orderBy(album.createDate.desc())
@@ -57,7 +60,7 @@ public class AlbumQueryRepository {
         result.setAlbums(albumPage.getContent());
         result.setTotalPages(albumPage.getTotalPages());
         result.setTotalElements(albumPage.getTotalElements());
-        result.setPageNumber(pageable.getPageNumber());
+        result.setPageNumber(albumPage.getNumber());
         result.setNumberOfElements(albumPage.getNumberOfElements());
         result.setOffset(pageable.getOffset());
         result.setPageSize(albumPage.getSize());
@@ -98,7 +101,7 @@ public class AlbumQueryRepository {
 
     public CommentListPagingDto findAllCommentDetailDtoByAlbumId(Long albumId, Pageable pageable) {
 
-        QueryResults<CommentDetailDto> results = query.select(Projections.bean(CommentDetailDto.class,
+        QueryResults<CommentDetailDto> queryResults = query.select(Projections.bean(CommentDetailDto.class,
                         comment.id,
                         account.nickname.as("writer"),
                         comment.content,
@@ -114,13 +117,13 @@ public class AlbumQueryRepository {
                 .limit(pageable.getPageSize())
                 .fetchResults();
 
-        PageImpl<CommentDetailDto> commentPage = new PageImpl<>(results.getResults(), pageable, results.getTotal());
+        PageImpl<CommentDetailDto> commentPage = new PageImpl<>(queryResults.getResults(), pageable, queryResults.getTotal());
 
         CommentListPagingDto result = new CommentListPagingDto();
-        result.setComments(results.getResults());
+        result.setComments(queryResults.getResults());
         result.setTotalPages(commentPage.getTotalPages());
         result.setTotalElements(commentPage.getTotalElements());
-        result.setPageNumber(pageable.getPageNumber());
+        result.setPageNumber(commentPage.getNumber());
         result.setNumberOfElements(commentPage.getNumberOfElements());
         result.setOffset(pageable.getOffset());
         result.setPageSize(commentPage.getSize());

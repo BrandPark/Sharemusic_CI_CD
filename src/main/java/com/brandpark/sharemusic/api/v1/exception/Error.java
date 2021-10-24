@@ -14,6 +14,8 @@ public enum Error {
 
     ILLEGAL_ACCESS_EXCEPTION(BAD_REQUEST, "E0005", "잘못된 접근입니다.");
 
+
+
     private final HttpStatus status;
     private final String code;
     private final String defaultMessage;

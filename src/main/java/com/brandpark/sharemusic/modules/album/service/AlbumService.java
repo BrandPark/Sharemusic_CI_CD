@@ -41,6 +41,7 @@ public class AlbumService {
     @Transactional
     public void updateAlbum(AlbumUpdateRequest requestDto, Album album) {
         // 앨범 정보 변경
+        requestDto.setDescription(MyUtil.toBrTag(requestDto.getDescription()));
         album.updateAlbum(requestDto.getTitle(), requestDto.getAlbumImage(), requestDto.getDescription());
 
         // 트랙들 순회하며 변경

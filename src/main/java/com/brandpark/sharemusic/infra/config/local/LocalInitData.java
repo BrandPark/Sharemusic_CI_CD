@@ -87,7 +87,7 @@ public class LocalInitData {
         }
     }
     private void initComments(Long albumId) {
-        for (int j = 0; j < 30; j++) {
+        for (int j = 0; j < 2; j++) {
             Comment comment = Comment.builder()
                     .accountId(userAccount.getId())
                     .albumId(albumId)
