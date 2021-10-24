@@ -24,7 +24,7 @@ public class LocalProfileTest {
         assertThat(mailService instanceof ConsoleMailService).isTrue();
     }
 
-    @DisplayName("dev 환경의 host 는 localhost:8080이다.")
+    @DisplayName("local 환경의 host 는 localhost:8080이다.")
     @Test
     public void HostIsLocalhost_When_LocalProfile() throws Exception {
         assertThat(appProperties.getHost()).isEqualTo("http://localhost:8080");

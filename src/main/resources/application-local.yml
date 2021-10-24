@@ -5,12 +5,12 @@ spring:
     password:
     driver-class-name: org.h2.Driver
   jpa:
+    generate-ddl: true
     hibernate:
       ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
         use_sql_comments: true
-
 app:
   host: http://localhost:8080

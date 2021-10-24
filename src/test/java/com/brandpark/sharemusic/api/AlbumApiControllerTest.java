@@ -1,11 +1,9 @@
 package com.brandpark.sharemusic.api;
 
-import com.brandpark.sharemusic.api.album.dto.AlbumSaveRequest;
-import com.brandpark.sharemusic.api.album.dto.AlbumUpdateRequest;
-import com.brandpark.sharemusic.api.album.dto.TrackSaveRequest;
-import com.brandpark.sharemusic.api.album.dto.TrackUpdateRequest;
-import com.brandpark.sharemusic.api.exception.ApiException;
-import com.brandpark.sharemusic.api.exception.dto.ExceptionResult;
+import com.brandpark.sharemusic.api.v1.album.dto.*;
+import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
+import com.brandpark.sharemusic.api.v1.exception.ApiException;
+import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
 import com.brandpark.sharemusic.infra.MockMvcTest;
 import com.brandpark.sharemusic.modules.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
@@ -29,12 +27,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.brandpark.sharemusic.api.exception.Error.*;
+import static com.brandpark.sharemusic.api.v1.exception.Error.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @MockMvcTest
@@ -456,6 +453,46 @@ class AlbumApiControllerTest {
                     assertThat(tracks.get(0).getArtist()).isEqualTo("수정된 트랙 아티스트");
                     assertThat(tracks.get(3).getName()).isEqualTo("추가된 트랙 이름");
                     assertThat(tracks.get(3).getArtist()).isEqualTo("추가된 트랙 아티스트");
+                });
+    }
+
+    @DisplayName("앨범 모두 페이징으로 조회 - 성공")
+    @Test
+    public void RetrieveAllAlbumsByPaging_Success() throws Exception {
+
+        // given
+        albumRepository.deleteAll();
+
+        Album album1 = albumFactory.createAlbumWithTracks("앨범1", 5, userAccount.getId());
+        Album album2 = albumFactory.createAlbumWithTracks("앨범2", 5, userAccount.getId());
+        List<Album> savedAlbums = new ArrayList<>(List.of(album1, album2));
+
+        albumRepository.saveAll(savedAlbums);
+
+        // when
+        // then
+        String url = "/api/v1/albums";
+        mockMvc.perform(get(url)
+                        .param("page", "0"))
+                .andExpect(status().isOk())
+                .andExpect(result -> {
+
+                    String json = result.getResponse().getContentAsString(UTF_8);
+                    AlbumListPagingDto responseDto = objectMapper.readValue(json, AlbumListPagingDto.class);
+
+                    List<AlbumShortDto> resultAlbums = responseDto.getAlbums();
+                    assertThat(resultAlbums.size()).isEqualTo(savedAlbums.size());
+
+
+                    AlbumShortDto firstAlbum = resultAlbums.get(0);
+                    Album expectedAlbumInfo = album2;
+                    assertThat(firstAlbum.getCreateDate()).isAfterOrEqualTo(resultAlbums.get(1).getCreateDate());
+                    assertThat(firstAlbum.getTitle()).isEqualTo("앨범2");
+                    assertThat(firstAlbum.getAlbumImage()).isEqualTo(expectedAlbumInfo.getAlbumImage());
+                    assertThat(firstAlbum.getCreator()).isEqualTo(userAccount.getNickname());
+                    assertThat(firstAlbum.getCreatorProfileImage()).isEqualTo(userAccount.getProfileImage());
+                    assertThat(firstAlbum.getDescription()).isEqualTo(expectedAlbumInfo.getDescription());
+                    assertThat(firstAlbum.getTrackCount()).isEqualTo(expectedAlbumInfo.getTrackCount());
                 });
     }
 }
