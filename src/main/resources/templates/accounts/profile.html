@@ -5,13 +5,13 @@
         <nav th:replace="fragments.html:: nav"></nav>
         <div class="container my-5">
             <div class="row">
-                <div class="col-md-3 d-flex justify-content-center">
+                <div class="col-md-4 d-flex justify-content-center">
                     <i th:if="${#strings.isEmpty(account.profileImage)}" class="fa fa-user-circle text-white "
                        aria-hidden="true" style="font-size: 9em;"></i>
                     <img th:if="${!#strings.isEmpty(account.profileImage)}" class="img-fluid float-left rounded-circle img-thumbnail p-0"
                          th:src="${account.profileImage}" width="125" height="125"/>
                 </div>
-                <div class="col-md-9">
+                <div class="col-md-8">
                     <div class="row mb-2">
                         <h2 th:text="${account.nickname}" style="font-weight: 300">nickname</h2>
                         <div th:if="${loginAccount != null && isOwner}" class="ml-4">
@@ -22,15 +22,16 @@
                             <button th:if="${isFollowing}" id="btn-unfollow" type="button" class="btn btn-danger">언 팔로우</button>
                         </div>
                     </div>
-                    <div class="row mb-4">
+                    <div class="row mb-3">
                         <div class="col-md-2 p-0">
-                            게시물 <span class="font-weight-bold">0</span>
+                            앨범 <span class="font-weight-bold" th:text="${activityData.getAlbumCount()}">0</span>
                         </div>
                         <div class="col-md-2 p-0">
-                            팔로워 <span class="font-weight-bold">0</span>
+                            <a class="" href="javascript:profile.popFollowerList()">팔로워</a>
+                            <span id="follower" class="font-weight-bold" th:text="${activityData.getFollowerCount()}">0</span>
                         </div>
                         <div class="col-md-2 p-0">
-                            팔로우 <span class="font-weight-bold">0</span>
+                            팔로잉 <span id="following" class="font-weight-bold" th:text="${activityData.getFollowingCount()}">0</span>
                         </div>
                     </div>
                     <div class="row">
@@ -45,6 +46,8 @@
                 </div>
             </div>
         </div>
+        <!-- Modal -->
+        <div th:replace="fragments.html::paging-modal(title='팔로우', id='follower-modal')"></div>
         <div th:replace="fragments.html::footer"></div>
         <div th:replace="fragments.html::ajax-csrf-header"></div>
         <script>
@@ -74,6 +77,11 @@
                             $('#btn-follow').removeClass('btn-primary');
                             $('#btn-follow').text("언 팔로우");
                             $('#btn-follow').attr('id', 'btn-unfollow');
+
+                            var followerCount = parseInt($('#follower').text());
+                            if (!isNaN(followerCount)) {
+                                $('#follower').text(followerCount + 1);
+                            }
                         }
                     }).fail(function () {
                         alert("팔로우를 실패하였습니다.");
@@ -89,11 +97,41 @@
                             $('#btn-unfollow').removeClass('btn-danger');
                             $('#btn-unfollow').text("팔로우");
                             $('#btn-unfollow').attr('id', 'btn-follow');
+
+                            var followerCount = parseInt($('#follower').text());
+                            if (!isNaN(followerCount)) {
+                                $('#follower').text(followerCount - 1);
+                            }
                         }
                     }).fail(function () {
                         alert("언팔로우를 실패하였습니다.");
                     });
+                },
+                popFollowerList: function () {
+                    var _this = this;
+
+                    $.ajax({
+                        url: '/api/v2/accounts/[[${account.getId()}]]/followers',
+                        method: 'get',
+                    }).done(function (data) {
+                        _this._clearFollowers();
+                        _this._appendFollowers(data);
+                    }).fail(function () {
+                        alert("팔로워들을 로드하는데 실패했습니다.");
+                    });
+
+
+                    $('#follower-modal').modal();
+                },
+                _clearFollowers: function () {
+                    $('#follower-modal .modal-body').empty();
+                    $('#follower-modal .modal-footer').empty();
+                },
+                _appendFollowers: function (data) {
+                    $('#follower-modal .modal-body').append(data['followersHtml']);
+                    $('#follower-modal .modal-footer').append(data['paginationHtml']);
                 }
+
 
             }
         </script>

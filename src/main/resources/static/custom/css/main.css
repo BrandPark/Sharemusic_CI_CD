@@ -14,3 +14,7 @@ body{
 .navbar-nav .dropdown-menu{
     z-index:1000000;
 }
+.font-weight-bold{
+    font-weight: 600!important;
+}
+

@@ -1,5 +1,8 @@
 package com.brandpark.sharemusic.modules.account;
 
+import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
+import com.brandpark.sharemusic.api.v1.account.query.dto.ActivityDataResponse;
+import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.modules.Validator;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
@@ -7,6 +10,7 @@ import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import com.brandpark.sharemusic.modules.account.service.VerifyMailService;
+import com.brandpark.sharemusic.modules.follow.FollowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +30,8 @@ public class AccountController {
     private final AccountService accountService;
     private final VerifyMailService verifyMailService;
     private final AccountRepository accountRepository;
+    private final FollowRepository followRepository;
+    private final AccountQueryRepository accountQueryRepository;
     private final Validator formValidator;
 
     @GetMapping("/signup")
@@ -52,14 +58,27 @@ public class AccountController {
     }
 
     @GetMapping("/{nickname}")
-    public String profileView(@PathVariable String nickname, Model model) {
+    public String profileView(@LoginAccount SessionAccount account, @PathVariable String nickname, Model model) {
 
-        Account account = accountRepository.findByNickname(nickname);
-        if (account == null) {
+        if (account != null) {
+            model.addAttribute("loginAccount", account);
+        }
+
+        Account profileAccount = accountRepository.findByNickname(nickname);
+        if (profileAccount == null) {
             throw new IllegalArgumentException(nickname + "은(는) 존재하지 않는 닉네임 입니다.");
         }
 
-        model.addAttribute("account", account);
+        model.addAttribute("account", profileAccount);
+
+        boolean isOwner = account != null && nickname.equals(account.getNickname());
+        model.addAttribute("isOwner", isOwner);
+
+        boolean isFollowing = account != null && followRepository.isFollowing(account.getId(), profileAccount.getId());
+        model.addAttribute("isFollowing", isFollowing);
+
+        ActivityDataResponse activityData = accountQueryRepository.findActivityData(profileAccount.getId());
+        model.addAttribute("activityData", activityData);
 
         return "accounts/profile";
     }

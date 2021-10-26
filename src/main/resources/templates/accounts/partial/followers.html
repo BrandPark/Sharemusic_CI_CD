@@ -1,0 +1,22 @@
+<div style="height:300px">
+    <div class="row pl-3 pr-3 pb-2" th:if="${!#lists.isEmpty(followers)}" th:each="follower: ${followers}">
+        <div class="col-9 row">
+            <div class="col-2 follower-profile-image p-0 d-flex justify-content-center align-items-center">
+                <i th:if="${#strings.isEmpty(follower.profileImage)}" class="fa fa-user-circle"
+                   aria-hidden="true" style="font-size: 2em;"></i>
+                <img th:if="${!#strings.isEmpty(follower.profileImage)}" class="img-fluid float-left rounded-circle img-thumbnail p-0"
+                     th:src="${account.profileImage}" width="30" height="30"/>
+            </div>
+            <div class="col-10 follower-name">
+                <div th:text="${follower.nickname}" style="font-size:0.8rem; font-weight:600">팔로워 닉네임</div>
+                <div class="text-muted" th:text="${follower.name}" style="font-size:0.8rem">팔로워 이름</div>
+            </div>
+        </div>
+        <div class="col-3">
+
+        </div>
+    </div>
+    <div class="row justify-content-center align-items-center h-100" th:if="${#lists.isEmpty(followers)}">
+        <p class="font-weight-bold">팔로워가 없습니다.</p>
+    </div>
+</div>

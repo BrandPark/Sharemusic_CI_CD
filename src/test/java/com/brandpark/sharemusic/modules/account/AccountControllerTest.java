@@ -184,7 +184,7 @@ class AccountControllerTest {
         String otherAccountNickname = otherAccount.getNickname();
         mockMvc.perform(get("/accounts/" + otherAccountNickname))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("loginAccount", "account", "isFollowing", "isOwner"))
+                .andExpect(model().attributeExists("loginAccount", "account", "isFollowing", "isOwner", "activityData"))
                 .andExpect(view().name("accounts/profile"));
     }
 
@@ -195,7 +195,7 @@ class AccountControllerTest {
         String myAccountNickname = loginAccount.getNickname();
         mockMvc.perform(get("/accounts/" + myAccountNickname))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("loginAccount", "account", "isFollowing", "isOwner"))
+                .andExpect(model().attributeExists("loginAccount", "account", "isFollowing", "isOwner", "activityData"))
                 .andExpect(view().name("accounts/profile"));
     }
 }

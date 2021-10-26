@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.api.v1.follow;
+package com.brandpark.sharemusic.api.v1.account;
 
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @MockMvcTest
-class FollowApiControllerTest {
+class AccountApiControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired AccountRepository accountRepository;
@@ -61,6 +61,33 @@ class FollowApiControllerTest {
                     ExceptionResult exceptionResult = objectMapper.readValue(json, ExceptionResult.class);
 
                     assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.NOT_FOUND_ACCOUNT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("팔로우 - 실패(이미 팔로우 중인 경우)")
+    @Test
+    public void Follow_Fail_When_AlreadyFollowing() throws Exception {
+
+        // given
+        Follow follow = followRepository.save(Follow.builder()
+                .follower(myAccount)
+                .target(otherAccount)
+                .build());
+
+        assertThat(followRepository.isFollowing(myAccount.getId(), otherAccount.getId()));
+
+        // when, then
+        String url = "/api/v1/accounts/" + otherAccount.getId() + "/follow";
+        mockMvc.perform(post(url)
+                        .with(csrf()))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+
+                    String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+                    ExceptionResult exceptionResult = objectMapper.readValue(json, ExceptionResult.class);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ACCESS_EXCEPTION.getCode());
                 });
     }
 
@@ -124,6 +151,29 @@ class FollowApiControllerTest {
                     ExceptionResult exceptionResult = objectMapper.readValue(json, ExceptionResult.class);
 
                     assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.NOT_FOUND_ACCOUNT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("언 팔로우 - 실패(이미 언팔로우 상태)")
+    @Test
+    public void UnFollow_Fail_When_AlreadyUnfollow() throws Exception {
+
+        // given
+        boolean isFollowing = followRepository.isFollowing(myAccount.getId(), otherAccount.getId());
+        assertThat(isFollowing).isFalse();
+
+        // when, then
+        String url = "/api/v1/accounts/" + otherAccount.getId() + "/unfollow";
+        mockMvc.perform(post(url)
+                        .with(csrf()))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+
+                    String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+                    ExceptionResult exceptionResult = objectMapper.readValue(json, ExceptionResult.class);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ACCESS_EXCEPTION.getCode());
                 });
     }
 

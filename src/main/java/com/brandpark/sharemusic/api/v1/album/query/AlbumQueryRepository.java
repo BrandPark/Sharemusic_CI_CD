@@ -9,7 +9,6 @@ import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.album.domain.QTrack;
-import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
 import com.brandpark.sharemusic.modules.comment.domain.QComment;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
@@ -22,13 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 @Component
 public class AlbumQueryRepository {
 
     private final JPAQueryFactory query;
-    private final CommentRepository commentRepository;
     QAlbum album = QAlbum.album;
     QAccount account = QAccount.account;
     QTrack track = QTrack.track;

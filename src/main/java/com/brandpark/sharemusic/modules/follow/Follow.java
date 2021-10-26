@@ -1,5 +1,6 @@
 package com.brandpark.sharemusic.modules.follow;
 
+import com.brandpark.sharemusic.modules.BaseTimeEntity;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import lombok.*;
 
@@ -10,7 +11,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name = "UK_FOLLOW", columnNames = {"follower_id", "target_id"}))
-public class Follow {
+public class Follow extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "follow_id")
