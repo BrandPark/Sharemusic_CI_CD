@@ -9,6 +9,8 @@ import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.album.domain.Track;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
+import com.brandpark.sharemusic.modules.follow.Follow;
+import com.brandpark.sharemusic.modules.follow.FollowRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Profile;
@@ -16,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -28,13 +31,16 @@ public class LocalInitData {
     private final AccountRepository accountRepository;
     private final AlbumRepository albumRepository;
     private final CommentRepository commentRepository;
+    private final FollowRepository followRepository;
     private Account userAccount;
     private Account guestAccount;
+    private List<Account> otherAccounts = new ArrayList<>();
 
     @PostConstruct
     public void init() {
         initAccounts();
         initAlbums();
+        initFollowers();
     }
 
     private void initAccounts() {
@@ -59,6 +65,21 @@ public class LocalInitData {
         guestAccount.assignRole(Role.GUEST);
 
         accountRepository.saveAll(List.of(userAccount, guestAccount));
+
+        for (int i = 0; i < 30; i++) {
+            String name = "other" + i;
+            Account account = Account.builder()
+                    .email(name + "@email.com")
+                    .nickname(name)
+                    .name(name)
+                    .bio(name)
+                    .password(passwordEncoder.encode("1q2w3e4r"))
+                    .role(Role.GUEST)
+                    .build();
+
+            otherAccounts.add(account);
+        }
+        accountRepository.saveAll(otherAccounts);
     }
 
     private void initAlbums() {
@@ -86,6 +107,7 @@ public class LocalInitData {
             initComments(album.getId());
         }
     }
+
     private void initComments(Long albumId) {
         for (int j = 0; j < 2; j++) {
             Comment comment = Comment.builder()
@@ -96,5 +118,16 @@ public class LocalInitData {
 
             commentRepository.save(comment);
         }
+    }
+
+    private void initFollowers() {
+        List<Follow> followList = new ArrayList<>();
+        for (Account otherAccount : otherAccounts) {
+            followList.add(Follow.builder()
+                    .follower(otherAccount)
+                    .target(userAccount)
+                    .build());
+        }
+        followRepository.saveAll(followList);
     }
 }

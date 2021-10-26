@@ -52,6 +52,7 @@
         <div th:replace="fragments.html::ajax-csrf-header"></div>
         <script>
             $(function () {
+                profile.loadFollowers(0);
                 profile.init();
             });
 
@@ -65,6 +66,12 @@
 
                     $('#follow-button-box').on('click', "#btn-unfollow", function () {
                         _this.unfollow();
+                    });
+
+                    $('#pagination').on('click', '.btn-page', function () {
+                        var gotoPage = $(this).attr('data-index');
+                        _this.loadFollowers(gotoPage);
+                        console.log(gotoPage);
                     });
                 },
                 follow: function () {
@@ -110,8 +117,15 @@
                 popFollowerList: function () {
                     var _this = this;
 
+                    _this.loadFollowers(0);
+
+                    $('#follower-modal').modal();
+                },
+                loadFollowers: function (page) {
+                    var _this = this;
+
                     $.ajax({
-                        url: '/api/v2/accounts/[[${account.getId()}]]/followers',
+                        url: '/api/v2/accounts/[[${account.getId()}]]/followers?page=' + page,
                         method: 'get',
                     }).done(function (data) {
                         _this._clearFollowers();
@@ -119,9 +133,6 @@
                     }).fail(function () {
                         alert("팔로워들을 로드하는데 실패했습니다.");
                     });
-
-
-                    $('#follower-modal').modal();
                 },
                 _clearFollowers: function () {
                     $('#follower-modal .modal-body').empty();

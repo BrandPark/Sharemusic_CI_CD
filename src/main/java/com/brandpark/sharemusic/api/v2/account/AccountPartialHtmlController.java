@@ -24,7 +24,7 @@ public class AccountPartialHtmlController {
     private final TemplateEngine templateEngine;
 
     @GetMapping("/accounts/{targetId}/followers")
-    public FollowersPagingHtmlResult getFollowersPagingHtml(@PathVariable Long targetId, @PageableDefault(size=6) Pageable pageable) {
+    public FollowersPagingHtmlResult getFollowersPagingHtml(@PathVariable Long targetId, @PageableDefault(size=10) Pageable pageable) {
 
         FollowerListPagingDto dto = accountQueryRepository.findAllFollowerByPaging(targetId, pageable);
 
@@ -41,8 +41,8 @@ public class AccountPartialHtmlController {
 
         int pageCount = 0;
 
-        if (followersPage.getTotalPages() > followersPage.getPageSize()) {
-            pageCount = followersPage.getPageSize();
+        if (followersPage.getTotalPages() > 5) {
+            pageCount = 5;
         } else {
             pageCount = followersPage.getTotalPages();
         }
