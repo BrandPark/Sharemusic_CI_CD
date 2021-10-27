@@ -1,9 +1,10 @@
 package com.brandpark.sharemusic.api.v1.account;
 
-import com.brandpark.sharemusic.api.v1.account.dto.FollowerListPagingDto;
+import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
 import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
+import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.Account;
@@ -59,7 +60,7 @@ public class AccountApiController {
     }
 
     @GetMapping("/accounts/{targetId}/followers")
-    public FollowerListPagingDto findAllFollowersByPaging(@PathVariable Long targetId, @PageableDefault(size = 6) Pageable pageable) {
+    public PagingDto<FollowerInfoDto> findAllFollowersByPaging(@PathVariable Long targetId, @PageableDefault(size = 6) Pageable pageable) {
 
         if (accountRepository.existsById(targetId)) {
             throw new ApiException(Error.NOT_FOUND_ACCOUNT_EXCEPTION);

@@ -1,8 +1,9 @@
 package com.brandpark.sharemusic.api.v1.account.query;
 
+import com.brandpark.sharemusic.api.PagingDtoFactory;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
-import com.brandpark.sharemusic.api.v1.account.dto.FollowerListPagingDto;
 import com.brandpark.sharemusic.api.v1.account.query.dto.ActivityDataResponse;
+import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.follow.QFollow;
@@ -12,7 +13,6 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +55,7 @@ public class AccountQueryRepository {
                 .fetchOne();
     }
 
-    public FollowerListPagingDto findAllFollowerByPaging(Long accountId, Pageable pageable) {
+    public PagingDto<FollowerInfoDto> findAllFollowerByPaging(Long accountId, Pageable pageable) {
 
         QueryResults<FollowerInfoDto> queryResults = queryFactory.select(Projections.fields(FollowerInfoDto.class,
                         follow.follower.profileImage,
@@ -70,18 +70,7 @@ public class AccountQueryRepository {
                 .limit(pageable.getPageSize())
                 .fetchResults();
 
-        PageImpl followersPage = new PageImpl(queryResults.getResults(), pageable, queryResults.getTotal());
-
-        FollowerListPagingDto result = new FollowerListPagingDto();
-        result.setFollowers(followersPage.getContent());
-        result.setTotalPages(followersPage.getTotalPages());
-        result.setTotalElements(followersPage.getTotalElements());
-        result.setPageNumber(followersPage.getNumber());
-        result.setNumberOfElements(followersPage.getNumberOfElements());
-        result.setOffset(pageable.getOffset());
-        result.setPageSize(followersPage.getSize());
-
-        return result;
+        return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 5);
     }
 
 }

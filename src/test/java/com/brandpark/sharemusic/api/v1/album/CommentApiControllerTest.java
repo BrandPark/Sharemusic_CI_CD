@@ -73,7 +73,7 @@ class CommentApiControllerTest {
                     String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
                     CommentListPagingDto responseDto = objectMapper.readValue(json, CommentListPagingDto.class);
 
-                    List<CommentDetailDto> resultComments = responseDto.getComments();
+                    List<CommentDetailDto> resultComments = responseDto.getContents();
 
                     assertThat(resultComments.size()).isEqualTo(saveComments.size());
                     assertThat(resultComments.get(0).getCreateDate()).isAfterOrEqualTo(resultComments.get(1).getCreateDate());

@@ -1,11 +1,11 @@
 package com.brandpark.sharemusic.api.v1.album.query;
 
-import com.brandpark.sharemusic.api.v1.album.dto.AlbumListPagingDto;
-import com.brandpark.sharemusic.api.v1.album.dto.CommentListPagingDto;
+import com.brandpark.sharemusic.api.PagingDtoFactory;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.CommentDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
+import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.album.domain.QTrack;
@@ -14,7 +14,6 @@ import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +31,7 @@ public class AlbumQueryRepository {
     QTrack track = QTrack.track;
     QComment comment = QComment.comment;
 
-    public AlbumListPagingDto findAllAlbumShortDto(Pageable pageable) {
+    public PagingDto<AlbumShortDto> findAllAlbumShortDto(Pageable pageable) {
 
         QueryResults<AlbumShortDto> queryResults = query.select(
                         Projections.bean(AlbumShortDto.class,
@@ -52,18 +51,7 @@ public class AlbumQueryRepository {
                 .limit(pageable.getPageSize())
                 .fetchResults();
 
-        PageImpl<AlbumShortDto> albumPage = new PageImpl<>(queryResults.getResults(), pageable, queryResults.getTotal());
-
-        AlbumListPagingDto result = new AlbumListPagingDto();
-        result.setAlbums(albumPage.getContent());
-        result.setTotalPages(albumPage.getTotalPages());
-        result.setTotalElements(albumPage.getTotalElements());
-        result.setPageNumber(albumPage.getNumber());
-        result.setNumberOfElements(albumPage.getNumberOfElements());
-        result.setOffset(pageable.getOffset());
-        result.setPageSize(albumPage.getSize());
-
-        return result;
+        return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
     }
 
     public AlbumDetailDto findAlbumDetailDtoById(Long albumId) {
@@ -97,7 +85,7 @@ public class AlbumQueryRepository {
         return albumDetailDto;
     }
 
-    public CommentListPagingDto findAllCommentDetailDtoByAlbumId(Long albumId, Pageable pageable) {
+    public PagingDto<CommentDetailDto> findAllCommentDetailDtoByAlbumId(Long albumId, Pageable pageable) {
 
         QueryResults<CommentDetailDto> queryResults = query.select(Projections.bean(CommentDetailDto.class,
                         comment.id,
@@ -115,17 +103,6 @@ public class AlbumQueryRepository {
                 .limit(pageable.getPageSize())
                 .fetchResults();
 
-        PageImpl<CommentDetailDto> commentPage = new PageImpl<>(queryResults.getResults(), pageable, queryResults.getTotal());
-
-        CommentListPagingDto result = new CommentListPagingDto();
-        result.setComments(queryResults.getResults());
-        result.setTotalPages(commentPage.getTotalPages());
-        result.setTotalElements(commentPage.getTotalElements());
-        result.setPageNumber(commentPage.getNumber());
-        result.setNumberOfElements(commentPage.getNumberOfElements());
-        result.setOffset(pageable.getOffset());
-        result.setPageSize(commentPage.getSize());
-
-        return result;
+        return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
     }
 }

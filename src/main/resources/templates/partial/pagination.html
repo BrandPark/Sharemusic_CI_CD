@@ -1,0 +1,19 @@
+<nav >
+    <ul class="pagination" style="cursor:pointer">
+        <li class="page-item" th:if="${pageObj != null}" th:classappend="${!pageObj.hasPrevious()} ? disabled">
+            <a th:data-index="${pageObj.getPageNumber() - 1}" class="page-link btn-page">
+                <span aria-hidden="true"><i class="fa fa-angle-left" aria-hidden="true"></i></span>
+            </a>
+        </li>
+        <li class="page-item" th:each="i: ${pageNumberArray}"
+            th:classappend="${pageObj.getPageNumber() == i} ? active">
+
+            <a th:data-index="${i}" class="page-link btn-page" th:text="${i+1}">1</a>
+        </li>
+        <li class="page-item" th:if="${pageObj != null}" th:classappend="${!pageObj.hasNext()} ? disabled">
+            <a th:data-index="${pageObj.getPageNumber() + 1}" class="page-link btn-page">
+                <span aria-hidden="true"><i class="fa fa-angle-right" aria-hidden="true"></i></span>
+            </a>
+        </li>
+    </ul>
+</nav>
