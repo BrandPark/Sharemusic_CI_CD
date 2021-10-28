@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments.html :: head"></head>
+    <head th:replace="fragments.html :: head"></head>
     <body class="background">
         <nav th:replace="fragments.html:: nav"></nav>
         <div class="container my-5">
-            <div class="row">
+            <div class="row mb-5">
                 <div class="col-md-4 d-flex justify-content-center">
                     <i th:if="${#strings.isEmpty(account.profileImage)}" class="fa fa-user-circle text-white "
                        aria-hidden="true" style="font-size: 9em;"></i>
@@ -27,11 +27,14 @@
                             앨범 <span class="font-weight-bold" th:text="${activityData.getAlbumCount()}">0</span>
                         </div>
                         <div class="col-md-2 p-0">
-                            <a class="" href="javascript:profile.popFollowerList()">팔로워</a>
-                            <span id="follower" class="font-weight-bold" th:text="${activityData.getFollowerCount()}">0</span>
+                            <a class="text-dark" href="javascript:profile.popFollowerList()">
+                                팔로워 <span id="follower" class="font-weight-bold" th:text="${activityData.getFollowerCount()}">0</span>
+                            </a>
                         </div>
                         <div class="col-md-2 p-0">
-                            팔로잉 <span id="following" class="font-weight-bold" th:text="${activityData.getFollowingCount()}">0</span>
+                            <a class="text-dark" href="javascript:profile.popFollowingList()">
+                                팔로잉 <span id="following" class="font-weight-bold" th:text="${activityData.getFollowingCount()}">0</span>
+                            </a>
                         </div>
                     </div>
                     <div class="row">
@@ -45,18 +48,43 @@
                     </div>
                 </div>
             </div>
+            <div class="row justify-content-center nav-tabs-wrapper-up">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active font-weight-bold text-secondary" id="albums-tab" data-toggle="tab"
+                           href="#albums-box" role="tab" aria-controls="albums" aria-selected="true">앨범</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link font-weight-bold text-secondary" id="profile-tab" data-toggle="tab"
+                           href="#likes" role="tab" aria-controls="likes" aria-selected="false">좋아요</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="tab-content" id="myTabContent">
+                    <div id='albums-box' class="tab-pane fade show active" role="tabpanel" aria-labelledby="albums-tab">
+                        <div id="album-list" class="row"></div>
+                        <div id="album-pagination-box" class="d-flex justify-content-center"></div>
+                    </div>
+                    <div class="tab-pane fade" id="likes" role="tabpanel" aria-labelledby="likes-tab">
+                    </div>
+                </div>
+            </div>
         </div>
         <!-- Modal -->
         <div th:replace="fragments.html::paging-modal(title='팔로우', id='follower-modal')"></div>
+        <div th:replace="fragments.html::paging-modal(title='팔로잉', id='following-modal')"></div>
+
+
         <div th:replace="fragments.html::footer"></div>
         <div th:replace="fragments.html::ajax-csrf-header"></div>
         <script>
             $(function () {
-                profile.loadFollowers(0);
                 profile.init();
+                profile.loadAlbums(0);
             });
 
-            var profile = {
+            let profile = {
                 init: function () {
                     var _this = this;
 
@@ -68,10 +96,30 @@
                         _this.unfollow();
                     });
 
-                    $('#pagination').on('click', '.btn-page', function () {
+                    $('#follower-modal #modal-pagination').on('click', '.btn-page', function () {
                         var gotoPage = $(this).attr('data-index');
                         _this.loadFollowers(gotoPage);
-                        console.log(gotoPage);
+                    });
+                    $('#following-modal #modal-pagination').on('click', '.btn-page', function () {
+                        var gotoPage = $(this).attr('data-index');
+                        _this.loadFollowings(gotoPage);
+                    });
+                    $('#album-pagination-box').on('click', '.btn-page', function () {
+                        var gotoPage = $(this).attr('data-index');
+                        _this.loadAlbums(gotoPage);
+                    });
+                    $('#album-list').on('mouseover mouseout', '#description-panel', function (event){
+                        if (event.type === 'mouseover') {
+                            $(this).addClass('show');
+                            $(this).removeClass('fade');
+                        } else {
+                            $(this).addClass('fade');
+                            $(this).removeClass('show');
+                        }
+                    });
+                    $('#album-list').on('click', 'div[id^="album_"]', function () {
+                        var albumId = $(this).attr('id').replace('album_', '');
+                        window.location.href='/albums/' + albumId;
                     });
                 },
                 follow: function () {
@@ -115,11 +163,14 @@
                     });
                 },
                 popFollowerList: function () {
-                    var _this = this;
-
-                    _this.loadFollowers(0);
+                    this.loadFollowers(0);
 
                     $('#follower-modal').modal();
+                },
+                popFollowingList: function () {
+                    this.loadFollowings(0);
+
+                    $('#following-modal').modal();
                 },
                 loadFollowers: function (page) {
                     var _this = this;
@@ -134,6 +185,32 @@
                         alert("팔로워들을 로드하는데 실패했습니다.");
                     });
                 },
+                loadFollowings: function (page) {
+                    var _this = this;
+
+                    $.ajax({
+                        url: '/api/v2/accounts/[[${account.getId()}]]/followings?page=' + page,
+                        method: 'get',
+                    }).done(function (data) {
+                        _this._clearFollowings();
+                        _this._appendFollowings(data);
+                    }).fail(function () {
+                        alert("팔로잉들을 로드하는데 실패했습니다.");
+                    });
+                },
+                loadAlbums: function (page) {
+                    var _this = this;
+
+                    $.ajax({
+                        url: '/api/v2/short-albums?page=' + page + '&q=[[${account.getNickname()}]]',
+                        method: 'GET',
+                    }).done(function (data) {
+                        _this._clearAlbums();
+                        _this._appendAlbums(data);
+                    }).fail(function (){
+                        alert("앨범들을 로드하는데 실패했습니다.");
+                    });
+                },
                 _clearFollowers: function () {
                     $('#follower-modal .modal-body').empty();
                     $('#follower-modal .modal-footer').empty();
@@ -141,11 +218,31 @@
                 _appendFollowers: function (data) {
                     $('#follower-modal .modal-body').append(data['followersHtml']);
                     $('#follower-modal .modal-footer').append(data['paginationHtml']);
-                }
-
-
+                },
+                _clearFollowings: function () {
+                    $('#following-modal .modal-body').empty();
+                    $('#following-modal .modal-footer').empty();
+                },
+                _appendFollowings: function (data) {
+                    $('#following-modal .modal-body').append(data['followingsHtml']);
+                    $('#following-modal .modal-footer').append(data['paginationHtml']);
+                },
+                _clearAlbums: function () {
+                    $('#album-list').empty();
+                    $('#album-pagination-box').empty();
+                },
+                _appendAlbums: function (data) {
+                    $('#album-list').append(data['albumsHtml']);
+                    $('#album-pagination-box').append(data['paginationHtml']);
+                },
+                _addClickEventToAlbumCard: function () {
+                    $('div[id^="album_"]').on('click', function () {
+                        var albumId = $(this).attr('id').replace('album_', '');
+                        window.location.href='/albums/' + albumId;
+                    });
+                },
             }
         </script>
-    </body>
+</body>
 </html>
 

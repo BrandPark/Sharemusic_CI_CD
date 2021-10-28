@@ -26,6 +26,7 @@ public class CommentApiController {
 
     @GetMapping("/albums/{albumId}/comments")
     public PagingDto<CommentDetailDto> getAllComments(@PathVariable Long albumId, @PageableDefault(size = 10) Pageable pageable) {
+
         return albumQueryRepository.findAllCommentDetailDtoByAlbumId(albumId, pageable);
     }
 

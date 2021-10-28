@@ -1,5 +1,6 @@
 package com.brandpark.sharemusic.api.v1.album;
 
+import com.brandpark.sharemusic.api.SearchDto;
 import com.brandpark.sharemusic.api.v1.DtoValidator;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumSaveRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
@@ -26,8 +27,9 @@ public class AlbumApiController {
     private final AlbumQueryRepository albumQueryRepository;
 
     @GetMapping("/albums")
-    public PagingDto<AlbumShortDto> getAllAlbumShort(@PageableDefault(size = 9) Pageable pageable) {
-        return albumQueryRepository.findAllAlbumShortDto(pageable);
+    public PagingDto<AlbumShortDto> getAllAlbumShort(@PageableDefault(size = 9) Pageable pageable, SearchDto searchDto) {
+
+        return albumQueryRepository.findAllAlbumShortDto(pageable, searchDto);
     }
 
     @PostMapping("/albums")

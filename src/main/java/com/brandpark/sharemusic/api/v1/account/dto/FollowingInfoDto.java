@@ -5,9 +5,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class FollowerInfoDto {
+public class FollowingInfoDto {
     private String profileImage;
     private String nickname;
     private String name;
-    private LocalDateTime followDate;
+    private LocalDateTime followingDate;
 }

@@ -1,6 +1,8 @@
 package com.brandpark.sharemusic.api.v1.account;
 
+import com.brandpark.sharemusic.api.v1.DtoValidator;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
+import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
 import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
@@ -24,6 +26,7 @@ public class AccountApiController {
     private final AccountRepository accountRepository;
     private final FollowRepository followRepository;
     private final AccountQueryRepository accountQueryRepository;
+    private final DtoValidator dtoValidator;
 
     @PostMapping("/accounts/{targetId}/follow")
     public Long doFollow(@LoginAccount SessionAccount account, @PathVariable Long targetId) {
@@ -62,10 +65,19 @@ public class AccountApiController {
     @GetMapping("/accounts/{targetId}/followers")
     public PagingDto<FollowerInfoDto> findAllFollowersByPaging(@PathVariable Long targetId, @PageableDefault(size = 6) Pageable pageable) {
 
-        if (accountRepository.existsById(targetId)) {
+        if (!accountRepository.existsById(targetId)) {
+            throw new ApiException(Error.NOT_FOUND_ACCOUNT_EXCEPTION);
+        }
+        return accountQueryRepository.findAllFollowersByPaging(targetId, pageable);
+    }
+
+    @GetMapping("/accounts/{targetId}/followings")
+    public PagingDto<FollowingInfoDto> findAllFollowingsByPaging(@PathVariable Long targetId, @PageableDefault(size = 6) Pageable pageable) {
+
+        if (!accountRepository.existsById(targetId)) {
             throw new ApiException(Error.NOT_FOUND_ACCOUNT_EXCEPTION);
         }
 
-        return accountQueryRepository.findAllFollowerByPaging(targetId, pageable);
+        return accountQueryRepository.findAllFollowingsByPaging(targetId, pageable);
     }
 }

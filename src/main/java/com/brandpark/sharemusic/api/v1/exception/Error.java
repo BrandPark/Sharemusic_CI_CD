@@ -13,7 +13,8 @@ public enum Error {
     DUPLICATE_ALBUM_TITLE_EXCEPTION(BAD_REQUEST, "E0004", "같은 이름의 앨범을 갖고 있습니다."),
 
     ILLEGAL_ACCESS_EXCEPTION(BAD_REQUEST, "E0005", "잘못된 접근입니다."),
-    NOT_FOUND_ACCOUNT_EXCEPTION(BAD_REQUEST, "E0006", "계정을 찾을 수 없습니다.");
+    ILLEGAL_ARGUMENT_EXCEPTION(BAD_REQUEST, "E0006", "잘못된 인자입니다."),
+    NOT_FOUND_ACCOUNT_EXCEPTION(BAD_REQUEST, "E0007", "계정을 찾을 수 없습니다.");
 
 
     private final HttpStatus status;

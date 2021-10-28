@@ -1,5 +1,6 @@
 package com.brandpark.sharemusic.api.v2.album;
 
+import com.brandpark.sharemusic.api.SearchDto;
 import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v2.PagingHtmlCreator;
@@ -22,13 +23,27 @@ public class AlbumPartialHtmlController {
     private final PagingHtmlCreator htmlCreator;
 
     @GetMapping("/albums")
-    public AlbumsHtmlResult getAlbumsHtml(@PageableDefault(size=6) Pageable pageable) {
+    public AlbumsHtmlResult getAlbumsHtml(@PageableDefault(size=6) Pageable pageable, SearchDto searchDto) {
 
-        PagingDto<AlbumShortDto> pagingDto = albumQueryRepository.findAllAlbumShortDto(pageable);
+        PagingDto<AlbumShortDto> pagingDto = albumQueryRepository.findAllAlbumShortDto(pageable, searchDto);
 
         Context context = new Context();
         context.setVariable("albumPages", pagingDto);
         String listHtml = htmlCreator.getListHtml("partial/albums", context);
+
+        String paginationHtml = htmlCreator.getPaginationHtml(pagingDto);
+
+        return new AlbumsHtmlResult(listHtml, paginationHtml);
+    }
+
+    @GetMapping("/short-albums")
+    public AlbumsHtmlResult getShortAlbumsHtml(@PageableDefault(size=6) Pageable pageable, SearchDto searchDto) {
+
+        PagingDto<AlbumShortDto> pagingDto = albumQueryRepository.findAllAlbumShortDto(pageable, searchDto);
+
+        Context context = new Context();
+        context.setVariable("albumPages", pagingDto);
+        String listHtml = htmlCreator.getListHtml("partial/short-albums", context);
 
         String paginationHtml = htmlCreator.getPaginationHtml(pagingDto);
 

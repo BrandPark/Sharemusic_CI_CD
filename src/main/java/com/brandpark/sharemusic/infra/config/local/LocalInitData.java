@@ -39,8 +39,10 @@ public class LocalInitData {
     @PostConstruct
     public void init() {
         initAccounts();
-        initAlbums();
         initFollowers();
+        initFollowings();
+        initAlbums(userAccount);
+        initAlbums(otherAccounts.get(0));
     }
 
     private void initAccounts() {
@@ -66,7 +68,7 @@ public class LocalInitData {
 
         accountRepository.saveAll(List.of(userAccount, guestAccount));
 
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 35; i++) {
             String name = "other" + i;
             Account account = Account.builder()
                     .email(name + "@email.com")
@@ -82,14 +84,14 @@ public class LocalInitData {
         accountRepository.saveAll(otherAccounts);
     }
 
-    private void initAlbums() {
+    private void initAlbums(Account account) {
 
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 35; i++) {
             String title = "앨범" + i;
 
             Album album = Album.builder()
                     .title(title)
-                    .accountId(userAccount.getId())
+                    .accountId(account.getId())
                     .description(title + "입니다. ============================")
                     .build();
 
@@ -126,6 +128,17 @@ public class LocalInitData {
             followList.add(Follow.builder()
                     .follower(otherAccount)
                     .target(userAccount)
+                    .build());
+        }
+        followRepository.saveAll(followList);
+    }
+
+    private void initFollowings() {
+        List<Follow> followList = new ArrayList<>();
+        for (Account otherAccount : otherAccounts) {
+            followList.add(Follow.builder()
+                    .follower(userAccount)
+                    .target(otherAccount)
                     .build());
         }
         followRepository.saveAll(followList);

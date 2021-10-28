@@ -1,6 +1,7 @@
 package com.brandpark.sharemusic.api.v1.album.query;
 
 import com.brandpark.sharemusic.api.PagingDtoFactory;
+import com.brandpark.sharemusic.api.SearchDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.CommentDetailDto;
@@ -12,6 +13,7 @@ import com.brandpark.sharemusic.modules.album.domain.QTrack;
 import com.brandpark.sharemusic.modules.comment.domain.QComment;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +33,7 @@ public class AlbumQueryRepository {
     QTrack track = QTrack.track;
     QComment comment = QComment.comment;
 
-    public PagingDto<AlbumShortDto> findAllAlbumShortDto(Pageable pageable) {
+    public PagingDto<AlbumShortDto> findAllAlbumShortDto(Pageable pageable, SearchDto searchDto) {
 
         QueryResults<AlbumShortDto> queryResults = query.select(
                         Projections.bean(AlbumShortDto.class,
@@ -45,13 +47,22 @@ public class AlbumQueryRepository {
                                 album.createDate
                         ))
                 .from(album)
-                .orderBy(album.createDate.desc())
                 .innerJoin(account).on(album.accountId.eq(account.id))
+                .where(searchCondition(searchDto))
+                .orderBy(album.createDate.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();
 
         return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
+    }
+
+    private BooleanExpression searchCondition(SearchDto searchDto) {
+        if (searchDto.getQ() == null) {
+            return null;
+        }
+
+        return account.nickname.eq(searchDto.getQ());
     }
 
     public AlbumDetailDto findAlbumDetailDtoById(Long albumId) {

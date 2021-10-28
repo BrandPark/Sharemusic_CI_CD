@@ -16,8 +16,6 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.brandpark.sharemusic.api.v1.exception.Error.*;
-
 @RequiredArgsConstructor
 @Component
 public class DtoValidator {

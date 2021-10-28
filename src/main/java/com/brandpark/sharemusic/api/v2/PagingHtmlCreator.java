@@ -24,7 +24,7 @@ public class PagingHtmlCreator {
         int paginationStartNum = pageObj.getPageNumber() / pageObj.getPaginationUnit() * pageObj.getPaginationUnit();
         int paginationEndNum = Math.min(pageObj.getTotalPages(), paginationStartNum + pageObj.getPaginationUnit() - 1);
         int[] pageNumberArray = IntStream
-                .range(paginationStartNum, paginationEndNum + 1)
+                .range(paginationStartNum, paginationEndNum)
                 .toArray();
 
         context.setVariable("pageNumberArray", pageNumberArray);

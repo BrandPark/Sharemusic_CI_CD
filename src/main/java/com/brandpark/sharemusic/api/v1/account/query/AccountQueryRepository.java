@@ -2,6 +2,7 @@ package com.brandpark.sharemusic.api.v1.account.query;
 
 import com.brandpark.sharemusic.api.PagingDtoFactory;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
+import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
 import com.brandpark.sharemusic.api.v1.account.query.dto.ActivityDataResponse;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
@@ -55,17 +56,17 @@ public class AccountQueryRepository {
                 .fetchOne();
     }
 
-    public PagingDto<FollowerInfoDto> findAllFollowerByPaging(Long accountId, Pageable pageable) {
+    public PagingDto<FollowerInfoDto> findAllFollowersByPaging(Long accountId, Pageable pageable) {
 
         QueryResults<FollowerInfoDto> queryResults = queryFactory.select(Projections.fields(FollowerInfoDto.class,
                         follow.follower.profileImage,
                         follow.follower.nickname,
-                        follow.follower.name
+                        follow.follower.name,
+                        follow.createDate.as("followDate")
                 ))
                 .from(follow)
-                .innerJoin(account).on(follow.target.id.eq(account.id))
                 .where(follow.target.id.eq(accountId))
-                .orderBy(follow.modifiedDate.asc())
+                .orderBy(follow.createDate.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();
@@ -73,4 +74,21 @@ public class AccountQueryRepository {
         return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 5);
     }
 
+    public PagingDto<FollowingInfoDto> findAllFollowingsByPaging(Long accountId, Pageable pageable) {
+
+        QueryResults<FollowingInfoDto> queryResults = queryFactory.select(Projections.fields(FollowingInfoDto.class,
+                        follow.target.profileImage,
+                        follow.target.nickname,
+                        follow.target.name,
+                        follow.createDate.as("followingDate")
+                ))
+                .from(follow)
+                .where(follow.follower.id.eq(accountId))
+                .orderBy(follow.createDate.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 5);
+    }
 }

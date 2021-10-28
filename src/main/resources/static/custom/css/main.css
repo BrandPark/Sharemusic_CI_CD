@@ -3,7 +3,7 @@ body{
     font-size: 16px;
 }
 .background{
-    background-color: #dcbfc2;
+    background-color: mistyrose;
 }
 .divider{
     height: 0;
@@ -17,4 +17,24 @@ body{
 .font-weight-bold{
     font-weight: 600!important;
 }
+.nav-tabs-wrapper-up{
+    border-top: 1px solid #dbdbdb;
+}
+.nav-tabs-wrapper-up .nav-tabs {
+    border: none;
+}
+.nav-tabs-wrapper-up .nav-tabs .nav-link{
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+.nav-tabs-wrapper-up .nav-link:hover {
+    border: 1px solid mistyrose;
+}
+.nav-tabs-wrapper-up .nav-tabs .nav-item.show .nav-link, .nav-tabs-wrapper-up .nav-tabs .nav-link.active {
+    background-color: mistyrose;
+    border: 1px solid mistyrose;
+    border-top: 1px solid #495057;
+    color: #495057;
+}
+
 
