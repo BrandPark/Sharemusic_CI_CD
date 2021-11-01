@@ -1,10 +1,13 @@
 package com.brandpark.sharemusic.api.v2.account;
 
-import com.brandpark.sharemusic.api.v1.DtoValidator;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
+import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
 import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
 import com.brandpark.sharemusic.api.v2.PagingHtmlCreator;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
+import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.modules.follow.FollowRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +20,11 @@ import org.thymeleaf.context.WebContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequestMapping("/api/v2")
 @RequiredArgsConstructor
@@ -24,17 +32,39 @@ import javax.servlet.http.HttpServletResponse;
 public class AccountPartialHtmlController {
 
     private final AccountQueryRepository accountQueryRepository;
-    private final DtoValidator dtoValidator;
+    private final FollowRepository followRepository;
     private final PagingHtmlCreator htmlCreator;
 
     @GetMapping("/accounts/{targetId}/followers")
-    public FollowersPagingHtmlResult getFollowersPagingHtml(@PathVariable Long targetId, @PageableDefault(size = 10) Pageable pageable
+    public FollowersPagingHtmlResult getFollowersPagingHtml(@LoginAccount SessionAccount loginAccount
+            , @PathVariable Long targetId, @PageableDefault(size = 10) Pageable pageable
             , HttpServletRequest request, HttpServletResponse response) {
 
         PagingDto<FollowerInfoDto> pagingDto = accountQueryRepository.findAllFollowersByPaging(targetId, pageable);
 
         WebContext context = new WebContext(request, response, request.getServletContext());
-        context.setVariable("followers", pagingDto.getContents());
+
+        if (loginAccount != null) {
+            List<Long> followerIds = pagingDto.getContents().stream().map(FollowerInfoDto::getFollowerId).collect(Collectors.toList());
+            Map<Long, Boolean> followingStateMap = followRepository.getFollowingStateByFollowerIds(followerIds, loginAccount.getId());
+
+            List<FollowerDtoForView> followers = new ArrayList<>();
+            for (FollowerInfoDto followerInfoDto : pagingDto.getContents()) {
+                FollowerDtoForView follower = new FollowerDtoForView();
+                follower.setName(followerInfoDto.getName());
+                follower.setFollowDate(followerInfoDto.getFollowDate());
+                follower.setNickname(followerInfoDto.getNickname());
+                follower.setProfileImage(followerInfoDto.getProfileImage());
+                follower.setFollowingState(followingStateMap.get(followerInfoDto.getFollowerId()));
+
+                followers.add(follower);
+            }
+
+            context.setVariable("followers", followers);
+        } else {
+            context.setVariable("followers", pagingDto.getContents());
+        }
+
         String listHtml = htmlCreator.getListHtml("partial/followers", context);
 
         String paginationHtml = htmlCreator.getPaginationHtml(pagingDto);
@@ -43,13 +73,35 @@ public class AccountPartialHtmlController {
     }
 
     @GetMapping("/accounts/{targetId}/followings")
-    public FollowingsPagingHtmlResult getFollowingsPagingHtml(@PathVariable Long targetId, @PageableDefault(size = 10) Pageable pageable
+    public FollowingsPagingHtmlResult getFollowingsPagingHtml(@LoginAccount SessionAccount loginAccount
+            , @PathVariable Long targetId, @PageableDefault(size = 10) Pageable pageable
             , HttpServletRequest request, HttpServletResponse response) {
 
-        PagingDto<FollowerInfoDto> pagingDto = accountQueryRepository.findAllFollowersByPaging(targetId, pageable);
+        PagingDto<FollowingInfoDto> pagingDto = accountQueryRepository.findAllFollowingsByPaging(targetId, pageable);
 
         WebContext context = new WebContext(request, response, request.getServletContext());
-        context.setVariable("followings", pagingDto.getContents());
+
+        if (loginAccount != null) {
+            List<Long> followerIds = pagingDto.getContents().stream().map(FollowingInfoDto::getFollowingId).collect(Collectors.toList());
+            Map<Long, Boolean> followingStateMap = followRepository.getFollowingStateByFollowingIds(followerIds, loginAccount.getId());
+
+            List<FollowingDtoForView> followings = new ArrayList<>();
+            for (FollowingInfoDto followingInfoDto : pagingDto.getContents()) {
+                FollowingDtoForView following = new FollowingDtoForView();
+                following.setName(followingInfoDto.getName());
+                following.setFollowDate(followingInfoDto.getFollowingDate());
+                following.setNickname(followingInfoDto.getNickname());
+                following.setProfileImage(followingInfoDto.getProfileImage());
+                following.setFollowingState(followingStateMap.get(followingInfoDto.getFollowingId()));
+
+                followings.add(following);
+            }
+
+            context.setVariable("followings", followings);
+        } else {
+            context.setVariable("followings", pagingDto.getContents());
+        }
+
         String listHtml = htmlCreator.getListHtml("partial/followings", context);
 
         String paginationHtml = htmlCreator.getPaginationHtml(pagingDto);
@@ -57,14 +109,30 @@ public class AccountPartialHtmlController {
         return new FollowingsPagingHtmlResult(listHtml, paginationHtml);
     }
 
-    @RequiredArgsConstructor
     @Data
     public static class FollowersPagingHtmlResult {
         final String followersHtml;
         final String paginationHtml;
     }
 
-    @RequiredArgsConstructor
+    @Data
+    public static class FollowerDtoForView {
+        private String profileImage;
+        private String nickname;
+        private String name;
+        private LocalDateTime followDate;
+        private boolean followingState;
+    }
+
+    @Data
+    public static class FollowingDtoForView {
+        private String profileImage;
+        private String nickname;
+        private String name;
+        private LocalDateTime followDate;
+        private boolean followingState;
+    }
+
     @Data
     public static class FollowingsPagingHtmlResult {
         final String followingsHtml;

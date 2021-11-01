@@ -59,6 +59,7 @@ public class AccountQueryRepository {
     public PagingDto<FollowerInfoDto> findAllFollowersByPaging(Long accountId, Pageable pageable) {
 
         QueryResults<FollowerInfoDto> queryResults = queryFactory.select(Projections.fields(FollowerInfoDto.class,
+                        follow.follower.id.as("followerId"),
                         follow.follower.profileImage,
                         follow.follower.nickname,
                         follow.follower.name,
@@ -77,6 +78,7 @@ public class AccountQueryRepository {
     public PagingDto<FollowingInfoDto> findAllFollowingsByPaging(Long accountId, Pageable pageable) {
 
         QueryResults<FollowingInfoDto> queryResults = queryFactory.select(Projections.fields(FollowingInfoDto.class,
+                        follow.target.id.as("followingId"),
                         follow.target.profileImage,
                         follow.target.nickname,
                         follow.target.name,

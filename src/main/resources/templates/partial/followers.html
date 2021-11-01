@@ -14,8 +14,9 @@
                 <div class="text-muted" th:text="${follower.name}" style="font-size:0.8rem">팔로워 이름</div>
             </div>
         </div>
-        <div class="col-3">
-
+        <div class="col-3 d-flex justify-content-end align-items-center">
+            <button class="btn btn-primary row" style="font-size:0.7em" th:if="${!follower.followingState}">팔로우</button>
+            <button class="btn btn-danger row" th:if="${follower.followingState}">언 팔로우</button>
         </div>
     </div>
     <div class="row justify-content-center align-items-center h-100" th:if="${#lists.isEmpty(followers)}">

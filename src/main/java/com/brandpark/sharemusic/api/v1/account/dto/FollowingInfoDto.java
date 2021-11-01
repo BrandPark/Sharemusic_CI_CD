@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class FollowingInfoDto {
+    private Long followingId;
     private String profileImage;
     private String nickname;
     private String name;
