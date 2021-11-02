@@ -11,7 +11,7 @@ public interface FollowRepository extends JpaRepository<Follow, Long>, ExtendFol
     Optional<Follow> findByFollowerIdAndTargetId(Long followerId, Long targetId);
 
     @Override
-    Map<Long, Boolean> getFollowingStateByFollowerIds(List<Long> followerIds, Long loginAccountId);
+    Map<Long, Boolean> getFollowingStateByOtherAccountFollowerIds(List<Long> followerIds, Long loginAccountId);
 
     @Override
     boolean isFollowing(Long followerId, Long targetId);

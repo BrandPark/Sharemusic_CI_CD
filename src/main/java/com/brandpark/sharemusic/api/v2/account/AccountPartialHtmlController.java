@@ -45,17 +45,22 @@ public class AccountPartialHtmlController {
         WebContext context = new WebContext(request, response, request.getServletContext());
 
         if (loginAccount != null) {
-            List<Long> followerIds = pagingDto.getContents().stream().map(FollowerInfoDto::getFollowerId).collect(Collectors.toList());
-            Map<Long, Boolean> followingStateMap = followRepository.getFollowingStateByFollowerIds(followerIds, loginAccount.getId());
+
+            List<Long> otherAccountFollowerIds = pagingDto.getContents().stream().map(FollowerInfoDto::getFollowerId).collect(Collectors.toList());
+
+            Map<Long, Boolean> myAccountFollowingStateMap = followRepository.getFollowingStateByOtherAccountFollowerIds(otherAccountFollowerIds, loginAccount.getId());
 
             List<FollowerDtoForView> followers = new ArrayList<>();
             for (FollowerInfoDto followerInfoDto : pagingDto.getContents()) {
+
                 FollowerDtoForView follower = new FollowerDtoForView();
+
+                follower.setFollowerId(followerInfoDto.getFollowerId());
                 follower.setName(followerInfoDto.getName());
                 follower.setFollowDate(followerInfoDto.getFollowDate());
                 follower.setNickname(followerInfoDto.getNickname());
                 follower.setProfileImage(followerInfoDto.getProfileImage());
-                follower.setFollowingState(followingStateMap.get(followerInfoDto.getFollowerId()));
+                follower.setFollowingState(myAccountFollowingStateMap.get(followerInfoDto.getFollowerId()));
 
                 followers.add(follower);
             }
@@ -88,6 +93,7 @@ public class AccountPartialHtmlController {
             List<FollowingDtoForView> followings = new ArrayList<>();
             for (FollowingInfoDto followingInfoDto : pagingDto.getContents()) {
                 FollowingDtoForView following = new FollowingDtoForView();
+                following.setFollowingId(followingInfoDto.getFollowingId());
                 following.setName(followingInfoDto.getName());
                 following.setFollowDate(followingInfoDto.getFollowingDate());
                 following.setNickname(followingInfoDto.getNickname());
@@ -117,6 +123,7 @@ public class AccountPartialHtmlController {
 
     @Data
     public static class FollowerDtoForView {
+        private Long followerId;
         private String profileImage;
         private String nickname;
         private String name;
@@ -126,6 +133,7 @@ public class AccountPartialHtmlController {
 
     @Data
     public static class FollowingDtoForView {
+        private Long followingId;
         private String profileImage;
         private String nickname;
         private String name;

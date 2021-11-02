@@ -219,6 +219,7 @@ class AccountApiControllerTest {
                     Long removedFollowId = objectMapper.readValue(json, Long.class);
 
                     assertThat(removedFollowId).isNotNull();
+                    assertThat(followRepository.findById(removedFollowId)).isEmpty();
                 });
 
         isFollowing = followRepository.isFollowing(myAccount.getId(), otherAccount.getId());

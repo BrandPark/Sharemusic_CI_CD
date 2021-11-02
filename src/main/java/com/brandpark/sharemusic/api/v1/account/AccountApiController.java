@@ -1,6 +1,5 @@
 package com.brandpark.sharemusic.api.v1.account;
 
-import com.brandpark.sharemusic.api.v1.DtoValidator;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
 import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
@@ -26,7 +25,6 @@ public class AccountApiController {
     private final AccountRepository accountRepository;
     private final FollowRepository followRepository;
     private final AccountQueryRepository accountQueryRepository;
-    private final DtoValidator dtoValidator;
 
     @PostMapping("/accounts/{targetId}/follow")
     public Long doFollow(@LoginAccount SessionAccount account, @PathVariable Long targetId) {

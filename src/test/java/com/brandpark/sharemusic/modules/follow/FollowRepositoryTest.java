@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 @ActiveProfiles("test")
 @SpringBootTest
-class FollowRepositoryImplTest {
+class FollowRepositoryTest {
 
     @Autowired FollowRepository followRepository;
     @Autowired AccountRepository accountRepository;
@@ -77,5 +78,25 @@ class FollowRepositoryImplTest {
         // then
         assertThat(following).isTrue();
         assertThat(notFollowing).isFalse();
+    }
+
+    @DisplayName("followerId와 targetId로 팔로워 조회")
+    @Test
+    public void findByFollowerIdAndTargetId() throws Exception {
+
+        // given
+        Long followerId = myAccount.getId();
+        Long targetId = followings.get(0).getId();
+
+        // when
+        Optional<Follow> follow = followRepository.findByFollowerIdAndTargetId(followerId, targetId);
+        Optional<Follow> notFollow = followRepository.findByFollowerIdAndTargetId(followerId, unfollowingOtherAccount.getId());
+
+        // then
+        assertThat(follow).isNotEmpty();
+        assertThat(follow.get().getFollower().getId()).isEqualTo(followerId);
+        assertThat(follow.get().getTarget().getId()).isEqualTo(targetId);
+
+        assertThat(notFollow).isEmpty();
     }
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 class FollowRepositoryImpl implements ExtendFollowRepository{
@@ -23,19 +24,24 @@ class FollowRepositoryImpl implements ExtendFollowRepository{
     }
 
     @Override
-    public Map<Long, Boolean> getFollowingStateByFollowerIds(List<Long> followerIds, Long loginAccountId) {
-        List<Follow> follows = queryFactory.selectFrom(follow)
-                .where(follow.follower.id.eq(loginAccountId).not().and(follow.follower.id.in(followerIds)))
-                .fetch();
+    public Map<Long, Boolean> getFollowingStateByOtherAccountFollowerIds(List<Long> otherAccountFollowerIds, Long loginAccountId) {
+
+        List<Long> myFollowingTargetIdList = queryFactory.selectFrom(follow)
+                .where(follow.follower.id.eq(loginAccountId))
+                .fetch().stream()
+                .map(follow -> follow.getTarget().getId())
+                .collect(Collectors.toList());
 
         Map<Long, Boolean> result = new HashMap<>();
 
-        for (Follow f : follows) {
-            boolean isFollowing = false;
-            if (f.getFollower().getId().equals(loginAccountId)) {
-                isFollowing = true;
+        for (Long otherAccountFollowerId : otherAccountFollowerIds) {
+            boolean followingState = false;
+
+            if (myFollowingTargetIdList.contains(otherAccountFollowerId)) {
+                followingState = true;
             }
-            result.put(f.getFollower().getId(), isFollowing);
+
+            result.put(otherAccountFollowerId, followingState);
         }
 
         return result;
