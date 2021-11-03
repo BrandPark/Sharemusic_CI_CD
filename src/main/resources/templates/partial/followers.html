@@ -1,0 +1,25 @@
+<div style="height:250px">
+    <div class="row pl-3 pr-3 pb-2" th:if="${!#lists.isEmpty(followers)}" th:each="follower: ${followers}">
+        <div class="col-9 row">
+            <div class="col-2 follower-profile-image p-0 d-flex justify-content-center align-items-center">
+                <a class="font-weight-bold text-decoration-none text-dark" th:href="@{'/accounts/' + ${follower.nickname}}">
+                    <i th:if="${#strings.isEmpty(follower.profileImage)}" class="fa fa-user-circle"
+                       aria-hidden="true" style="font-size: 2em;"></i>
+                    <img th:if="${!#strings.isEmpty(follower.profileImage)}" class="img-fluid float-left rounded-circle img-thumbnail p-0"
+                         th:src="${follower.profileImage}" width="30" height="30"/>
+                </a>
+            </div>
+            <div class="col-10 follower-name">
+                <a class="font-weight-bold text-dark" th:href="@{'/accounts/' + ${follower.nickname}}" th:text="${follower.nickname}" style="font-size:0.8rem;">팔로워 닉네임</a>
+                <div class="text-muted" th:text="${follower.name}" style="font-size:0.8rem">팔로워 이름</div>
+            </div>
+        </div>
+        <div class="col-3 d-flex justify-content-end align-items-center" th:if="${!#authentication.getName().equals('anonymousUser')}">
+            <button class="btn btn-primary row btn-follow" th:data-index="${follower.followerId}" style="font-size:0.7em" th:if="${!follower.followingState}">팔로우</button>
+            <button class="btn btn-danger row btn-unfollow" th:data-index="${follower.followerId}" style="font-size:0.7em" th:if="${follower.followingState}">언 팔로우</button>
+        </div>
+    </div>
+    <div class="row justify-content-center align-items-center h-100" th:if="${#lists.isEmpty(followers)}">
+        <p class="font-weight-bold">팔로워가 없습니다.</p>
+    </div>
+</div>

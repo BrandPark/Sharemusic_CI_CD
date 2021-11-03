@@ -1,8 +1,9 @@
 package com.brandpark.sharemusic.api.v1.album;
 
 import com.brandpark.sharemusic.api.v1.DtoValidator;
-import com.brandpark.sharemusic.api.v1.album.dto.CommentListPagingDto;
 import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
+import com.brandpark.sharemusic.api.v1.album.query.dto.CommentDetailDto;
+import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.comment.CommentService;
@@ -24,7 +25,8 @@ public class CommentApiController {
     private final DtoValidator dtoValidator;
 
     @GetMapping("/albums/{albumId}/comments")
-    public CommentListPagingDto getAllComments(@PathVariable Long albumId, @PageableDefault(size = 10) Pageable pageable) {
+    public PagingDto<CommentDetailDto> getAllComments(@PathVariable Long albumId, @PageableDefault(size = 10) Pageable pageable) {
+
         return albumQueryRepository.findAllCommentDetailDtoByAlbumId(albumId, pageable);
     }
 

@@ -14,7 +14,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,11 +40,16 @@ class AccountControllerTest {
     @Autowired AccountFactory accountFactory;
     @MockBean MailService mailService;
     Account savedAccount;
+    Account loginAccount;
+    Account otherAccount;
 
     @BeforeEach
     public void setUp() {
         savedAccount = accountFactory.createAccount("savedAccount");
-        accountRepository.save(savedAccount);
+        loginAccount = accountFactory.createAccount("loginAccount");
+        otherAccount = accountFactory.createAccount("otherAccount");
+
+        accountRepository.saveAll(List.of(savedAccount, loginAccount, otherAccount));
     }
 
     @DisplayName("회원가입 화면출력")
@@ -165,5 +174,28 @@ class AccountControllerTest {
         assertThat(account.getEmailCheckTokenGeneratedAt()).isNotNull();
         assertThat(account.getRole()).isEqualTo(Role.GUEST);
         assertTrue(passwordEncoder.matches(form.getPassword(), account.getPassword()));
+    }
+
+    @WithUserDetails(value = "loginAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("다른 사람 프로필 화면 출력")
+    @Test
+    public void ProfileView_When_VisitOtherAccountProfile() throws Exception {
+
+        String otherAccountNickname = otherAccount.getNickname();
+        mockMvc.perform(get("/accounts/" + otherAccountNickname))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("loginAccount", "account", "isFollowing", "isOwner", "activityData"))
+                .andExpect(view().name("accounts/profile"));
+    }
+
+    @WithUserDetails(value = "loginAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("자신의 프로필 화면 출력")
+    @Test
+    public void ProfileView_When_VisitMyAccountProfile() throws Exception {
+        String myAccountNickname = loginAccount.getNickname();
+        mockMvc.perform(get("/accounts/" + myAccountNickname))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("loginAccount", "account", "isFollowing", "isOwner", "activityData"))
+                .andExpect(view().name("accounts/profile"));
     }
 }

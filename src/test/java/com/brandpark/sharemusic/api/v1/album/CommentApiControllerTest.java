@@ -1,8 +1,8 @@
 package com.brandpark.sharemusic.api.v1.album;
 
 import com.brandpark.sharemusic.api.AlbumFactory;
-import com.brandpark.sharemusic.api.v1.album.dto.CommentListPagingDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.CommentDetailDto;
+import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.MockMvcTest;
 import com.brandpark.sharemusic.modules.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
@@ -11,6 +11,7 @@ import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -71,9 +72,9 @@ class CommentApiControllerTest {
                 .andExpect(result -> {
 
                     String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-                    CommentListPagingDto responseDto = objectMapper.readValue(json, CommentListPagingDto.class);
+                    PagingDto<CommentDetailDto> responseDto = objectMapper.readValue(json, new TypeReference<PagingDto<CommentDetailDto>>(){});
 
-                    List<CommentDetailDto> resultComments = responseDto.getComments();
+                    List<CommentDetailDto> resultComments = responseDto.getContents();
 
                     assertThat(resultComments.size()).isEqualTo(saveComments.size());
                     assertThat(resultComments.get(0).getCreateDate()).isAfterOrEqualTo(resultComments.get(1).getCreateDate());

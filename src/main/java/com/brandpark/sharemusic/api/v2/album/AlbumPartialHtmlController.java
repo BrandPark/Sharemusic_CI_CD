@@ -1,7 +1,10 @@
 package com.brandpark.sharemusic.api.v2.album;
 
-import com.brandpark.sharemusic.api.v1.album.dto.AlbumListPagingDto;
+import com.brandpark.sharemusic.api.SearchDto;
 import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
+import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
+import com.brandpark.sharemusic.api.v2.PagingHtmlCreator;
+import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -9,10 +12,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-
-import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v2")
@@ -20,43 +20,34 @@ import java.util.stream.IntStream;
 public class AlbumPartialHtmlController {
 
     private final AlbumQueryRepository albumQueryRepository;
-    private final TemplateEngine templateEngine;
+    private final PagingHtmlCreator htmlCreator;
 
     @GetMapping("/albums")
-    public AlbumsHtmlResult getAlbumsHtml(@PageableDefault(size=6) Pageable pageable) {
+    public AlbumsHtmlResult getAlbumsHtml(@PageableDefault(size=6) Pageable pageable, SearchDto searchDto) {
 
-        AlbumListPagingDto dto = albumQueryRepository.findAllAlbumShortDto(pageable);
+        PagingDto<AlbumShortDto> pagingDto = albumQueryRepository.findAllAlbumShortDto(pageable, searchDto);
 
-        String albumListHtml = getAlbumListHtml(dto);
+        Context context = new Context();
+        context.setVariable("albumPages", pagingDto);
+        String listHtml = htmlCreator.getListHtml("partial/albums", context);
 
-        String albumsPaginationHtml = getPaginationHtml(dto);
+        String paginationHtml = htmlCreator.getPaginationHtml(pagingDto);
 
-        return new AlbumsHtmlResult(albumListHtml, albumsPaginationHtml);
+        return new AlbumsHtmlResult(listHtml, paginationHtml);
     }
 
-    private String getPaginationHtml(AlbumListPagingDto albumPages) {
+    @GetMapping("/short-albums")
+    public AlbumsHtmlResult getShortAlbumsHtml(@PageableDefault(size=6) Pageable pageable, SearchDto searchDto) {
+
+        PagingDto<AlbumShortDto> pagingDto = albumQueryRepository.findAllAlbumShortDto(pageable, searchDto);
+
         Context context = new Context();
-        context.setVariable("albumPages", albumPages);
+        context.setVariable("albumPages", pagingDto);
+        String listHtml = htmlCreator.getListHtml("partial/short-albums", context);
 
-        int pageCount = 0;
+        String paginationHtml = htmlCreator.getPaginationHtml(pagingDto);
 
-        if (albumPages.getTotalPages() > albumPages.getPageSize()) {  // 10페이지 보다 많다면
-            pageCount = albumPages.getPageSize(); // 10페이지 까지만
-        } else {
-            pageCount = albumPages.getTotalPages();
-        }
-
-        int[] pageArray = IntStream.range(0, pageCount).toArray();
-        context.setVariable("pageArray", pageArray);
-
-        return templateEngine.process("/albums/partial/albums-pagination", context);
-    }
-
-    private String getAlbumListHtml(AlbumListPagingDto albumPages) {
-        Context context = new Context();
-        context.setVariable("albumPages", albumPages);
-
-        return templateEngine.process("/albums/partial/albums", context);
+        return new AlbumsHtmlResult(listHtml, paginationHtml);
     }
 
     @RequiredArgsConstructor

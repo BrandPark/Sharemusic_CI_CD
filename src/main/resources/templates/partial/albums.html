@@ -1,0 +1,25 @@
+<div class="col-md-4" th:each="albumPreview: ${albumPages.getContents()}">
+    <div th:id="'album_' + ${albumPreview.id}" class="card mb-4 shadow-sm h-80" style="cursor:pointer">
+        <div class="d-flex justify-content-center bg-light py-2" style="height: 150px">
+            <img th:if="${#strings.isEmpty(albumPreview.albumImage)}" src="/images/album-default.jpg" class="col-6 card-img-top bg-light rounded-circle">
+            <img th:if="${!#strings.isEmpty(albumPreview.albumImage)}" th:src="${albumPreview.albumImage}" class="col-6 card-img-top bg-light rounded-circle">
+        </div>
+        <div class="card-body">
+            <h5 class="card-title font-weight-bold" th:text="${albumPreview.title}">title</h5>
+            <p class="card-text text-truncate" th:text="${albumPreview.description}">Short description</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    <i class="fa fa-music pr-2" aria-hidden="true"></i>
+                    <span th:text="${albumPreview.trackCount}"></span>곡
+                </small>
+            </div>
+            <div>
+                <small>
+                    <i th:if="${#strings.isEmpty(albumPreview.creatorProfileImage)}" class="fa fa-user-circle"></i>
+                    <img width="23" height="23" th:if="${!#strings.isEmpty(albumPreview.creatorProfileImage)}" th:src="${albumPreview.creatorProfileImage}">
+                    <span class="font-weight-bold" th:text="${albumPreview.creator}"></span>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
