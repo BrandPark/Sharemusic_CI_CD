@@ -1,0 +1,22 @@
+<div class="col-4 mb-5" style="width:10em; height:10em" th:each="albumPreview: ${albumPages.getContents()}">
+    <div th:id="'album_' + ${albumPreview.id}" class="h-100">
+        <div class="d-flex justify-content-center h-100 album-card">
+            <img th:if="${#strings.isEmpty(albumPreview.albumImage)}" src="/images/album-default.jpg" class="rounded-circle shadow-sm"
+                 style="width:170px; height:170px; cursor:pointer">
+            <img th:if="${!#strings.isEmpty(albumPreview.albumImage)}" th:src="${albumPreview.albumImage}" style="cursor:pointer">
+            <div style="position:absolute; background: rgba(25,25,25,0.8); width:170px; height:170px; font-size:0.6em; cursor:pointer"
+                 class="fade text-light d-flex flex-column justify-content-center align-items-center rounded-circle description-panel">
+                <div class="p-4">
+                    <h6 class="font-weight-bold pb-2" th:text="${albumPreview.title}">title</h6>
+                    <p class="text-break w-100 h-50" th:text="${albumPreview.description}" >Short description</p>
+                    <div class="d-flex justify-content-center">
+                        <small>
+                            <i class="fa fa-music pr-1" aria-hidden="true"></i>
+                            <span th:text="${albumPreview.trackCount}"></span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

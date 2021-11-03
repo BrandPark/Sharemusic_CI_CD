@@ -1,18 +1,18 @@
-package com.brandpark.sharemusic.api.v1.album.dto;
+package com.brandpark.sharemusic.api.v2.dto;
 
-import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class AlbumListPagingDto {
-    private List<AlbumShortDto> albums;
+public class PagingDto<T> {
+    private List<T> contents;
     private int totalPages;
     private long totalElements;
     private int pageNumber;
     private int pageSize;
     private int numberOfElements;
+    private int paginationUnit = 10;
     private long offset;
 
     public boolean hasPrevious() {

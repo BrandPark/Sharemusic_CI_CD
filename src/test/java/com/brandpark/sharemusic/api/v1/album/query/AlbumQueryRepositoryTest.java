@@ -1,10 +1,11 @@
 package com.brandpark.sharemusic.api.v1.album.query;
 
 import com.brandpark.sharemusic.api.AlbumFactory;
-import com.brandpark.sharemusic.api.v1.album.dto.AlbumListPagingDto;
+import com.brandpark.sharemusic.api.SearchDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
+import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.modules.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
@@ -62,9 +63,9 @@ class AlbumQueryRepositoryTest {
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // when
-        AlbumListPagingDto responseDto = queryRepository.findAllAlbumShortDto(pageRequest);
+        PagingDto<AlbumShortDto> responseDto = queryRepository.findAllAlbumShortDto(pageRequest,  new SearchDto());
 
-        List<AlbumShortDto> pageContent = responseDto.getAlbums();
+        List<AlbumShortDto> pageContent = responseDto.getContents();
         AlbumShortDto resultFirst = pageContent.get(0);
 
         // then

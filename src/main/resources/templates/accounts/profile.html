@@ -1,48 +1,275 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments.html :: head"></head>
-
-<body class="background">
-    <nav th:replace="fragments.html:: nav"></nav>
-    <div class="container my-5">
-        <div class="row">
-            <div class="col-md-3 d-flex justify-content-center">
-                <i th:if="${#strings.isEmpty(account.profileImage)}" class="fa fa-user-circle text-white "
-                   aria-hidden="true" style="font-size: 9em;"></i>
-                <img th:if="${!#strings.isEmpty(account.profileImage)}" class="img-fluid float-left rounded-circle img-thumbnail p-0"
-                     th:src="${account.profileImage}" width="125" height="125"/>
+    <head th:replace="fragments.html :: head"></head>
+    <body class="background">
+        <nav th:replace="fragments.html:: nav"></nav>
+        <div class="container my-5">
+            <div class="row mb-5">
+                <div class="col-md-4 d-flex justify-content-center">
+                    <i th:if="${#strings.isEmpty(account.profileImage)}" class="fa fa-user-circle text-white "
+                       aria-hidden="true" style="font-size: 9em;"></i>
+                    <img th:if="${!#strings.isEmpty(account.profileImage)}" class="img-fluid float-left rounded-circle img-thumbnail p-0"
+                         th:src="${account.profileImage}" width="125" height="125"/>
+                </div>
+                <div class="col-md-8">
+                    <div class="row mb-2">
+                        <h2 th:text="${account.nickname}" style="font-weight: 300">nickname</h2>
+                        <div th:if="${loginAccount != null && isOwner}" class="ml-4">
+                            <a th:href="@{/accounts/edit/basicinfo}" class="btn btn-outline-primary" role="btn">프로필 편집</a>
+                        </div>
+                        <div id="follow-button-box" th:if="${loginAccount != null && !isOwner}" class="ml-4">
+                            <button th:if="${!isFollowing}" type="button" class="btn btn-primary btn-follow">팔로우</button>
+                            <button th:if="${isFollowing}" type="button" class="btn btn-danger btn-unfollow">언 팔로우</button>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-2 p-0">
+                            앨범 <span class="font-weight-bold" th:text="${activityData.getAlbumCount()}">0</span>
+                        </div>
+                        <div class="col-md-2 p-0">
+                            <a class="text-dark" href="javascript:profile.popFollowerList()">
+                                팔로워 <span id="follower" class="font-weight-bold" th:text="${activityData.getFollowerCount()}">0</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2 p-0">
+                            <a class="text-dark" href="javascript:profile.popFollowingList()">
+                                팔로잉 <span id="following" class="font-weight-bold" th:text="${activityData.getFollowingCount()}">0</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <p>
+                            <strong th:text="${account.name}">이름</strong>
+                            <br>
+                            <span th:utext="${account.bio}">
+                                자기소개
+                            </span>
+                        </p>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-9">
-                <div class="row mb-2">
-                    <h2 th:text="${account.nickname}" style="font-weight: 300">nickname</h2>
-                    <div th:if="${account.nickname == #authentication.name}" class="ml-4">
-                        <a th:href="@{/accounts/edit/basicinfo}" class="btn btn-outline-primary" role="btn">프로필 편집</a>
+            <div class="row justify-content-center nav-tabs-wrapper-up">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active font-weight-bold text-secondary" id="albums-tab" data-toggle="tab"
+                           href="#albums-box" role="tab" aria-controls="albums" aria-selected="true">앨범</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link font-weight-bold text-secondary" id="profile-tab" data-toggle="tab"
+                           href="#likes" role="tab" aria-controls="likes" aria-selected="false">좋아요</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="tab-content" id="myTabContent">
+                    <div id='albums-box' class="tab-pane fade show active" role="tabpanel" aria-labelledby="albums-tab">
+                        <div id="album-list" class="row"></div>
+                        <div id="album-pagination-box" class="d-flex justify-content-center"></div>
                     </div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-md-2 p-0">
-                        게시물 <span class="font-weight-bold">0</span>
+                    <div class="tab-pane fade" id="likes" role="tabpanel" aria-labelledby="likes-tab">
                     </div>
-                    <div class="col-md-2 p-0">
-                        팔로워 <span class="font-weight-bold">0</span>
-                    </div>
-                    <div class="col-md-2 p-0">
-                        팔로우 <span class="font-weight-bold">0</span>
-                    </div>
-                </div>
-                <div class="row">
-                    <p>
-                        <strong th:text="${account.name}">이름</strong>
-                        <br>
-                        <span th:utext="${account.bio}">
-                            자기소개
-                        </span>
-                    </p>
                 </div>
             </div>
         </div>
-    </div>
-    <div th:replace="fragments.html::footer"></div>
+        <!-- Modal -->
+        <div th:replace="fragments.html::paging-modal(title='팔로우', id='follower-modal')"></div>
+        <div th:replace="fragments.html::paging-modal(title='팔로잉', id='following-modal')"></div>
+
+
+        <div th:replace="fragments.html::footer"></div>
+        <div th:replace="fragments.html::ajax-csrf-header"></div>
+        <script>
+            $(function () {
+                profile.init();
+                profile.loadAlbums(0);
+            });
+
+            let profile = {
+                init: function () {
+                    var _this = this;
+
+                    $('#follow-button-box').on('click', ".btn-follow, .btn-unfollow", function (event) {
+                        var accountId = "[[${account.getId()}]]";
+                        if ($(event.target).hasClass(".btn-follow")) {
+                            _this.follow(accountId, function(){
+                                $('#btn-follow').addClass('btn-danger');
+                                $('#btn-follow').addClass('btn-unfollow');
+                                $('#btn-follow').removeClass('btn-primary');
+                                $('#btn-follow').removeClass('btn-follow');
+                                $('#btn-follow').text("언 팔로우");
+
+                                var followerCount = parseInt($('#follower').text());
+                                if (!isNaN(followerCount)) {
+                                    $('#follower').text(followerCount + 1);
+                                }
+                            });
+                        } else {
+                            _this.unfollow(accountId, function () {
+                                $('#btn-unfollow').addClass('btn-primary');
+                                $('#btn-unfollow').addClass('btn-follow');
+                                $('#btn-unfollow').removeClass('btn-danger');
+                                $('#btn-unfollow').removeClass('btn-unfollow');
+                                $('#btn-unfollow').text("팔로우");
+
+                                var followerCount = parseInt($('#follower').text());
+                                if (!isNaN(followerCount)) {
+                                    $('#follower').text(followerCount - 1);
+                                }
+                            });
+                        }
+                    });
+
+                    $('#follower-modal #modal-pagination').on('click', '.btn-page', function () {
+                        var gotoPage = $(this).attr('data-index');
+                        _this.loadFollowers(gotoPage);
+                    });
+                    $('#following-modal #modal-pagination').on('click', '.btn-page', function () {
+                        var gotoPage = $(this).attr('data-index');
+                        _this.loadFollowings(gotoPage);
+                    });
+                    $('#album-pagination-box').on('click', '.btn-page', function () {
+                        var gotoPage = $(this).attr('data-index');
+                        _this.loadAlbums(gotoPage);
+                    });
+                    $('#album-list').on('mouseover mouseout', '.description-panel', function (event){
+                        if (event.type === 'mouseover') {
+                            $(this).addClass('show');
+                            $(this).removeClass('fade');
+                        } else {
+                            $(this).addClass('fade');
+                            $(this).removeClass('show');
+                        }
+                    });
+                    $('#album-list').on('click', '.description-panel, img', function () {
+                        var albumId = $(this).closest('div[id^="album_"]').attr('id').replace('album_', '');
+                        window.location.href='/albums/' + albumId;
+                    });
+                    $('#follower-modal, #following-modal').on('click', '.btn-follow, .btn-unfollow', function (event) {
+                        var btn = $(this)[0];
+                        var targetId = btn.getAttribute('data-index');
+
+                        if ($(event.target).hasClass('btn-follow')) {
+                            _this.follow(targetId, function () {
+                                $(btn).addClass('btn-danger');
+                                $(btn).addClass('btn-unfollow');
+                                $(btn).removeClass('btn-primary');
+                                $(btn).removeClass('btn-follow');
+                                $(btn).text("언 팔로우");
+                            });
+                        } else {
+                            _this.unfollow(targetId, function () {
+                                $(btn).addClass('btn-primary');
+                                $(btn).addClass('btn-follow');
+                                $(btn).removeClass('btn-danger');
+                                $(btn).removeClass('btn-unfollow');
+                                $(btn).text("팔로우");
+                            });
+                        }
+                    });
+                },
+                follow: function (targetId, callback) {
+                    var _callback = callback;
+
+                    $.ajax({
+                        url: "/api/v1/accounts/" + targetId + "/follow",
+                        method: 'post',
+                    }).done(function (data) {
+                        if (data) {
+                            _callback();
+                        }
+                    }).fail(function () {
+                        alert("팔로우를 실패하였습니다.");
+                    });
+                },
+                unfollow: function (targetId, callback) {
+                    var _callback = callback;
+
+                    $.ajax({
+                        url: "/api/v1/accounts/" + targetId + "/unfollow",
+                        method: 'post',
+                    }).done(function (data) {
+                        if (data) {
+                            _callback();
+                        }
+                    }).fail(function () {
+                        alert("언팔로우를 실패하였습니다.");
+                    });
+                },
+                popFollowerList: function () {
+                    this.loadFollowers(0);
+
+                    $('#follower-modal').modal();
+                },
+                popFollowingList: function () {
+                    this.loadFollowings(0);
+
+                    $('#following-modal').modal();
+                },
+                loadFollowers: function (page) {
+                    var _this = this;
+
+                    $.ajax({
+                        url: '/api/v2/accounts/[[${account.getId()}]]/followers?page=' + page,
+                        method: 'get',
+                    }).done(function (data) {
+                        _this._clearFollowers();
+                        _this._appendFollowers(data);
+                    }).fail(function () {
+                        alert("팔로워들을 로드하는데 실패했습니다.");
+                    });
+                },
+                loadFollowings: function (page) {
+                    var _this = this;
+
+                    $.ajax({
+                        url: '/api/v2/accounts/[[${account.getId()}]]/followings?page=' + page,
+                        method: 'get',
+                    }).done(function (data) {
+                        _this._clearFollowings();
+                        _this._appendFollowings(data);
+                    }).fail(function () {
+                        alert("팔로잉들을 로드하는데 실패했습니다.");
+                    });
+                },
+                loadAlbums: function (page) {
+                    var _this = this;
+
+                    $.ajax({
+                        url: '/api/v2/short-albums?page=' + page + '&q=[[${account.getNickname()}]]',
+                        method: 'GET',
+                    }).done(function (data) {
+                        _this._clearAlbums();
+                        _this._appendAlbums(data);
+                    }).fail(function (){
+                        alert("앨범들을 로드하는데 실패했습니다.");
+                    });
+                },
+                _clearFollowers: function () {
+                    $('#follower-modal .modal-body').empty();
+                    $('#follower-modal .modal-footer').empty();
+                },
+                _appendFollowers: function (data) {
+                    $('#follower-modal .modal-body').append(data['followersHtml']);
+                    $('#follower-modal .modal-footer').append(data['paginationHtml']);
+                },
+                _clearFollowings: function () {
+                    $('#following-modal .modal-body').empty();
+                    $('#following-modal .modal-footer').empty();
+                },
+                _appendFollowings: function (data) {
+                    $('#following-modal .modal-body').append(data['followingsHtml']);
+                    $('#following-modal .modal-footer').append(data['paginationHtml']);
+                },
+                _clearAlbums: function () {
+                    $('#album-list').empty();
+                    $('#album-pagination-box').empty();
+                },
+                _appendAlbums: function (data) {
+                    $('#album-list').append(data['albumsHtml']);
+                    $('#album-pagination-box').append(data['paginationHtml']);
+                },
+            }
+        </script>
 </body>
 </html>
 

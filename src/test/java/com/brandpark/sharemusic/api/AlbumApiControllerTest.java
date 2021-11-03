@@ -1,9 +1,13 @@
 package com.brandpark.sharemusic.api;
 
-import com.brandpark.sharemusic.api.v1.album.dto.*;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumSaveRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.TrackSaveRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.TrackUpdateRequest;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
+import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.MockMvcTest;
 import com.brandpark.sharemusic.modules.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
@@ -13,6 +17,7 @@ import com.brandpark.sharemusic.modules.account.service.AccountService;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.album.domain.Track;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -478,11 +483,10 @@ class AlbumApiControllerTest {
                 .andExpect(result -> {
 
                     String json = result.getResponse().getContentAsString(UTF_8);
-                    AlbumListPagingDto responseDto = objectMapper.readValue(json, AlbumListPagingDto.class);
+                    PagingDto<AlbumShortDto> responseDto = objectMapper.readValue(json, new TypeReference<PagingDto<AlbumShortDto>>() {});
 
-                    List<AlbumShortDto> resultAlbums = responseDto.getAlbums();
+                    List<AlbumShortDto> resultAlbums = responseDto.getContents();
                     assertThat(resultAlbums.size()).isEqualTo(savedAlbums.size());
-
 
                     AlbumShortDto firstAlbum = resultAlbums.get(0);
                     Album expectedAlbumInfo = album2;
