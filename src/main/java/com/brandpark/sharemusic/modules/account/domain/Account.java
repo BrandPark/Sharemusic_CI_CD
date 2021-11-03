@@ -4,7 +4,6 @@ import com.brandpark.sharemusic.modules.BaseTimeEntity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @EqualsAndHashCode(of = "id")
-public class Account extends BaseTimeEntity implements Serializable {
+public class Account extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")
