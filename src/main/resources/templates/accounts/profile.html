@@ -131,7 +131,7 @@
                         var gotoPage = $(this).attr('data-index');
                         _this.loadAlbums(gotoPage);
                     });
-                    $('#album-list').on('mouseover mouseout', '#description-panel', function (event){
+                    $('#album-list').on('mouseover mouseout', '.description-panel', function (event){
                         if (event.type === 'mouseover') {
                             $(this).addClass('show');
                             $(this).removeClass('fade');
@@ -140,8 +140,8 @@
                             $(this).removeClass('show');
                         }
                     });
-                    $('#album-list').on('click', 'div[id^="album_"]', function () {
-                        var albumId = $(this).attr('id').replace('album_', '');
+                    $('#album-list').on('click', '.description-panel, img', function () {
+                        var albumId = $(this).closest('div[id^="album_"]').attr('id').replace('album_', '');
                         window.location.href='/albums/' + albumId;
                     });
                     $('#follower-modal, #following-modal').on('click', '.btn-follow, .btn-unfollow', function (event) {
