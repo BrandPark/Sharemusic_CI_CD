@@ -32,7 +32,7 @@
                             <input type="file" id="file-input" class="filepond filepond-input filepond-profile" name="filepond" accept="image/jpeg, image/png"/>
                         </label>
                         <a class="font-weight-bold text-primary pt-3 text-decoration-none" role="button"
-                            onclick="document.getElementById('file-input').click()">
+                            href="javascript:basicInfo.popProfileModal()">
                             프로필 사진 바꾸기
                         </a>
                     </div>
@@ -64,18 +64,57 @@
                 </form>
             </div>
         </div>
+        <div class="modal fade" id="profile-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content" style="width: 300px">
+                    <div class="modal-header text-center" style="padding-top: 0.8rem; padding-bottom: 0.8rem;">
+                        <div class="col-1">
+                        </div>
+                        <div class="col-10">
+                            <h5 class="modal-title font-weight-bold" id="exampleModalLabel">프로필 사진 바꾸기</h5>
+                        </div>
+                        <div class="col-1">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-body row py-3">
+                        <a class='w-100 text-center text-decoration-none text-primary font-weight-bold' role="button"
+                           onclick="document.getElementById('file-input').click()" data-dismiss="modal">사진 업로드</a>
+                    </div>
+                    <div class="divider my-0"></div>
+                    <div class="modal-body row py-3">
+                        <a class='w-100 text-center text-decoration-none text-danger font-weight-bold' role="button"
+                           onclick="basicInfo.deleteCurrentImage()" data-dismiss="modal">현재 사진 삭제</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div th:replace="fragments.html::footer"></div>
     <div th:replace="fragments.html::filepond-js"></div>
     <script>
+        var basicInfo = {
+            popProfileModal: function () {
+                $('#profile-modal').modal();
+            },
+            deleteCurrentImage: function () {
+                $('#profileImage').val("");
+                pond.removeFile();
+            }
+        }
         $.fn.filepond.setDefaults({
             styleLoadIndicatorPosition: 'center center',
+            labelIdle: "<i class='fa fa-user-circle' style='font-size: 1.5em'></i>",
         });
         pond.on('init', function(){
             var dataUrl = $('input[name="profileImage"]')?.val();
             if (dataUrl) {
                 pond.addFile(dataUrl);
             }
+            $(".filepond--drop-label").addClass("align-items-start");
+            $(".filepond--drop-label label").addClass("py-0");
         })
         pond.on('updatefiles', function(files) {
             $('.filepond--image-preview-overlay').text("");
