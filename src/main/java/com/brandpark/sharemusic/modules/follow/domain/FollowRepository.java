@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules.follow;
+package com.brandpark.sharemusic.modules.follow.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

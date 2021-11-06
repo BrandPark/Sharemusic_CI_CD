@@ -18,8 +18,8 @@
                             <a th:href="@{/accounts/edit/basicinfo}" class="btn btn-outline-primary" role="btn">프로필 편집</a>
                         </div>
                         <div id="follow-button-box" th:if="${loginAccount != null && !isOwner}" class="ml-4">
-                            <button th:if="${!isFollowing}" type="button" class="btn btn-primary btn-follow">팔로우</button>
-                            <button th:if="${isFollowing}" type="button" class="btn btn-danger btn-unfollow">언 팔로우</button>
+                            <button id="btn-follow" th:if="${!isFollowing}" type="button" class="btn btn-primary btn-follow">팔로우</button>
+                            <button id="btn-unfollow" th:if="${isFollowing}" type="button" class="btn btn-danger btn-unfollow">언 팔로우</button>
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -48,8 +48,8 @@
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-center nav-tabs-wrapper-up">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <div class="row justify-content-center nav-tabs-wrapper-up mb-5">
+                <ul class="nav nav-tabs" id="myTab" role="tablist" style="z-index:1000">
                     <li class="nav-item" role="presentation">
                         <a class="nav-link active font-weight-bold text-secondary" id="albums-tab" data-toggle="tab"
                            href="#albums-box" role="tab" aria-controls="albums" aria-selected="true">앨범</a>
@@ -75,7 +75,6 @@
         <div th:replace="fragments.html::paging-modal(title='팔로우', id='follower-modal')"></div>
         <div th:replace="fragments.html::paging-modal(title='팔로잉', id='following-modal')"></div>
 
-
         <div th:replace="fragments.html::footer"></div>
         <div th:replace="fragments.html::ajax-csrf-header"></div>
         <script>
@@ -90,13 +89,14 @@
 
                     $('#follow-button-box').on('click', ".btn-follow, .btn-unfollow", function (event) {
                         var accountId = "[[${account.getId()}]]";
-                        if ($(event.target).hasClass(".btn-follow")) {
+                        if ($(event.target).hasClass("btn-follow")) {
                             _this.follow(accountId, function(){
                                 $('#btn-follow').addClass('btn-danger');
                                 $('#btn-follow').addClass('btn-unfollow');
                                 $('#btn-follow').removeClass('btn-primary');
                                 $('#btn-follow').removeClass('btn-follow');
                                 $('#btn-follow').text("언 팔로우");
+                                $('#btn-follow').attr('id', 'btn-unfollow');
 
                                 var followerCount = parseInt($('#follower').text());
                                 if (!isNaN(followerCount)) {
@@ -110,6 +110,7 @@
                                 $('#btn-unfollow').removeClass('btn-danger');
                                 $('#btn-unfollow').removeClass('btn-unfollow');
                                 $('#btn-unfollow').text("팔로우");
+                                $('#btn-unfollow').attr('id', 'btn-follow');
 
                                 var followerCount = parseInt($('#follower').text());
                                 if (!isNaN(followerCount)) {

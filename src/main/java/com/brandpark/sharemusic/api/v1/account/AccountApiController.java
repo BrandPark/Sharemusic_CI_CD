@@ -10,8 +10,9 @@ import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.follow.Follow;
-import com.brandpark.sharemusic.modules.follow.FollowRepository;
+import com.brandpark.sharemusic.modules.account.service.AccountService;
+import com.brandpark.sharemusic.modules.follow.domain.Follow;
+import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class AccountApiController {
 
     private final AccountRepository accountRepository;
+    private final AccountService accountService;
     private final FollowRepository followRepository;
     private final AccountQueryRepository accountQueryRepository;
 
@@ -39,10 +41,7 @@ public class AccountApiController {
             throw new ApiException(Error.ILLEGAL_ACCESS_EXCEPTION);
         }
 
-        return followRepository.save(Follow.builder()
-                .follower(follower)
-                .target(target)
-                .build()).getId();
+        return accountService.doFollow(follower, target);
     }
 
     @PostMapping("/accounts/{targetId}/unfollow")
