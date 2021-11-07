@@ -11,6 +11,7 @@ public class NotificationForm {
     private String senderProfileImage;
     private String senderNickname;
     private String message;
+    private String link;
     private LocalDateTime createdDate;
     private String notificationType;
 }

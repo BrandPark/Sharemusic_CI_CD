@@ -39,6 +39,7 @@ public class NotificationInterceptor implements HandlerInterceptor {
                     .map(no -> new NotificationForm(no.getSender().getProfileImage()
                             , no.getSender().getNickname()
                             , no.getMessage()
+                            , no.getLink()
                             , no.getCreatedDate()
                             , no.getNotificationType().name()))
                     .collect(Collectors.toList());

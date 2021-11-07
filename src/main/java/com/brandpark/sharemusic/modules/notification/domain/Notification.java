@@ -22,6 +22,8 @@ public class Notification extends BaseTimeEntity {
 
     private boolean checked;
 
+    private String link;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
     private Account sender;
