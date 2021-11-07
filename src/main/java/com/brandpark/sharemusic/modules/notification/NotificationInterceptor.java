@@ -36,10 +36,13 @@ public class NotificationInterceptor implements HandlerInterceptor {
 
             List<NotificationForm> notifications = notificationRepository.findAllByAccountIdOrderByCreatedDateDesc(account.getId())
                     .stream()
-                    .map(no -> new NotificationForm(no.getSender().getProfileImage()
+                    .map(no -> new NotificationForm(
+                            no.getId()
+                            , no.getSender().getProfileImage()
                             , no.getSender().getNickname()
                             , no.getMessage()
                             , no.getLink()
+                            , no.isChecked()
                             , no.getCreatedDate()
                             , no.getNotificationType().name()))
                     .collect(Collectors.toList());

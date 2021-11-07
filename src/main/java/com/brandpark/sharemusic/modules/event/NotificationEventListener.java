@@ -6,18 +6,19 @@ import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
-import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
 import com.brandpark.sharemusic.modules.notification.domain.Notification;
 import com.brandpark.sharemusic.modules.notification.domain.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Async
 @RequiredArgsConstructor
 @Transactional
 @Component
@@ -26,7 +27,6 @@ public class NotificationEventListener {
     private final NotificationRepository notificationRepository;
     private final AccountRepository accountRepository;
     private final AlbumRepository albumRepository;
-    private final FollowRepository followRepository;
 
     @EventListener
     public void handleFollowEvent(FollowEvent event) {
@@ -66,7 +66,7 @@ public class NotificationEventListener {
                 .message(message)
                 .link("/albums/" + targetAlbum.getId())
                 .checked(false)
-                .notificationType(NotificationType.FOLLOW)
+                .notificationType(NotificationType.COMMENT)
                 .build());
     }
 
@@ -91,7 +91,7 @@ public class NotificationEventListener {
                     .message(message)
                     .link("/albums/" + createdAlbum.getId())
                     .checked(false)
-                    .notificationType(NotificationType.FOLLOW)
+                    .notificationType(NotificationType.CREATED_ALBUM_BY_FOLLOWER)
                     .build());
         }
 

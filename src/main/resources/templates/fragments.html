@@ -8,7 +8,6 @@
     <title></title>
     <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css"/>
-<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">-->
     <link rel="stylesheet" href="/custom/css/main.css"/>
 </head>
 <body>
@@ -54,14 +53,14 @@
                             <div th:if="${!hasNotification}" class="row justify-content-center align-items-center h-100">
                                 <h5 class="font-weight-bold">알림이 없습니다!</h5>
                             </div>
-                            <div th:if="${hasNotification}">
-                                <div class="row pb-2" th:each="notification: ${notifications}">
+                            <div th:if="${hasNotification}" class="notification">
+                                <div class="row pb-2 notification-item" th:each="notification: ${notifications}" th:classappend="${notification.checked == true} ? checked">
                                     <div class="col-2 d-flex justify-content-center align-items-center pr-0">
                                         <i class="fa fa-user-circle" style="font-size: 2.2em" th:if="${#strings.isEmpty(notification.senderProfileImage)}"></i>
                                         <img th:if="${!#strings.isEmpty(notification.senderProfileImage)}" th:src="${notification.senderProfileImage}">
                                     </div>
                                     <div class="col-8 pl-1">
-                                        <a th:href="@{${notification.link}}" class="text-decoration-none text-dark p-0">
+                                        <a th:data-index="${notification.id}" th:href="@{${notification.link}}" class="text-decoration-none text-dark p-0 notification-link">
                                             <span class="line-2-hidden w-100">
                                                 <span th:text="${notification.message}">메시지</span>
                                             </span>

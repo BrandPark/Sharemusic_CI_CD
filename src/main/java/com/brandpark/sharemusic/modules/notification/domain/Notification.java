@@ -34,4 +34,10 @@ public class Notification extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
+
+    public void check() {
+        if (!checked) {
+            checked = true;
+        }
+    }
 }

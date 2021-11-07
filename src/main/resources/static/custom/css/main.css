@@ -60,7 +60,12 @@ i.badge:after{
 }
 
 .overflow-y{
-    overflow-y:scroll;
+    overflow-y:auto;
     overflow-x:hidden;
 }
-
+.notification-item{
+    background-color: rgba(242,245,245,0.8);
+}
+.notification.checked {
+    background-color: white;
+}
