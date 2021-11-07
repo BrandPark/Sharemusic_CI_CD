@@ -51,11 +51,16 @@ i.badge:after{
     right: 0.6rem;
     bottom: 1rem;
     background: darkturquoise;
-    width:0.2rem;
-    height:0.2rem;
+    width:0.25rem;
+    height:0.25rem;
     text-align: center;
     line-height: 2rem;;
     font-size: 1rem;
     border-radius: 50%;
+}
+
+.overflow-y{
+    overflow-y:scroll;
+    overflow-x:hidden;
 }
 
