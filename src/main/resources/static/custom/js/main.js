@@ -14,14 +14,19 @@ var notification = {
     init: function () {
         var _this = this;
         $('.notification').on('click', 'a.notification-link', function () {
-            var notificationId = $(this).attr("data-index");
-            _this.checkNotification(notificationId);
+            const notificationId = $(this).attr("data-index");
+            const link = $(this).attr('link');
+            _this.checkNotification(notificationId, link);
         });
     },
-    checkNotification: function(notificationId) {
+    checkNotification: function(notificationId, link) {
+        const _this = this;
+
         $.ajax({
             url: "/api/v1/notifications/" + notificationId,
             method: 'put'
+        }).done(function(){
+            window.location.href = link;
         }).fail(function(error){
             alert(error);
         });

@@ -47,7 +47,10 @@ public class NotificationInterceptor implements HandlerInterceptor {
                             , no.getNotificationType().name()))
                     .collect(Collectors.toList());
 
+            int notReadCount = notificationRepository.countByCheckedIsFalse();
+
             modelAndView.addObject("hasNotification", notifications.size() > 0);
+            modelAndView.addObject("notReadCount", notReadCount);
             modelAndView.addObject("notifications", notifications);
         }
     }

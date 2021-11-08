@@ -66,6 +66,6 @@ i.badge:after{
 .notification-item{
     background-color: rgba(242,245,245,0.8);
 }
-.notification.checked {
+.notification .checked {
     background-color: white;
 }
