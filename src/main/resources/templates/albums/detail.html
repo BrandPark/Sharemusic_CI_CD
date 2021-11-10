@@ -163,6 +163,7 @@
             _appendComments: function (data) {
                 $('#comments').append(data['commentsHtml']);
                 $('#pagination').append(data['paginationHtml']);
+                dateConverter.formRelativeTime();
             }
         }
     </script>

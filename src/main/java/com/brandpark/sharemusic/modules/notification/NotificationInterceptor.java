@@ -34,7 +34,7 @@ public class NotificationInterceptor implements HandlerInterceptor {
 
             SessionAccount account = ((CustomUserDetails) authentication.getPrincipal()).getSessionAccount();
 
-            List<NotificationForm> notifications = notificationRepository.findAllByAccountIdOrderByCreatedDateDesc(account.getId())
+            List<NotificationForm> notifications = notificationRepository.findAllFirst10ByAccountIdOrderByCreatedDateDesc(account.getId())
                     .stream()
                     .map(no -> new NotificationForm(
                             no.getId()
@@ -47,7 +47,7 @@ public class NotificationInterceptor implements HandlerInterceptor {
                             , no.getNotificationType().name()))
                     .collect(Collectors.toList());
 
-            int notReadCount = notificationRepository.countByCheckedIsFalse();
+            int notReadCount = notificationRepository.countByAccountIdAndCheckedIsFalse(account.getId());
 
             modelAndView.addObject("hasNotification", notifications.size() > 0);
             modelAndView.addObject("notReadCount", notReadCount);

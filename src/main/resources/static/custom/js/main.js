@@ -32,6 +32,14 @@ var notification = {
         });
     }
 }
+var dateConverter = {
+    formRelativeTime: function () {
+        moment.locale('ko');
+        $(".relative-time").text(function (index, dateTime) {
+            return moment(dateTime, "YYYY-MM-DD`T`hh:mm").fromNow();
+        });
+    }
+}
 var wave = {
     init: function () {
         // const gui = new dat.GUI(),

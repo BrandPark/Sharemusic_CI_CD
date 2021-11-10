@@ -16,7 +16,7 @@
         <div class="row">
             <span class="text-break" style="font-size: 0.8em" th:utext="${comment.content}"></span>
         </div>
-        <small class="row text-muted" style="font-size:0.6em" th:text="${comment.modifiedDate}"></small>
+        <small class="row text-muted relative-time" th:text="${comment.modifiedDate}"></small>
     </div>
     <div class="col-2 d-flex" th:if="${account != null && account.getNickname().equals(comment.getWriter())}">
         <button type="button" th:id="'comment_' + ${comment.id}" class="close" aria-label="Close">

@@ -44,21 +44,21 @@
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link pr-0" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i th:if="${notReadCount == 0}" class="fa fa-bell-o fa-lg text-white" aria-hidden="true"></i>
+                            <i th:if="${notReadCount == 0}" class="fa fa-bell-o fa-lg text-white pr-2" aria-hidden="true"></i>
                             <div th:if="${notReadCount > 0}">
                                 <i class="fa fa-bell fa-lg text-info" aria-hidden="true"><i class="badge"> </i></i>
                             </div>
                         </a>
-                        <div class="dropdown-menu dropdown-menu-right overflow-y" style="width:450px;height:300px;" aria-labelledby="eventDropdown">
+                        <div class="dropdown-menu dropdown-menu-right" style="width:450px" aria-labelledby="eventDropdown">
                             <div class="row justify-content-center " style="font-size:1.2em">
                                 <strong>읽지 않은 알림 <span class="text-success" th:text="${notReadCount}"></span>개</strong>
                             </div>
-                            <div class="divider"></div>
-                            <div th:if="${!hasNotification}" class="row justify-content-center align-items-center">
+                            <div class="divider row"></div>
+                            <div th:if="${!hasNotification}" class="row justify-content-center align-items-center m-0 mb-4" style="height:300px">
                                 <h5 class="font-weight-bold">알림이 없습니다!</h5>
                             </div>
-                            <div th:if="${hasNotification}" class="notification">
-                                <div class="row pb-2 notification-item" th:each="notification: ${notifications}" th:classappend="${notification.checked == true} ? checked">
+                            <div th:if="${hasNotification}" class="notification overflow-y m-0 mb-4" style="height:300px">
+                                <div class="row pb-3 notification-item m-0" th:each="notification: ${notifications}" th:classappend="${notification.checked == true} ? checked">
                                     <div class="col-2 d-flex justify-content-center align-items-center pr-0">
                                         <i class="fa fa-user-circle" style="font-size: 2.2em" th:if="${#strings.isEmpty(notification.senderProfileImage)}"></i>
                                         <img th:if="${!#strings.isEmpty(notification.senderProfileImage)}" th:src="${notification.senderProfileImage}">
@@ -70,10 +70,13 @@
                                             </span>
                                         </a>
                                     </div>
-                                    <div class="col-2">
-                                        <small class="text-muted date">10일 전</small>
+                                    <div class="col-2 p-0 d-flex justify-content-end align-items-center pr-2">
+                                        <span class="text-muted date relative-time" style="font-size: 0.7em" th:text="${notification.createdDate}">10일 전</span>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="w-100" style="position: absolute; bottom:0px">
+                                <a role="button" class="btn btn-success w-100 font-weight-bold rounded-0" th:href="@{/notifications}">더 많은 알림 보기</a>
                             </div>
                         </div>
                     </li>
@@ -112,6 +115,15 @@
         <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <script src='https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.3.0/simplex-noise.min.js'></script>
         <script src='https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.5/dat.gui.min.js'></script>
+        <script src="/node_modules/moment/min/moment-with-locales.min.js"></script>
+        <script type="application/javascript">
+            $(function () {
+                moment.locale('ko');
+                $(".relative-time").text(function (index, dateTime) {
+                    return moment(dateTime, "YYYY-MM-DD`T`hh:mm").fromNow();
+                });
+            });
+        </script>
         <script src="/custom/js/main.js"></script>
     </div>
 
