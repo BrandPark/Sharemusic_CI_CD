@@ -3,7 +3,7 @@ body{
     font-size: 16px;
 }
 .background{
-    background-color: mistyrose;
+    background-color: #f1dfdd;
 }
 .divider{
     height: 0;
@@ -68,4 +68,20 @@ i.badge:after{
 }
 .notification .checked {
     background-color: white;
+}
+
+.list-group-flush .list-group-item{
+    background-color: #f1dfdd;
+    border-color: #f1dfdd;
+    border-bottom: 2px solid #f1dfdd;
+    color: #bb7977;
+}
+.list-group-flush .list-group-item.active{
+    background-color: #f1dfdd;
+    border-color : #f1dfdd;
+    border-bottom: 2px solid #f1cbc8;
+    font-weight: 800;
+}
+.bg-alert {
+    background-color: #f1cbc8;
 }
