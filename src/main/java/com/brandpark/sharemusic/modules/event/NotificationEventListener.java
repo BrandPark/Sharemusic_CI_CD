@@ -57,7 +57,7 @@ public class NotificationEventListener {
                 .orElseThrow(() -> new ApiException(Error.NOT_FOUND_ALBUM_EXCEPTION));
 
         String message = String.format("%s 님이 앨범 \"%s\"에 댓글을 남겼습니다."
-                , targetAccount.getNickname()
+                , writer.getNickname()
                 , targetAlbum.getTitle());
 
         notificationRepository.save(Notification.builder()

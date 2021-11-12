@@ -61,7 +61,7 @@ public class AccountController {
     public String profileView(@LoginAccount SessionAccount account, @PathVariable String nickname, Model model) {
 
         if (account != null) {
-            model.addAttribute("loginAccount", account);
+            model.addAttribute("account", account);
         }
 
         Account profileAccount = accountRepository.findByNickname(nickname);
@@ -69,7 +69,7 @@ public class AccountController {
             throw new IllegalArgumentException(nickname + "은(는) 존재하지 않는 닉네임 입니다.");
         }
 
-        model.addAttribute("account", profileAccount);
+        model.addAttribute("targetAccount", profileAccount);
 
         boolean isOwner = account != null && nickname.equals(account.getNickname());
         model.addAttribute("isOwner", isOwner);

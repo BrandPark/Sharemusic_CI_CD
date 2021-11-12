@@ -18,10 +18,13 @@ public class Notification extends BaseTimeEntity {
     @Column(name = "notification_id")
     private Long id;
 
+    @Column(nullable = false)
     private String message;
 
+    @Column(nullable = false)
     private boolean checked;
 
+    @Column(nullable = false)
     private String link;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,6 +36,7 @@ public class Notification extends BaseTimeEntity {
     private Account account;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private NotificationType notificationType;
 
     public void check() {

@@ -133,8 +133,8 @@
                     data: content
                 }).done(function () {
                     _this.loadComments(0);
-                }).fail(function (error) {
-                    console.log(error);
+                }).fail(function () {
+                    alert("댓글을 작성하는데 실패했습니다.");
                 });
             },
             removeComment: function (commentId) {
@@ -145,8 +145,8 @@
                     method: 'delete',
                 }).done(function () {
                     _this.loadComments(0);
-                }).fail(function (error) {
-                    console.log(error);
+                }).fail(function () {
+                    alert("댓글을 삭제하는데 실패했습니다.");
                 });
             },
             _addEventToRemoveCommentBtn: function () {
@@ -163,7 +163,6 @@
             _appendComments: function (data) {
                 $('#comments').append(data['commentsHtml']);
                 $('#pagination').append(data['paginationHtml']);
-                dateConverter.formRelativeTime();
             }
         }
     </script>

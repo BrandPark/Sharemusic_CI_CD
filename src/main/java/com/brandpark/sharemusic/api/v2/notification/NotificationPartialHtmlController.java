@@ -6,6 +6,7 @@ import com.brandpark.sharemusic.api.v2.PagingHtmlCreator;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.modules.notification.NotificationService;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
 import com.brandpark.sharemusic.modules.notification.domain.NotificationRepository;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class NotificationPartialHtmlController {
 
     private final NotificationQueryRepository notificationQueryRepository;
     private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
     private final PagingHtmlCreator htmlCreator;
 
     @GetMapping("/api/v2/notifications")
@@ -32,15 +34,12 @@ public class NotificationPartialHtmlController {
             , @PageableDefault(size = 10) Pageable pageable
             , @RequestParam(name = "type") String type) {
 
-        NotificationType notificationType = null;
+        NotificationType notificationType = notificationService.getNotificationType(type);
 
-        if (!type.equals("all")) {
-             notificationType = NotificationType.valueOf(type);
-        }
+        int notReadCount = notificationService.getNotReadCount(account.getId(), notificationType);
 
         PagingDto<NotificationInfo> page = notificationQueryRepository.findAllNotifications(pageable, notificationType, account.getId());
         List<NotificationInfo> notifications = page.getContents();
-        int notReadCount = notificationRepository.countByAccountIdAndNotificationTypeAndCheckedIsFalse(account.getId(), notificationType);
 
         Context context = new Context();
         context.setVariable("hasNotification", notifications.size() > 0);

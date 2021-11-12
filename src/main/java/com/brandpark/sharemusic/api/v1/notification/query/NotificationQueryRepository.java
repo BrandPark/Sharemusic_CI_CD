@@ -29,7 +29,8 @@ public class NotificationQueryRepository {
         QueryResults<NotificationInfo> queryResults = queryFactory.select(
                         Projections.fields(NotificationInfo.class,
                                 notification.id,
-                                account.profileImage.as("senderProfileImage"),
+                                notification.sender.profileImage.as("senderProfileImage"),
+                                notification.sender.nickname.as("senderNickname"),
                                 notification.message,
                                 notification.link,
                                 notification.checked,
@@ -42,6 +43,7 @@ public class NotificationQueryRepository {
                         account.id.eq(accountId),
                         whatType(type)
                 )
+                .orderBy(notification.createdDate.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();

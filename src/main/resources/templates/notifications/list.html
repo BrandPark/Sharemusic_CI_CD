@@ -9,16 +9,16 @@
         <div class="col-3">
             <div class="list-group list-group-flush" id="list-tab" role="tablist">
                 <a class="list-group-item list-group-item-action active" target="all" data-toggle="list" role="button">전체 알림</a>
-                <a class="list-group-item list-group-item-action" targe="follow" data-toggle="list" role="button" >팔로우 알림</a>
-                <a class="list-group-item list-group-item-action" targe="comment" data-toggle="list" role="button" >댓글 알림</a>
-                <a class="list-group-item list-group-item-action" targe="created_album_by_follower" data-toggle="list" role="button" >새 앨범 업로드 알림</a>
+                <a class="list-group-item list-group-item-action" target="follow" data-toggle="list" role="button" >팔로우 알림</a>
+                <a class="list-group-item list-group-item-action" target="comment" data-toggle="list" role="button" >댓글 알림</a>
+                <a class="list-group-item list-group-item-action" target="created_album_by_follower" data-toggle="list" role="button" >새 앨범 업로드 알림</a>
             </div>
         </div>
         <div class="col-9" style="height:600px">
-            <div id="notification-list" style="height:60%">
+            <div id="notification-list" class="notification col-12" style="height:100%">
 
             </div>
-            <div id="pagination" class="w-100 d-flex justify-content-center" style="position: absolute; bottom:0px">
+            <div id="pagination" class="w-100 d-flex justify-content-center col-12" style="position: absolute; bottom:0px">
 
             </div>
         </div>
@@ -29,11 +29,23 @@
 <script>
     $(function(){
         notification_list.init();
+        notification_list.loadList("all", 0);
     });
     var notification_list = {
         init: function () {
-            var type = $('.list-group-item-action.active').attr('target');
-            this.loadList(type, 0);
+            var _this = this;
+
+            notification.init();
+
+            $('#list-tab').on('click', '.list-group-item', function () {
+                var type = $(this).attr('target');
+                _this.loadList(type, 0);
+            });
+            $('#pagination').on('click', '.page-link', function () {
+                var type = $('.list-group-item.active').attr('target');
+                var page = $(this).attr('data-index');
+                _this.loadList(type, page);
+            });
         },
         loadList: function (type, page) {
             $.ajax({
@@ -50,7 +62,7 @@
                 $('#notification-list').append(data['notificationsHtml']);
                 $('#pagination').append(data['paginationHtml']);
 
-                dateConverter.formRelativeTime();
+                dateConverter.formRelativeTime("#notification-list");
             }).fail(function () {
                 alert("알림 리스트를 로드하는데 실패했습니다.");
             });

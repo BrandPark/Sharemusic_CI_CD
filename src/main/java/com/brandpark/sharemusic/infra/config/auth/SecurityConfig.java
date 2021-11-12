@@ -54,6 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         // RememberMe
         http.rememberMe()
+                .tokenValiditySeconds(31536000)
                 .userDetailsService(accountService)
                 .tokenRepository(tokenRepository());
 

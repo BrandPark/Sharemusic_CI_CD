@@ -5,17 +5,17 @@ $(function () {
             $(this).height(1).height($(this).prop('scrollHeight') + 12);
         }
     });
-
     wave.init();
     notification.init();
+    dateConverter.formRelativeTime();
 });
 
 var notification = {
     init: function () {
         var _this = this;
-        $('.notification').on('click', 'a.notification-link', function () {
-            const notificationId = $(this).attr("data-index");
-            const link = $(this).attr('link');
+        $('.notification, #notification-list').on('click', '.notification-item', function () {
+            const notificationId = $(this).find('.notification-link')[0].getAttribute("data-index");
+            const link = $(this).find('.notification-link')[0].getAttribute('link');
             _this.checkNotification(notificationId, link);
         });
     },
@@ -33,11 +33,17 @@ var notification = {
     }
 }
 var dateConverter = {
-    formRelativeTime: function () {
+    formRelativeTime: function (bound) {
         moment.locale('ko');
-        $(".relative-time").text(function (index, dateTime) {
-            return moment(dateTime, "YYYY-MM-DD`T`hh:mm").fromNow();
-        });
+        if (bound == null) {
+            $(".relative-time").text(function (index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").fromNow();
+            });
+        } else {
+            $(bound + " .relative-time").text(function (index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").fromNow();
+            });
+        }
     }
 }
 var wave = {
