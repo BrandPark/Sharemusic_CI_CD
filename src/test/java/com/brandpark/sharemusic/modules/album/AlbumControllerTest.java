@@ -2,7 +2,7 @@ package com.brandpark.sharemusic.modules.album;
 
 import com.brandpark.sharemusic.api.AlbumFactory;
 import com.brandpark.sharemusic.infra.MockMvcTest;
-import com.brandpark.sharemusic.modules.AccountFactory;
+import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;

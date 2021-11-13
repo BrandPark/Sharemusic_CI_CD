@@ -1,5 +1,6 @@
-<div class="row bg-alert alert align-items-center">
+<div class="row bg-alert alert align-items-center justify-content-between">
     <span>읽지 않은 알림 <span class="text-success" th:text="${notReadCount}"></span>개</span>
+    <button id="btn-all-check " class="btn-all-check  btn btn-link text-decoration-none text-dark" role="button" th:disabled="${notReadCount == 0}"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i> 모두 읽음 표시</button>
 </div>
 <div class="notification-bg">
     <div th:if="${!hasNotification}" class="row justify-content-center align-items-center m-0 mb-4" style="height:300px">

@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules;
+package com.brandpark.sharemusic.testUtils;
 
 
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;

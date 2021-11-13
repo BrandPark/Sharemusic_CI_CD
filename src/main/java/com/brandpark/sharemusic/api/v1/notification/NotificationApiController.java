@@ -39,9 +39,9 @@ public class NotificationApiController {
     }
 
     @GetMapping("/notifications")
-    public PagingDto<NotificationInfo> getNotificationListHtml(@LoginAccount SessionAccount account
+    public PagingDto<NotificationInfo> getNotificationListPage(@LoginAccount SessionAccount account
             , @PageableDefault(size = 10) Pageable pageable
-            , @RequestParam(name = "type") String type) {
+            , @RequestParam(name = "type", defaultValue = "") String type) {
 
         NotificationType notificationType = notificationService.getNotificationType(type);
 

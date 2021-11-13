@@ -6,7 +6,7 @@ import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.MockMvcTest;
-import com.brandpark.sharemusic.modules.AccountFactory;
+import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.follow.domain.Follow;

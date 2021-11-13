@@ -46,6 +46,9 @@
                 var page = $(this).attr('data-index');
                 _this.loadList(type, page);
             });
+            $('#notification-list').on('click', '.btn-all-check', function () {
+                console.log("api호출");
+            });
         },
         loadList: function (type, page) {
             $.ajax({

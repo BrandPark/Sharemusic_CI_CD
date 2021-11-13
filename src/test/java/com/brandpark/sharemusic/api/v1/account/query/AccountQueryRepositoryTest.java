@@ -5,7 +5,7 @@ import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
 import com.brandpark.sharemusic.api.v1.account.query.dto.ActivityDataResponse;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
-import com.brandpark.sharemusic.modules.AccountFactory;
+import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.album.domain.Album;

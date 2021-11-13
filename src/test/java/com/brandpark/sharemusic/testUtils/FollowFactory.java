@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules;
+package com.brandpark.sharemusic.testUtils;
 
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.follow.domain.Follow;

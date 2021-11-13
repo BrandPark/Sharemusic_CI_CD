@@ -43,7 +43,7 @@ public class NotificationQueryRepository {
                         account.id.eq(accountId),
                         whatType(type)
                 )
-                .orderBy(notification.createdDate.desc())
+                .orderBy(notification.checked.asc(), notification.createdDate.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();

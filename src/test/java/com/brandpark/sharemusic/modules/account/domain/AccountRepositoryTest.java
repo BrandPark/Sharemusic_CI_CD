@@ -1,8 +1,8 @@
 package com.brandpark.sharemusic.modules.account.domain;
 
 import com.brandpark.sharemusic.api.AlbumFactory;
-import com.brandpark.sharemusic.modules.AccountFactory;
-import com.brandpark.sharemusic.modules.FollowFactory;
+import com.brandpark.sharemusic.testUtils.AccountFactory;
+import com.brandpark.sharemusic.testUtils.FollowFactory;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
