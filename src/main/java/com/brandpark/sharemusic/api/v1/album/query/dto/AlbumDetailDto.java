@@ -14,6 +14,6 @@ public class AlbumDetailDto {
     private List<TrackDetailDto> tracks;
     private String creator;
     private String creatorProfileImage;
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
 }

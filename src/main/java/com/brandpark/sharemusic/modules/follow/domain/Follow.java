@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules.follow;
+package com.brandpark.sharemusic.modules.follow.domain;
 
 import com.brandpark.sharemusic.modules.BaseTimeEntity;
 import com.brandpark.sharemusic.modules.account.domain.Account;

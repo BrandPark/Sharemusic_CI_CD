@@ -44,12 +44,12 @@ public class AlbumQueryRepository {
                                 album.trackCount,
                                 account.nickname.as("creator"),
                                 account.profileImage.as("creatorProfileImage"),
-                                album.createDate
+                                album.createdDate
                         ))
                 .from(album)
                 .innerJoin(account).on(album.accountId.eq(account.id))
                 .where(searchCondition(searchDto))
-                .orderBy(album.createDate.desc())
+                .orderBy(album.createdDate.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();
@@ -73,7 +73,7 @@ public class AlbumQueryRepository {
                                 album.title,
                                 album.albumImage,
                                 album.description,
-                                album.createDate,
+                                album.createdDate,
                                 album.modifiedDate,
                                 account.nickname.as("creator"),
                                 account.profileImage.as("creatorProfileImage")
@@ -102,14 +102,14 @@ public class AlbumQueryRepository {
                         comment.id,
                         account.nickname.as("writer"),
                         comment.content,
-                        comment.createDate,
+                        comment.createdDate,
                         comment.modifiedDate,
                         account.profileImage.as("writerProfileImage")
                 ))
                 .from(comment)
                 .innerJoin(account).on(account.id.eq(comment.accountId))
                 .where(comment.albumId.eq(albumId))
-                .orderBy(comment.createDate.desc())
+                .orderBy(comment.createdDate.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();

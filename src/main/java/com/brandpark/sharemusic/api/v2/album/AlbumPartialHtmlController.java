@@ -50,7 +50,6 @@ public class AlbumPartialHtmlController {
         return new AlbumsHtmlResult(listHtml, paginationHtml);
     }
 
-    @RequiredArgsConstructor
     @Data
     public static class AlbumsHtmlResult {
         final String albumsHtml;

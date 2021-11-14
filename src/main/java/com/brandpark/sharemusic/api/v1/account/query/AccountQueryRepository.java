@@ -7,7 +7,7 @@ import com.brandpark.sharemusic.api.v1.account.query.dto.ActivityDataResponse;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
-import com.brandpark.sharemusic.modules.follow.QFollow;
+import com.brandpark.sharemusic.modules.follow.domain.QFollow;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -63,11 +63,11 @@ public class AccountQueryRepository {
                         follow.follower.profileImage,
                         follow.follower.nickname,
                         follow.follower.name,
-                        follow.createDate.as("followDate")
+                        follow.createdDate.as("followDate")
                 ))
                 .from(follow)
                 .where(follow.target.id.eq(accountId))
-                .orderBy(follow.createDate.asc())
+                .orderBy(follow.createdDate.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();
@@ -82,11 +82,11 @@ public class AccountQueryRepository {
                         follow.target.profileImage,
                         follow.target.nickname,
                         follow.target.name,
-                        follow.createDate.as("followingDate")
+                        follow.createdDate.as("followingDate")
                 ))
                 .from(follow)
                 .where(follow.follower.id.eq(accountId))
-                .orderBy(follow.createDate.asc())
+                .orderBy(follow.createdDate.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();

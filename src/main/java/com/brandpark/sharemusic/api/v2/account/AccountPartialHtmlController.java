@@ -7,7 +7,7 @@ import com.brandpark.sharemusic.api.v2.PagingHtmlCreator;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
-import com.brandpark.sharemusic.modules.follow.FollowRepository;
+import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

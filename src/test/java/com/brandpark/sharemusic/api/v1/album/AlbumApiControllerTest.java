@@ -1,5 +1,6 @@
-package com.brandpark.sharemusic.api;
+package com.brandpark.sharemusic.api.v1.album;
 
+import com.brandpark.sharemusic.api.AlbumFactory;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumSaveRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.TrackSaveRequest;
@@ -9,7 +10,7 @@ import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.MockMvcTest;
-import com.brandpark.sharemusic.modules.AccountFactory;
+import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
@@ -490,7 +491,7 @@ class AlbumApiControllerTest {
 
                     AlbumShortDto firstAlbum = resultAlbums.get(0);
                     Album expectedAlbumInfo = album2;
-                    assertThat(firstAlbum.getCreateDate()).isAfterOrEqualTo(resultAlbums.get(1).getCreateDate());
+                    assertThat(firstAlbum.getCreatedDate()).isAfterOrEqualTo(resultAlbums.get(1).getCreatedDate());
                     assertThat(firstAlbum.getTitle()).isEqualTo("앨범2");
                     assertThat(firstAlbum.getAlbumImage()).isEqualTo(expectedAlbumInfo.getAlbumImage());
                     assertThat(firstAlbum.getCreator()).isEqualTo(userAccount.getNickname());

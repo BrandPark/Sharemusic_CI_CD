@@ -3,7 +3,7 @@ package com.brandpark.sharemusic.modules.account;
 import com.brandpark.sharemusic.infra.MockMvcTest;
 import com.brandpark.sharemusic.infra.mail.MailMessage;
 import com.brandpark.sharemusic.infra.mail.MailService;
-import com.brandpark.sharemusic.modules.AccountFactory;
+import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
@@ -184,7 +184,7 @@ class AccountControllerTest {
         String otherAccountNickname = otherAccount.getNickname();
         mockMvc.perform(get("/accounts/" + otherAccountNickname))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("loginAccount", "account", "isFollowing", "isOwner", "activityData"))
+                .andExpect(model().attributeExists("targetAccount", "account", "isFollowing", "isOwner", "activityData"))
                 .andExpect(view().name("accounts/profile"));
     }
 
@@ -195,7 +195,7 @@ class AccountControllerTest {
         String myAccountNickname = loginAccount.getNickname();
         mockMvc.perform(get("/accounts/" + myAccountNickname))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("loginAccount", "account", "isFollowing", "isOwner", "activityData"))
+                .andExpect(model().attributeExists("targetAccount", "account", "isFollowing", "isOwner", "activityData"))
                 .andExpect(view().name("accounts/profile"));
     }
 }

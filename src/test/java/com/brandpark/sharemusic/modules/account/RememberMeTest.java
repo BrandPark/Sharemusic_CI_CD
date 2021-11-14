@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.modules.account;
 
 import com.brandpark.sharemusic.infra.MockMvcTest;
-import com.brandpark.sharemusic.modules.AccountFactory;
+import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import org.junit.jupiter.api.BeforeEach;

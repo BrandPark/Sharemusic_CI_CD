@@ -1,8 +1,10 @@
 package com.brandpark.sharemusic.modules.follow;
 
-import com.brandpark.sharemusic.modules.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
+import com.brandpark.sharemusic.modules.follow.domain.Follow;
+import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
+import com.brandpark.sharemusic.testUtils.AccountFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,8 +33,8 @@ class FollowRepositoryTest {
     Account unfollowingOtherAccount;
     List<Account> followers = new ArrayList<>();
     List<Account> followings = new ArrayList<>();
-    List<Follow> followListToFollowers = new ArrayList<>();
-    List<Follow> followListToFollowings = new ArrayList<>();
+    List<Follow> followListAboutFollowers = new ArrayList<>();
+    List<Follow> followListAboutFollowings = new ArrayList<>();
 
     @BeforeEach
     public void setUp() {
@@ -50,20 +52,20 @@ class FollowRepositoryTest {
         accountRepository.saveAll(Stream.concat(followers.stream(), followings.stream()).collect(Collectors.toList()));
 
         for (Account follower : followers) {
-            followListToFollowers.add(Follow.builder()
+            followListAboutFollowers.add(Follow.builder()
                     .follower(follower)
                     .target(myAccount)
                     .build());
         }
 
         for (Account following : followings) {
-            followListToFollowings.add(Follow.builder()
+            followListAboutFollowings.add(Follow.builder()
                     .follower(myAccount)
                     .target(following)
                     .build());
         }
 
-        followRepository.saveAll(Stream.concat(followListToFollowers.stream(), followListToFollowings.stream()).collect(Collectors.toList()));
+        followRepository.saveAll(Stream.concat(followListAboutFollowers.stream(), followListAboutFollowings.stream()).collect(Collectors.toList()));
     }
 
     @DisplayName("팔로잉 중인지 확인")
@@ -72,7 +74,7 @@ class FollowRepositoryTest {
 
         // given
         // when
-        boolean following = followRepository.isFollowing(myAccount.getId(), followListToFollowings.get(0).getId());
+        boolean following = followRepository.isFollowing(myAccount.getId(), followings.get(0).getId());
         boolean notFollowing = followRepository.isFollowing(myAccount.getId(), unfollowingOtherAccount.getId());
 
         // then
