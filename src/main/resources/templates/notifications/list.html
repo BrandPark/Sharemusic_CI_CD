@@ -33,21 +33,31 @@
     });
     var notification_list = {
         init: function () {
-            var _this = this;
-
+            const _this = this;
             notification.init();
 
             $('#list-tab').on('click', '.list-group-item', function () {
-                var type = $(this).attr('target');
-                _this.loadList(type, 0);
+                const clickType = $(this).attr('target');
+                _this.loadList(clickType, 0);
             });
             $('#pagination').on('click', '.page-link', function () {
-                var type = $('.list-group-item.active').attr('target');
-                var page = $(this).attr('data-index');
-                _this.loadList(type, page);
+                const page = $(this).attr('data-index');
+                const currentType = $('.list-group-item.active').attr('target');
+                _this.loadList(currentType, page);
             });
             $('#notification-list').on('click', '.btn-all-check', function () {
-                console.log("api호출");
+
+                const currentType = $('.list-group-item.active').attr('target');
+
+                $.ajax({
+                    url: "/api/v1/notifications",
+                    method: "put",
+                    data: {type: currentType}
+                }).done(function () {
+                    _this.loadList(currentType, 0);
+                }).fail(function (error) {
+                    console.log(error);
+                });
             });
         },
         loadList: function (type, page) {

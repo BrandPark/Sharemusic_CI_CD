@@ -1,5 +1,4 @@
 $(function () {
-    $("body").prepend("<canvas style='position:absolute;'></canvas>");
     $('textarea.auto-size').on('keydown', function () {
         if ($(this).height() < 96) {
             $(this).height(1).height($(this).prop('scrollHeight') + 12);
@@ -48,6 +47,8 @@ var dateConverter = {
 }
 var wave = {
     init: function () {
+        $("body").prepend("<canvas style='position:absolute;'></canvas>");
+
         // const gui = new dat.GUI(),
         guiSet = {
             frequency: 10,

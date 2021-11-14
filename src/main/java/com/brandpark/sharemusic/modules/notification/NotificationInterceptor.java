@@ -34,7 +34,7 @@ public class NotificationInterceptor implements HandlerInterceptor {
 
             SessionAccount account = ((CustomUserDetails) authentication.getPrincipal()).getSessionAccount();
 
-            List<NotificationForm> notifications = notificationRepository.findAllFirst10ByAccountIdOrderByCreatedDateDesc(account.getId())
+            List<NotificationForm> notifications = notificationRepository.findAllFirst10ByAccountIdOrderByCheckedAscCreatedDateDesc(account.getId())
                     .stream()
                     .map(no -> new NotificationForm(
                             no.getId()

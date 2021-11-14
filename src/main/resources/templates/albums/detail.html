@@ -22,7 +22,7 @@
                             </a>
                         </div>
                         <div class="row text-muted" style="overflow:scroll; height: 100px; overflow-x:hidden"><span th:utext="${albumDetailView.description}">앨범 소개</span></div>
-                        <div class="row justify-content-end pb-4"><small class="row text-muted" th:text="${albumDetailView.createDate}">앨범 생성 날짜</small></div>
+                        <div class="row justify-content-end pb-4"><small class="row text-muted" th:text="${albumDetailView.getCreatedDate}">앨범 생성 날짜</small></div>
                     </div>
                 </div>
                 <div class="row">
@@ -125,16 +125,21 @@
             },
             submitComment: function (content) {
                 var _this = this;
+                if (content === "" || content == null) {
+                    alert("댓글 내용을 입력해주세요");
+                    return;
+                }
+                const data = {
+                    content: content
+                }
                 $.ajax({
                     url: "/api/v1/albums/" + albumId + "/comments",
                     method: 'post',
-                    contentType: 'application/json;charset=utf-8',
-                    dataType: 'json',
-                    data: content
+                    data: data
                 }).done(function () {
                     _this.loadComments(0);
-                }).fail(function () {
-                    alert("댓글을 작성하는데 실패했습니다.");
+                }).fail(function (error) {
+                    alert(error.responseJSON.errorMessage);
                 });
             },
             removeComment: function (commentId) {

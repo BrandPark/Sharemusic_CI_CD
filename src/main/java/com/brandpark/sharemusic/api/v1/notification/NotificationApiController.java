@@ -28,7 +28,7 @@ public class NotificationApiController {
     private final DtoValidator validator;
 
     @PutMapping("/notifications/{notificationId}")
-    public void checkNotification(@LoginAccount SessionAccount account, @PathVariable Long notificationId) {
+    public Long checkNotification(@LoginAccount SessionAccount account, @PathVariable Long notificationId) {
 
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ApiException(Error.ILLEGAL_ARGUMENT_EXCEPTION));
@@ -36,6 +36,8 @@ public class NotificationApiController {
         validator.validateNotification(account.getId(), notification.getAccount().getId());
 
         notificationService.checkNotification(notification);
+
+        return notificationId;
     }
 
     @GetMapping("/notifications")
@@ -43,8 +45,22 @@ public class NotificationApiController {
             , @PageableDefault(size = 10) Pageable pageable
             , @RequestParam(name = "type", defaultValue = "") String type) {
 
-        NotificationType notificationType = notificationService.getNotificationType(type);
+        NotificationType notificationType = NotificationType.getTypeByName(type);
 
         return notificationQueryRepository.findAllNotifications(pageable, notificationType, account.getId());
     }
+
+    @PutMapping("/notifications")
+    public int checkAllNotifications(@LoginAccount SessionAccount account
+            ,@RequestParam("type") String type) {
+
+        NotificationType notificationType = NotificationType.getTypeByName(type);
+
+        if (notificationType == null) {
+            return notificationRepository.checkAllNotification(account.getId());
+        }
+
+        return notificationRepository.checkAllNotification(account.getId(), notificationType);
+    }
+
 }

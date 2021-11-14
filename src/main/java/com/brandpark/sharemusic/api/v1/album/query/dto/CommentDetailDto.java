@@ -9,7 +9,7 @@ public class CommentDetailDto {
     private Long id;
     private String writer;
     private String content;
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
     private String writerProfileImage;
 }

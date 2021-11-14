@@ -8,7 +8,6 @@ import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.notification.NotificationService;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
-import com.brandpark.sharemusic.modules.notification.domain.NotificationRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +24,6 @@ import java.util.List;
 public class NotificationPartialHtmlController {
 
     private final NotificationQueryRepository notificationQueryRepository;
-    private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
     private final PagingHtmlCreator htmlCreator;
 
@@ -34,7 +32,7 @@ public class NotificationPartialHtmlController {
             , @PageableDefault(size = 10) Pageable pageable
             , @RequestParam(name = "type") String type) {
 
-        NotificationType notificationType = notificationService.getNotificationType(type);
+        NotificationType notificationType = NotificationType.getTypeByName(type);
 
         int notReadCount = notificationService.getNotReadCount(account.getId(), notificationType);
 

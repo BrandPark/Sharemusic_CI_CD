@@ -5,12 +5,12 @@ import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
 import com.brandpark.sharemusic.api.v1.notification.query.dto.NotificationInfo;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.MockMvcTest;
-import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
 import com.brandpark.sharemusic.modules.notification.domain.Notification;
 import com.brandpark.sharemusic.modules.notification.domain.NotificationRepository;
+import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.testUtils.NotificationFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +27,7 @@ import java.util.List;
 
 import static com.brandpark.sharemusic.api.v1.exception.Error.FORBIDDEN_EXCEPTION;
 import static com.brandpark.sharemusic.api.v1.exception.Error.ILLEGAL_ARGUMENT_EXCEPTION;
+import static com.brandpark.sharemusic.modules.notification.NotificationType.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -60,7 +61,7 @@ class NotificationApiControllerTest {
 
         // given
         Notification myNotification
-                = notificationFactory.persistNotification(otherAccount, myAccount, NotificationType.FOLLOW);
+                = notificationFactory.persistNotification(otherAccount, myAccount, FOLLOW);
 
         // when
         mockMvc.perform(put("/api/v1/notifications/" + myNotification.getId())
@@ -75,7 +76,7 @@ class NotificationApiControllerTest {
 
         // given
         Notification otherAccountNotification
-                = notificationFactory.persistNotification(myAccount, otherAccount, NotificationType.FOLLOW);
+                = notificationFactory.persistNotification(myAccount, otherAccount, FOLLOW);
 
         // when
         mockMvc.perform(put("/api/v1/notifications/" + otherAccountNotification.getId())
@@ -119,7 +120,7 @@ class NotificationApiControllerTest {
     void CheckNotification_Success() throws Exception {
 
         // given
-        Notification myNotification = notificationFactory.persistNotification(otherAccount, myAccount, NotificationType.FOLLOW);
+        Notification myNotification = notificationFactory.persistNotification(otherAccount, myAccount, FOLLOW);
 
         assertThat(myNotification.isChecked()).isFalse();
 
@@ -143,12 +144,12 @@ class NotificationApiControllerTest {
         // given
         int notificationCount = 20;
         List<Notification> myNotificationList
-                = notificationFactory.persistNotificationList(otherAccount, myAccount, NotificationType.FOLLOW, notificationCount);
+                = notificationFactory.persistNotificationList(otherAccount, myAccount, FOLLOW, notificationCount);
 
         // when
         mockMvc.perform(get("/api/v1/notifications")
                         .param("page", "0")
-                        .param("type", NotificationType.FOLLOW.name()))
+                        .param("type", FOLLOW.name()))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -163,7 +164,7 @@ class NotificationApiControllerTest {
         int createAlbumTypeCount = 10;
         int totalCount = followTypeCount + commentTypeCount + createAlbumTypeCount;
 
-        List<Notification> followTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, NotificationType.FOLLOW, followTypeCount);
+        List<Notification> followTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, FOLLOW, followTypeCount);
         List<Notification> commentTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, NotificationType.COMMENT, commentTypeCount);
         List<Notification> createAlbumTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, NotificationType.CREATED_ALBUM_BY_FOLLOWER, createAlbumTypeCount);
 
@@ -201,14 +202,14 @@ class NotificationApiControllerTest {
         int createAlbumTypeCount = 10;
         int totalCount = followTypeCount + commentTypeCount + createAlbumTypeCount;
 
-        List<Notification> followTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, NotificationType.FOLLOW, followTypeCount);
+        List<Notification> followTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, FOLLOW, followTypeCount);
         List<Notification> commentTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, NotificationType.COMMENT, commentTypeCount);
         List<Notification> createAlbumTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, NotificationType.CREATED_ALBUM_BY_FOLLOWER, createAlbumTypeCount);
 
         // when
         mockMvc.perform(get("/api/v1/notifications")
                         .param("page", "0")
-                        .param("type", NotificationType.FOLLOW.name()))
+                        .param("type", FOLLOW.name()))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
 
@@ -222,7 +223,7 @@ class NotificationApiControllerTest {
                     Notification expected = followTypes.get(0);
                     assertThat(resultInfo.getMessage()).isEqualTo(expected.getMessage());
                     assertThat(resultInfo.getLink()).isEqualTo(expected.getLink());
-                    assertThat(resultInfo.getNotificationType()).isEqualTo(NotificationType.FOLLOW);
+                    assertThat(resultInfo.getNotificationType()).isEqualTo(FOLLOW);
                     assertThat(resultInfo.getSenderNickname()).isEqualTo(expected.getSender().getNickname());
                     assertThat(resultInfo.getSenderProfileImage()).isEqualTo(expected.getSender().getProfileImage());
                 });
@@ -239,7 +240,7 @@ class NotificationApiControllerTest {
         int createAlbumTypeCount = 10;
         int totalCount = followTypeCount + commentTypeCount + createAlbumTypeCount;
 
-        List<Notification> followTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, NotificationType.FOLLOW, followTypeCount);
+        List<Notification> followTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, FOLLOW, followTypeCount);
         List<Notification> commentTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, NotificationType.COMMENT, commentTypeCount);
         List<Notification> createAlbumTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, NotificationType.CREATED_ALBUM_BY_FOLLOWER, createAlbumTypeCount);
 
@@ -277,7 +278,7 @@ class NotificationApiControllerTest {
         int createAlbumTypeCount = 10;
         int totalCount = followTypeCount + commentTypeCount + createAlbumTypeCount;
 
-        List<Notification> followTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, NotificationType.FOLLOW, followTypeCount);
+        List<Notification> followTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, FOLLOW, followTypeCount);
         List<Notification> commentTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, NotificationType.COMMENT, commentTypeCount);
         List<Notification> createAlbumTypes = notificationFactory.persistNotificationList(otherAccount, myAccount, NotificationType.CREATED_ALBUM_BY_FOLLOWER, createAlbumTypeCount);
 
@@ -302,5 +303,156 @@ class NotificationApiControllerTest {
                     assertThat(resultInfo.getSenderNickname()).isEqualTo(expected.getSender().getNickname());
                     assertThat(resultInfo.getSenderProfileImage()).isEqualTo(expected.getSender().getProfileImage());
                 });
+    }
+
+    @DisplayName("모든 타입 알림 읽음 표시 - 실패(로그인 하지 않은 경우)")
+    @Test
+    public void AllNotificationCheck_Fail_When_NotAuthenticated() throws Exception {
+
+        // given
+        NotificationType[] types = {FOLLOW, COMMENT, CREATED_ALBUM_BY_FOLLOWER};
+        List<Notification> notifications = notificationFactory.persistNotificationListMultiType(otherAccount, myAccount, types);
+        for (Notification notification : notifications) {
+            assertThat(notification.isChecked()).isFalse();
+        }
+
+        // when
+        String notificationType = "all";
+        mockMvc.perform(put("/api/v1/notifications")
+                        .with(csrf())
+                        .param("type", notificationType))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("모든 알림 읽음 표시 - 성공(FOLLOW 타입)")
+    @Test
+    public void AllNotificationCheck_Success_FollowType() throws Exception {
+
+        // given
+        NotificationType[] types = {FOLLOW, COMMENT, CREATED_ALBUM_BY_FOLLOWER};
+        List<Notification> notifications = notificationFactory.persistNotificationListMultiType(otherAccount, myAccount, types);
+        for (Notification notification : notifications) {
+            assertThat(notification.isChecked()).isFalse();
+        }
+
+        // when
+        String notificationType = FOLLOW.name();
+        mockMvc.perform(put("/api/v1/notifications")
+                        .with(csrf())
+                        .param("type", notificationType))
+                .andExpect(status().isOk())
+                .andExpect(result -> {
+                    int updatedCount = Integer.parseInt(result.getResponse().getContentAsString(UTF_8));
+                    assertThat(updatedCount).isEqualTo(1);
+                });
+
+        // then
+        List<Notification> updatedNotifications = notificationRepository.findAll();
+        for (Notification notification : updatedNotifications) {
+            if (notification.getNotificationType() == FOLLOW) {
+                assertThat(notification.isChecked()).isTrue();
+            } else {
+                assertThat(notification.isChecked()).isFalse();
+            }
+        }
+    }
+
+    @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("모든 알림 읽음 표시 - 성공(COMMENT 타입)")
+    @Test
+    public void AllNotificationCheck_Success_CommentType() throws Exception {
+
+        // given
+        NotificationType[] types = {FOLLOW, COMMENT, CREATED_ALBUM_BY_FOLLOWER};
+        List<Notification> notifications = notificationFactory.persistNotificationListMultiType(otherAccount, myAccount, types);
+        for (Notification notification : notifications) {
+            assertThat(notification.isChecked()).isFalse();
+        }
+
+        // when
+        String notificationType = COMMENT.name();
+        mockMvc.perform(put("/api/v1/notifications")
+                        .with(csrf())
+                        .param("type", notificationType))
+                .andExpect(status().isOk())
+                .andExpect(result -> {
+                    int updatedCount = Integer.parseInt(result.getResponse().getContentAsString(UTF_8));
+                    assertThat(updatedCount).isEqualTo(1);
+                });
+
+        // then
+        List<Notification> updatedNotifications = notificationRepository.findAll();
+        for (Notification notification : updatedNotifications) {
+            if (notification.getNotificationType() == COMMENT) {
+                assertThat(notification.isChecked()).isTrue();
+            } else {
+                assertThat(notification.isChecked()).isFalse();
+            }
+        }
+    }
+
+    @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("모든 알림 읽음 표시 - 성공(CREATED_ALBUM_BY_FOLLOWER 타입)")
+    @Test
+    public void AllNotificationCheck_Success_CreatedAlbum() throws Exception {
+
+        // given
+        NotificationType[] types = {FOLLOW, COMMENT, CREATED_ALBUM_BY_FOLLOWER};
+        List<Notification> notifications = notificationFactory.persistNotificationListMultiType(otherAccount, myAccount, types);
+        for (Notification notification : notifications) {
+            assertThat(notification.isChecked()).isFalse();
+        }
+
+        // when
+        String notificationType = CREATED_ALBUM_BY_FOLLOWER.name();
+        mockMvc.perform(put("/api/v1/notifications")
+                        .with(csrf())
+                        .param("type", notificationType))
+                .andExpect(status().isOk())
+                .andExpect(result -> {
+                    int updatedCount = Integer.parseInt(result.getResponse().getContentAsString(UTF_8));
+                    assertThat(updatedCount).isEqualTo(1);
+                });
+
+        // then
+        List<Notification> updatedNotifications = notificationRepository.findAll();
+        for (Notification notification : updatedNotifications) {
+            if (notification.getNotificationType() == CREATED_ALBUM_BY_FOLLOWER) {
+                assertThat(notification.isChecked()).isTrue();
+            } else {
+                assertThat(notification.isChecked()).isFalse();
+            }
+        }
+    }
+
+    @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("모든 타입 알림 읽음 표시 - 성공(모든 타입)")
+    @Test
+    public void AllNotificationCheck_Success() throws Exception {
+
+        // given
+        NotificationType[] types = {FOLLOW, COMMENT, CREATED_ALBUM_BY_FOLLOWER};
+        List<Notification> notifications = notificationFactory.persistNotificationListMultiType(otherAccount, myAccount, types);
+        for (Notification notification : notifications) {
+            assertThat(notification.isChecked()).isFalse();
+        }
+
+        // when
+        String notificationType = "all";
+        mockMvc.perform(put("/api/v1/notifications")
+                        .with(csrf())
+                        .param("type", notificationType))
+                .andExpect(status().isOk())
+                .andExpect(result -> {
+                    int updatedCount = Integer.parseInt(result.getResponse().getContentAsString(UTF_8));
+                    assertThat(updatedCount).isEqualTo(notifications.size());
+                });
+
+        // then
+        List<Notification> updatedNotifications = notificationRepository.findAll();
+        for (Notification notification : updatedNotifications) {
+            assertThat(notification.isChecked()).isTrue();
+        }
     }
 }
