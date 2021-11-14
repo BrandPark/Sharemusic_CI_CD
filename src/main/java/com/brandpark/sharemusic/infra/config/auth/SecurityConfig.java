@@ -33,6 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // Authorization
         http.authorizeRequests()
                 .mvcMatchers("/", "/accounts/signup", "/error").permitAll()
+                .mvcMatchers("/api/v1/notifications/**").authenticated()
                 .mvcMatchers(GET, "/api/v1/**").permitAll()
                 .mvcMatchers("/api/v1/albums/*/comments/**").authenticated()
                 .mvcMatchers("/api/v1/accounts/*/*follow").authenticated()
@@ -53,6 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         // RememberMe
         http.rememberMe()
+                .tokenValiditySeconds(31536000)
                 .userDetailsService(accountService)
                 .tokenRepository(tokenRepository());
 

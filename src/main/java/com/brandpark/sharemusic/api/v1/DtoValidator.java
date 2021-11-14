@@ -116,4 +116,9 @@ public class DtoValidator {
         return StringUtils.hasText(name);
     }
 
+    public void validateNotification(Long loginId, Long notificationAccountId) {
+        if (!loginId.equals(notificationAccountId)) {
+            throw new ApiException(Error.FORBIDDEN_EXCEPTION, "해당 알림에 대한 권한이 없습니다.");
+        }
+    }
 }

@@ -8,8 +8,10 @@ import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.album.domain.Track;
 import com.brandpark.sharemusic.modules.album.form.AlbumUpdateForm;
+import com.brandpark.sharemusic.modules.event.CreateAlbumEvent;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ public class AlbumService {
 
     private final ModelMapper modelMapper;
     private final AlbumRepository albumRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public AlbumUpdateForm entityToForm(Album album) {
         return modelMapper.map(album, AlbumUpdateForm.class);
@@ -33,9 +36,15 @@ public class AlbumService {
     public Long saveAlbum(Long accountId, AlbumSaveRequest requestDto) {
 
         requestDto.setDescription(MyUtil.toBrTag(requestDto.getDescription()));
-        Album album = requestDto.toEntity(accountId);
 
-        return albumRepository.save(album).getId();
+        Long albumId = albumRepository.save(requestDto.toEntity(accountId)).getId();
+
+        eventPublisher.publishEvent(CreateAlbumEvent.builder()
+                .albumId(albumId)
+                .creatorId(accountId)
+                .build());
+
+        return albumId;
     }
 
     @Transactional

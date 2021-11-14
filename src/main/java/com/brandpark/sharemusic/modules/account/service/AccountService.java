@@ -9,8 +9,12 @@ import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
+import com.brandpark.sharemusic.modules.event.FollowEvent;
+import com.brandpark.sharemusic.modules.follow.domain.Follow;
+import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -32,6 +36,8 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
+    private final FollowRepository followRepository;
 
     @Transactional
     public Account signUp(SignUpForm form) {
@@ -87,6 +93,20 @@ public class AccountService implements UserDetailsService {
         persistAccount.assignRole(Role.USER);
 
         login(mapToSessionAccount(persistAccount));
+    }
+
+    @Transactional
+    public Long doFollow(Account follower, Account target) {
+
+        eventPublisher.publishEvent(FollowEvent.builder()
+                .follower(follower)
+                .followingTarget(target)
+                .build());
+
+        return followRepository.save(Follow.builder()
+                .follower(follower)
+                .target(target)
+                .build()).getId();
     }
 
     public SessionAccount mapToSessionAccount(Account account) {

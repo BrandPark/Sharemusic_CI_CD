@@ -1,9 +1,9 @@
-package com.brandpark.sharemusic.modules;
+package com.brandpark.sharemusic.testUtils;
 
 
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.Role;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
@@ -93,5 +96,15 @@ public class AccountFactory {
         form.setConfirmPassword("111111111");
 
         return form;
+    }
+
+    public List<Account> createAccountList(String name, int size) {
+        List<Account> result = new ArrayList<>();
+
+        for (int i = 0; i < size; i++) {
+            result.add(createAccount(name + i));
+        }
+
+        return result;
     }
 }

@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules.follow;
+package com.brandpark.sharemusic.modules.follow.domain;
 
 import java.util.List;
 import java.util.Map;

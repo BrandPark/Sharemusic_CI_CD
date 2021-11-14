@@ -13,5 +13,5 @@ public class AlbumShortDto {
     private int trackCount;
     private String creator;
     private String creatorProfileImage;
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 }
