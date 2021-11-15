@@ -4,12 +4,47 @@ $(function () {
             $(this).height(1).height($(this).prop('scrollHeight') + 12);
         }
     });
+    search.init();
     wave.init();
     notification.init();
     dateConverter.formRelativeTime();
 });
 
-var notification = {
+const search = {
+    init: function () {
+        const _this = this;
+        $('#search-input').on('keydown', function (event) {
+            if (event.key === "Enter") {
+                const data = {
+                    type: $(this).attr("search-type"),
+                    q: $(this).val()
+                }
+
+                _this.search(data, 0);
+            }
+        });
+        $('#search-box .dropdown-item').on('click', function () {
+            const selectType = $(this).attr('value');
+            const selectTypeName = $(this).text();
+            $('#search-input').attr('placeholder', selectTypeName);
+            $('#search-input').attr('search-type', selectType);
+        });
+    },
+    search: function (data, page) {
+        data.page = page;
+
+        $.ajax({
+            url: "/api/v1/search",
+            method: "get",
+            data: data
+        }).done(function (data) {
+            console.log(data);
+        }).fail(function (error) {
+            console.log(error['responseJSON']['message']);
+        });
+    }
+}
+const notification = {
     init: function () {
         var _this = this;
         $('.notification, #notification-list').on('click', '.notification-item', function () {
@@ -31,7 +66,7 @@ var notification = {
         });
     }
 }
-var dateConverter = {
+const dateConverter = {
     formRelativeTime: function (bound) {
         moment.locale('ko');
         if (bound == null) {
@@ -45,7 +80,7 @@ var dateConverter = {
         }
     }
 }
-var wave = {
+const wave = {
     init: function () {
         $("body").prepend("<canvas style='position:absolute;'></canvas>");
 

@@ -77,7 +77,7 @@ public class AccountController {
         boolean isFollowing = account != null && followRepository.isFollowing(account.getId(), profileAccount.getId());
         model.addAttribute("isFollowing", isFollowing);
 
-        ActivityDataResponse activityData = accountQueryRepository.findActivityData(profileAccount.getId());
+        ActivityDataResponse activityData = accountQueryRepository.findFriendshipData(profileAccount.getId());
         model.addAttribute("activityData", activityData);
 
         return "accounts/profile";

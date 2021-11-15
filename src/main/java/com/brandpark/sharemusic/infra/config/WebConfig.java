@@ -1,6 +1,7 @@
 package com.brandpark.sharemusic.infra.config;
 
 import com.brandpark.sharemusic.modules.notification.NotificationInterceptor;
+import com.brandpark.sharemusic.modules.search.SearchInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.StaticResourceLocation;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 public class WebConfig implements WebMvcConfigurer {
 
     private final NotificationInterceptor notificationInterceptor;
+    private final SearchInterceptor searchInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -27,6 +29,9 @@ public class WebConfig implements WebMvcConfigurer {
         staticResourcesPathList.add("/custom/**");
 
         registry.addInterceptor(notificationInterceptor)
+                .excludePathPatterns(staticResourcesPathList);
+
+        registry.addInterceptor(searchInterceptor)
                 .excludePathPatterns(staticResourcesPathList);
     }
 }

@@ -85,3 +85,23 @@ i.badge:after{
 .bg-alert {
     background-color: #f1cbc8;
 }
+#search-box {
+    position: relative;
+}
+#search-box #search-input, #search-box .hint {
+    padding-left: 43px;
+    padding-right: 43px;
+    border-radius: 23px;
+}
+#search-box label{
+    position: absolute;
+    left: 17px;
+    top: 5px;
+    font-size: 18px;
+}
+#search-box .dropdown {
+    position: absolute;
+    right: 10px;
+    top: 7px;
+    width:20px;
+}

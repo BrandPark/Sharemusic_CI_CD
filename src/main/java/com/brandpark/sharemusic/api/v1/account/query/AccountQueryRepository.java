@@ -4,6 +4,7 @@ import com.brandpark.sharemusic.api.PagingDtoFactory;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
 import com.brandpark.sharemusic.api.v1.account.query.dto.ActivityDataResponse;
+import com.brandpark.sharemusic.api.v1.search.dto.UserNameSearchResult;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
@@ -30,7 +31,7 @@ public class AccountQueryRepository {
     QFollow follow = QFollow.follow;
     QAccount account = QAccount.account;
 
-    public ActivityDataResponse findActivityData(Long accountId) {
+    public ActivityDataResponse findFriendshipData(Long accountId) {
         return queryFactory.select(Projections.fields(ActivityDataResponse.class,
                         ExpressionUtils.as(
                                 JPAExpressions.select(count(album.id))
@@ -93,4 +94,26 @@ public class AccountQueryRepository {
 
         return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 5);
     }
+
+    public PagingDto<UserNameSearchResult> findAllAccountByUserName(String userName, Pageable pageable) {
+        QueryResults<UserNameSearchResult> queryResults = queryFactory.select(Projections.fields(UserNameSearchResult.class,
+                        account.id.as("accountId"),
+                        account.name,
+                        account.nickname,
+                        account.bio,
+                        account.profileImage,
+                        account.createdDate
+                ))
+                .from(account)
+                .where(
+                        account.name.likeIgnoreCase(userName)
+                                .or(account.nickname.likeIgnoreCase(userName))
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
+    }
+
 }

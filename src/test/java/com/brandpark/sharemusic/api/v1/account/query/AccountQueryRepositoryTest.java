@@ -62,7 +62,7 @@ class AccountQueryRepositoryTest {
         albumRepository.saveAll(albums);
 
         // when
-        ActivityDataResponse activityData = accountQueryRepository.findActivityData(myAccount.getId());
+        ActivityDataResponse activityData = accountQueryRepository.findFriendshipData(myAccount.getId());
 
         // then
         assertThat(activityData.getAlbumCount()).isEqualTo(albums.size());
@@ -79,7 +79,7 @@ class AccountQueryRepositoryTest {
                 .build());
 
         // when
-        ActivityDataResponse result = accountQueryRepository.findActivityData(myAccount.getId());
+        ActivityDataResponse result = accountQueryRepository.findFriendshipData(myAccount.getId());
 
         // then
         assertThat(result.getFollowerCount()).isEqualTo(1);
@@ -96,7 +96,7 @@ class AccountQueryRepositoryTest {
                 .build());
 
         // when
-        ActivityDataResponse result = accountQueryRepository.findActivityData(myAccount.getId());
+        ActivityDataResponse result = accountQueryRepository.findFriendshipData(myAccount.getId());
 
         // then
         assertThat(result.getFollowingCount()).isEqualTo(1);
