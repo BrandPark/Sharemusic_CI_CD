@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class UserNameSearchResult {
+public class UserSearchResult {
     private Long accountId;
     private String name;
     private String nickname;

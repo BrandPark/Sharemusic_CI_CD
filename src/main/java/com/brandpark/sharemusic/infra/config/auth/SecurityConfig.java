@@ -32,7 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         // Authorization
         http.authorizeRequests()
-                .mvcMatchers("/", "/accounts/signup", "/error").permitAll()
+                .mvcMatchers("/", "/accounts/signup", "/error", "/search").permitAll()
                 .mvcMatchers("/api/v1/notifications/**").authenticated()
                 .mvcMatchers(GET, "/api/v1/**").permitAll()
                 .mvcMatchers("/api/v1/albums/*/comments/**").authenticated()

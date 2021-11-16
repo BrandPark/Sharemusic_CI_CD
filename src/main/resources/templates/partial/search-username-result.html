@@ -1,0 +1,29 @@
+<div class="container" style="margin-top:10px">
+    <div class="row pb-3">
+        <h3 style="z-index: 2">
+            사용자 이름'<span th:text="${searchWord}">검색 단어</span>'로 검색한 결과
+            <span style="font-size: 1.2em" class="text-success" th:text="${resultCount}"></span> 개
+        </h3>
+    </div>
+    <div class="row">
+        <div class="col-md-3" th:each="result : ${searchResultList}">
+            <a th:href="@{'/accounts/' + ${result.nickname}}" class="text-decoration-none text-dark card mb-4 shadow">
+                <div class="card-img-top d-flex justify-content-center bg-light py-2">
+                    <i th:if="${#strings.isEmpty(result.profileImage)}" class="fa fa-user-circle text-white "
+                       aria-hidden="true" style="font-size:8em;"></i>
+                    <img th:if="${!#strings.isEmpty(result.profileImage)}" th:src="${result.profileImage}" class="card-img-top bg-light rounded-circle">
+                </div>
+                <div class="card-body">
+                    <div class="card-text pb-2">
+                        <span class="font-weight-bold" style="font-size:1.2em" th:text="${result.nickname}">
+                            닉네임
+                        </span>
+                        (<small th:text="${result.name}">이름</small>)
+                    </div>
+                    <span class="card-text line-2-hidden" th:text="${result.bio}">자기소개</span>
+                    <span th:if="${#strings.isEmpty(result.bio)}" class="text-light">소개</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>

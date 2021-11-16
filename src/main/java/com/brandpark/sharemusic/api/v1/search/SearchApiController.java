@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.api.v1.search;
 
 import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
-import com.brandpark.sharemusic.api.v1.search.dto.UserNameSearchResult;
+import com.brandpark.sharemusic.api.v1.search.dto.UserSearchResult;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.modules.search.SearchType;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class SearchApiController {
     private final AccountQueryRepository accountQueryRepository;
 
     @GetMapping("/search")
-    public PagingDto<UserNameSearchResult> search(@PageableDefault(size = 6) Pageable pageable
+    public PagingDto<UserSearchResult> search(@PageableDefault(size = 6) Pageable pageable
             , @RequestParam("q") String query, @RequestParam("type") SearchType type) {
         if (type == SearchType.USER_NAME) {
             return accountQueryRepository.findAllAccountByUserName(query, pageable);

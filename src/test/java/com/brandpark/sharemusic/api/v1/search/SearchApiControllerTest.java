@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.api.v1.search;
 
-import com.brandpark.sharemusic.api.v1.search.dto.UserNameSearchResult;
+import com.brandpark.sharemusic.api.v1.search.dto.UserSearchResult;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.MockMvcTest;
 import com.brandpark.sharemusic.modules.account.domain.Account;
@@ -37,7 +37,7 @@ class SearchApiControllerTest {
         myAccount = accountFactory.createAccount("내 계정");
         accountRepository.save(myAccount);
 
-        otherAccounts = accountFactory.createAccountList("otherAccount", 10);
+        otherAccounts = accountFactory.createAccountList("다른 사람 계정", 10);
         accountRepository.saveAll(otherAccounts);
     }
 
@@ -47,7 +47,7 @@ class SearchApiControllerTest {
 
         // given
         String searchType = SearchType.USER_NAME.name();
-        String searchQuery = "other";
+        String searchQuery = "다른 사람";
 
         // when
         mockMvc.perform(get("/api/v1/search")
@@ -57,7 +57,7 @@ class SearchApiControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-                    var resultPage = objectMapper.readValue(json, new TypeReference<PagingDto<UserNameSearchResult>>() {
+                    var resultPage = objectMapper.readValue(json, new TypeReference<PagingDto<UserSearchResult>>() {
                     });
 
                     assertThat(resultPage.getTotalElements()).isEqualTo(otherAccounts.size());

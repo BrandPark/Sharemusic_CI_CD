@@ -59,7 +59,7 @@ i.badge:after{
     border-radius: 50%;
 }
 
-.overflow-y{
+.y-scroll{
     overflow-y:auto;
     overflow-x:hidden;
 }
@@ -104,4 +104,31 @@ i.badge:after{
     right: 10px;
     top: 7px;
     width:20px;
+}
+.card-description-panel {
+    position: absolute;
+    height: 280px;
+    width: 250px;
+    background-color: rgba(25,25,25,0.8);
+    color: whitesmoke;
+    padding : 10px;
+    font-size: 0.8em;
+    z-index: 3;
+}
+a.card-description-panel {
+    text-decoration: none;
+}
+a.card-description-panel:hover {
+    color: whitesmoke;
+}
+.card{
+    width: 250px;
+    height: 280px;
+}
+.card .card-img-top {
+    height: 150px;
+}
+.card img.card-img-top {
+    width:130px;
+    height: 130px;
 }

@@ -4,7 +4,7 @@ import com.brandpark.sharemusic.api.PagingDtoFactory;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
 import com.brandpark.sharemusic.api.v1.account.query.dto.ActivityDataResponse;
-import com.brandpark.sharemusic.api.v1.search.dto.UserNameSearchResult;
+import com.brandpark.sharemusic.api.v1.search.dto.UserSearchResult;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
@@ -95,8 +95,8 @@ public class AccountQueryRepository {
         return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 5);
     }
 
-    public PagingDto<UserNameSearchResult> findAllAccountByUserName(String userName, Pageable pageable) {
-        QueryResults<UserNameSearchResult> queryResults = queryFactory.select(Projections.fields(UserNameSearchResult.class,
+    public PagingDto<UserSearchResult> findAllAccountByUserName(String userName, Pageable pageable) {
+        QueryResults<UserSearchResult> queryResults = queryFactory.select(Projections.fields(UserSearchResult.class,
                         account.id.as("accountId"),
                         account.name,
                         account.nickname,
@@ -106,8 +106,8 @@ public class AccountQueryRepository {
                 ))
                 .from(account)
                 .where(
-                        account.name.likeIgnoreCase(userName)
-                                .or(account.nickname.likeIgnoreCase(userName))
+                        account.name.containsIgnoreCase(userName)
+                                .or(account.nickname.containsIgnoreCase(userName))
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -115,5 +115,4 @@ public class AccountQueryRepository {
 
         return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
     }
-
 }

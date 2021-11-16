@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html :: head"></head>
+
+<body class="background">
+    <nav th:replace="fragments.html:: nav"></nav>
+    <div class="container" style="padding-top:30px">
+        <div id="list" class="row pb-5"></div>
+        <div id="pagination" class="row justify-content-center"></div>
+    </div>
+
+    <div th:replace="fragments.html::footer"></div>
+    <script>
+        $(function () {
+            searchResult.init();
+        });
+        let searchResult = {
+            init: function () {
+                let _this = this;
+                let data = {
+                    q: "[[${q}]]",
+                    type: "[[${type}]]"
+                }
+
+                $('#pagination').on('click', '.page-link', function () {
+                    let page = $(this).attr('data-index');
+                    _this.loadList(data, page);
+                });
+
+                this.loadList(data, 0);
+            },
+            loadList: function (data, page) {
+                data.page = page;
+                data.size = 8;
+                const $list = $('#list');
+                const $pagination = $('#pagination');
+
+                $.ajax({
+                    url: "/api/v2/search",
+                    method: 'get',
+                    data: data
+                }).done(function (htmlObj) {
+                    $list.empty();
+                    $list.append(htmlObj['listHtml']);
+                    $pagination.empty();
+                    $pagination.append(htmlObj['paginationHtml']);
+                }).fail(function (error) {
+                    console.log(error);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -6,6 +6,8 @@ import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.CommentDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
+import com.brandpark.sharemusic.api.v1.search.dto.AlbumSearchResult;
+import com.brandpark.sharemusic.api.v1.search.dto.TrackSearchResult;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
@@ -27,7 +29,7 @@ import java.util.List;
 @Component
 public class AlbumQueryRepository {
 
-    private final JPAQueryFactory query;
+    private final JPAQueryFactory queryFactory;
     QAlbum album = QAlbum.album;
     QAccount account = QAccount.account;
     QTrack track = QTrack.track;
@@ -35,7 +37,7 @@ public class AlbumQueryRepository {
 
     public PagingDto<AlbumShortDto> findAllAlbumShortDto(Pageable pageable, SearchDto searchDto) {
 
-        QueryResults<AlbumShortDto> queryResults = query.select(
+        QueryResults<AlbumShortDto> queryResults = queryFactory.select(
                         Projections.bean(AlbumShortDto.class,
                                 album.id,
                                 album.title,
@@ -57,17 +59,9 @@ public class AlbumQueryRepository {
         return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
     }
 
-    private BooleanExpression searchCondition(SearchDto searchDto) {
-        if (searchDto.getQ() == null) {
-            return null;
-        }
-
-        return account.nickname.eq(searchDto.getQ());
-    }
-
     public AlbumDetailDto findAlbumDetailDtoById(Long albumId) {
 
-        AlbumDetailDto albumDetailDto = query.select(
+        AlbumDetailDto albumDetailDto = queryFactory.select(
                         Projections.bean(AlbumDetailDto.class,
                                 album.id,
                                 album.title,
@@ -83,7 +77,7 @@ public class AlbumQueryRepository {
                 .where(album.id.eq(albumId))
                 .fetchOne();
 
-        List<TrackDetailDto> trackDetailDtos = query.select(Projections.bean(TrackDetailDto.class,
+        List<TrackDetailDto> trackDetailDtos = queryFactory.select(Projections.bean(TrackDetailDto.class,
                         track.id,
                         track.name,
                         track.artist))
@@ -98,7 +92,7 @@ public class AlbumQueryRepository {
 
     public PagingDto<CommentDetailDto> findAllCommentDetailDtoByAlbumId(Long albumId, Pageable pageable) {
 
-        QueryResults<CommentDetailDto> queryResults = query.select(Projections.bean(CommentDetailDto.class,
+        QueryResults<CommentDetailDto> queryResults = queryFactory.select(Projections.bean(CommentDetailDto.class,
                         comment.id,
                         account.nickname.as("writer"),
                         comment.content,
@@ -115,5 +109,119 @@ public class AlbumQueryRepository {
                 .fetchResults();
 
         return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
+    }
+
+    public PagingDto<AlbumSearchResult> findAllAlbumsByAlbumName(String albumName, Pageable pageable) {
+        QueryResults<AlbumSearchResult> queryResults = queryFactory.select(Projections.fields(AlbumSearchResult.class,
+                        album.id.as("albumId"),
+                        album.title,
+                        album.description,
+                        album.trackCount,
+                        account.nickname.as("creatorNickname"),
+                        account.profileImage.as("creatorProfileImage"),
+                        album.createdDate
+                ))
+                .from(album)
+                .innerJoin(account).on(album.accountId.eq(account.id))
+                .where(
+                        album.title.containsIgnoreCase(albumName)
+                )
+                .orderBy(album.createdDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        PagingDto<AlbumSearchResult> page = PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
+        for (AlbumSearchResult albumInfo : page.getContents()) {
+            albumInfo.setTracks(findAllTracksByAlbumId(albumInfo.getAlbumId()));
+        }
+
+        return page;
+    }
+
+    public PagingDto<AlbumSearchResult> findAllAlbumsByTrackName(String trackName, Pageable pageable) {
+        List<Long> albumIds = queryFactory.selectDistinct(
+                        track.album.id
+                )
+                .from(track)
+                .where(track.name.containsIgnoreCase(trackName))
+                .fetch();
+
+        QueryResults<AlbumSearchResult> queryResults = queryFactory.select(Projections.fields(AlbumSearchResult.class,
+                        album.id.as("albumId"),
+                        album.title,
+                        album.description,
+                        album.trackCount,
+                        account.nickname.as("creatorNickname"),
+                        account.profileImage.as("creatorProfileImage"),
+                        album.createdDate
+                ))
+                .from(album)
+                .innerJoin(account).on(album.accountId.eq(account.id))
+                .where(album.id.in(albumIds))
+                .orderBy(album.createdDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        PagingDto<AlbumSearchResult> page = PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
+        for (AlbumSearchResult albumInfo : page.getContents()) {
+            albumInfo.setTracks(findAllTracksByAlbumId(albumInfo.getAlbumId()));
+        }
+
+        return page;
+    }
+
+    public PagingDto<AlbumSearchResult> findAllAlbumsByTrackArtist(String trackArtist, Pageable pageable) {
+        List<Long> albumIds = queryFactory.selectDistinct(
+                        track.album.id
+                )
+                .from(track)
+                .where(track.artist.containsIgnoreCase(trackArtist))
+                .fetch();
+
+        QueryResults<AlbumSearchResult> queryResults = queryFactory.select(Projections.fields(AlbumSearchResult.class,
+                        album.id.as("albumId"),
+                        album.title,
+                        album.description,
+                        album.trackCount,
+                        account.nickname.as("creatorNickname"),
+                        account.profileImage.as("creatorProfileImage"),
+                        album.createdDate
+                ))
+                .from(album)
+                .innerJoin(account).on(album.accountId.eq(account.id))
+                .where(album.id.in(albumIds))
+                .orderBy(album.createdDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        PagingDto<AlbumSearchResult> page = PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
+        for (AlbumSearchResult albumInfo : page.getContents()) {
+            albumInfo.setTracks(findAllTracksByAlbumId(albumInfo.getAlbumId()));
+        }
+
+        return page;
+    }
+
+    private List<TrackSearchResult> findAllTracksByAlbumId(Long albumId) {
+        return queryFactory.select(Projections.fields(TrackSearchResult.class,
+                        track.id.as("trackId"),
+                        track.name,
+                        track.artist
+                ))
+                .from(track)
+                .where(track.album.id.eq(albumId))
+                .orderBy(track.name.asc())
+                .fetch();
+    }
+
+    private BooleanExpression searchCondition(SearchDto searchDto) {
+        if (searchDto.getQ() == null) {
+            return null;
+        }
+
+        return account.nickname.eq(searchDto.getQ());
     }
 }

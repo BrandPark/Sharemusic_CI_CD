@@ -37,14 +37,11 @@
                             </a>
                         </div>
                     </div>
-                    <div class="row">
-                        <p>
-                            <strong th:text="${targetAccount.name}">이름</strong>
-                            <br>
-                            <span th:utext="${targetAccount.bio}">
-                                자기소개
-                            </span>
-                        </p>
+                    <div class="row flex-column">
+                        <strong class="d-block" th:text="${targetAccount.name}">이름</strong>
+                        <span class="line-2-hidden" th:utext="${targetAccount.bio}">
+                            자기소개
+                        </span>
                     </div>
                 </div>
             </div>

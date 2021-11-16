@@ -4,23 +4,33 @@ $(function () {
             $(this).height(1).height($(this).prop('scrollHeight') + 12);
         }
     });
+    main.init();
     search.init();
     wave.init();
     notification.init();
     dateConverter.formRelativeTime();
 });
-
+const main = {
+    init: function () {
+        $('#list').on('mouseover mouseout', '.card-description-panel', function (event){
+            if (event.type === 'mouseover') {
+                $(this).addClass('show');
+                $(this).removeClass('fade');
+            } else {
+                $(this).addClass('fade');
+                $(this).removeClass('show');
+            }
+        });
+    }
+}
 const search = {
     init: function () {
-        const _this = this;
         $('#search-input').on('keydown', function (event) {
             if (event.key === "Enter") {
-                const data = {
-                    type: $(this).attr("search-type"),
-                    q: $(this).val()
-                }
+                const type = $(this).attr("search-type");
+                const q = $(this).val();
 
-                _this.search(data, 0);
+                window.location.href = "/search?q=" + encodeURIComponent(q) + "&type=" + encodeURIComponent(type);
             }
         });
         $('#search-box .dropdown-item').on('click', function () {
@@ -29,24 +39,11 @@ const search = {
             $('#search-input').attr('placeholder', selectTypeName);
             $('#search-input').attr('search-type', selectType);
         });
-    },
-    search: function (data, page) {
-        data.page = page;
-
-        $.ajax({
-            url: "/api/v1/search",
-            method: "get",
-            data: data
-        }).done(function (data) {
-            console.log(data);
-        }).fail(function (error) {
-            console.log(error['responseJSON']['message']);
-        });
     }
 }
 const notification = {
     init: function () {
-        var _this = this;
+        const _this = this;
         $('.notification, #notification-list').on('click', '.notification-item', function () {
             const notificationId = $(this).find('.notification-link')[0].getAttribute("data-index");
             const link = $(this).find('.notification-link')[0].getAttribute('link');
