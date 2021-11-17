@@ -4,25 +4,12 @@ $(function () {
             $(this).height(1).height($(this).prop('scrollHeight') + 12);
         }
     });
-    main.init();
     search.init();
     wave.init();
     notification.init();
     dateConverter.formRelativeTime();
 });
-const main = {
-    init: function () {
-        $('#list').on('mouseover mouseout', '.card-description-panel', function (event){
-            if (event.type === 'mouseover') {
-                $(this).addClass('show');
-                $(this).removeClass('fade');
-            } else {
-                $(this).addClass('fade');
-                $(this).removeClass('show');
-            }
-        });
-    }
-}
+
 const search = {
     init: function () {
         $('#search-input').on('keydown', function (event) {

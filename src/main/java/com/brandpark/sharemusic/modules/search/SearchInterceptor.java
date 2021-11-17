@@ -19,7 +19,7 @@ public class SearchInterceptor implements HandlerInterceptor {
 
         if (modelAndView != null && !isRedirectView(modelAndView)) {
 
-            modelAndView.addObject("searchConditions", SearchType.values());
+            modelAndView.addObject("searchTypes", SearchType.values());
         }
     }
 

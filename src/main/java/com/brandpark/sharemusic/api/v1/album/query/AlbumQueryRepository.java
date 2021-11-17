@@ -35,16 +35,16 @@ public class AlbumQueryRepository {
     QTrack track = QTrack.track;
     QComment comment = QComment.comment;
 
-    public PagingDto<AlbumShortDto> findAllAlbumShortDto(Pageable pageable, SearchDto searchDto) {
+    public PagingDto<AlbumShortDto> findAllAlbumsByAccountIdList(Pageable pageable, SearchDto searchDto) {
 
         QueryResults<AlbumShortDto> queryResults = queryFactory.select(
                         Projections.bean(AlbumShortDto.class,
-                                album.id,
+                                album.id.as("albumId"),
                                 album.title,
                                 album.albumImage,
                                 album.description,
                                 album.trackCount,
-                                account.nickname.as("creator"),
+                                account.nickname.as("creatorNickname"),
                                 account.profileImage.as("creatorProfileImage"),
                                 album.createdDate
                         ))

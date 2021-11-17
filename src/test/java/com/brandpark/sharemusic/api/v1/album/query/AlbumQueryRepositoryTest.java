@@ -63,7 +63,7 @@ class AlbumQueryRepositoryTest {
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // when
-        PagingDto<AlbumShortDto> responseDto = queryRepository.findAllAlbumShortDto(pageRequest,  new SearchDto());
+        PagingDto<AlbumShortDto> responseDto = queryRepository.findAllAlbumsByAccountIdList(pageRequest,  new SearchDto());
 
         List<AlbumShortDto> pageContent = responseDto.getContents();
         AlbumShortDto resultFirst = pageContent.get(0);
@@ -73,12 +73,12 @@ class AlbumQueryRepositoryTest {
 
         assertThat(responseDto.getTotalElements()).isEqualTo(savedAlbums.size());
         assertThat(pageContent.size()).isEqualTo(10);
-        assertThat(resultFirst.getId()).isEqualTo(lastCreateAlbum.getId());
+        assertThat(resultFirst.getAlbumId()).isEqualTo(lastCreateAlbum.getId());
         assertThat(resultFirst.getTitle()).isEqualTo(lastCreateAlbum.getTitle());
         assertThat(resultFirst.getAlbumImage()).isEqualTo(lastCreateAlbum.getAlbumImage());
         assertThat(resultFirst.getDescription()).isEqualTo(lastCreateAlbum.getDescription());
         assertThat(resultFirst.getTrackCount()).isEqualTo(lastCreateAlbum.getTrackCount());
-        assertThat(resultFirst.getCreator()).isEqualTo(user.getNickname());
+        assertThat(resultFirst.getCreatorNickname()).isEqualTo(user.getNickname());
         assertThat(resultFirst.getCreatorProfileImage()).isEqualTo(user.getProfileImage());
     }
 

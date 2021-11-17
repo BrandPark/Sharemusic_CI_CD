@@ -4,8 +4,8 @@ import com.brandpark.sharemusic.api.SearchDto;
 import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v2.PagingHtmlCreator;
+import com.brandpark.sharemusic.api.v2.dto.PageHtmlResult;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -23,23 +23,23 @@ public class AlbumPartialHtmlController {
     private final PagingHtmlCreator htmlCreator;
 
     @GetMapping("/albums")
-    public AlbumsHtmlResult getAlbumsHtml(@PageableDefault(size=6) Pageable pageable, SearchDto searchDto) {
+    public PageHtmlResult getAlbumsHtml(Pageable pageable, SearchDto searchDto) {
 
-        PagingDto<AlbumShortDto> pagingDto = albumQueryRepository.findAllAlbumShortDto(pageable, searchDto);
+        PagingDto<AlbumShortDto> pagingDto = albumQueryRepository.findAllAlbumsByAccountIdList(pageable, searchDto);
 
         Context context = new Context();
-        context.setVariable("albumPages", pagingDto);
+        context.setVariable("albumList", pagingDto.getContents());
         String listHtml = htmlCreator.getListHtml("partial/albums", context);
 
         String paginationHtml = htmlCreator.getPaginationHtml(pagingDto);
 
-        return new AlbumsHtmlResult(listHtml, paginationHtml);
+        return new PageHtmlResult(listHtml, paginationHtml);
     }
 
     @GetMapping("/short-albums")
-    public AlbumsHtmlResult getShortAlbumsHtml(@PageableDefault(size=6) Pageable pageable, SearchDto searchDto) {
+    public PageHtmlResult getShortAlbumsHtml(@PageableDefault(size=6) Pageable pageable, SearchDto searchDto) {
 
-        PagingDto<AlbumShortDto> pagingDto = albumQueryRepository.findAllAlbumShortDto(pageable, searchDto);
+        PagingDto<AlbumShortDto> pagingDto = albumQueryRepository.findAllAlbumsByAccountIdList(pageable, searchDto);
 
         Context context = new Context();
         context.setVariable("albumPages", pagingDto);
@@ -47,12 +47,6 @@ public class AlbumPartialHtmlController {
 
         String paginationHtml = htmlCreator.getPaginationHtml(pagingDto);
 
-        return new AlbumsHtmlResult(listHtml, paginationHtml);
-    }
-
-    @Data
-    public static class AlbumsHtmlResult {
-        final String albumsHtml;
-        final String paginationHtml;
+        return new PageHtmlResult(listHtml, paginationHtml);
     }
 }

@@ -4,6 +4,7 @@ import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
 import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
 import com.brandpark.sharemusic.api.v2.PagingHtmlCreator;
+import com.brandpark.sharemusic.api.v2.dto.PageHtmlResult;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
@@ -36,7 +37,7 @@ public class AccountPartialHtmlController {
     private final PagingHtmlCreator htmlCreator;
 
     @GetMapping("/accounts/{targetId}/followers")
-    public FollowersPagingHtmlResult getFollowersPagingHtml(@LoginAccount SessionAccount loginAccount
+    public PageHtmlResult getFollowersPagingHtml(@LoginAccount SessionAccount loginAccount
             , @PathVariable Long targetId, @PageableDefault(size = 10) Pageable pageable
             , HttpServletRequest request, HttpServletResponse response) {
 
@@ -74,11 +75,11 @@ public class AccountPartialHtmlController {
 
         String paginationHtml = htmlCreator.getPaginationHtml(pagingDto);
 
-        return new FollowersPagingHtmlResult(listHtml, paginationHtml);
+        return new PageHtmlResult(listHtml, paginationHtml);
     }
 
     @GetMapping("/accounts/{targetId}/followings")
-    public FollowingsPagingHtmlResult getFollowingsPagingHtml(@LoginAccount SessionAccount loginAccount
+    public PageHtmlResult getFollowingsPagingHtml(@LoginAccount SessionAccount loginAccount
             , @PathVariable Long targetId, @PageableDefault(size = 10) Pageable pageable
             , HttpServletRequest request, HttpServletResponse response) {
 
@@ -112,13 +113,7 @@ public class AccountPartialHtmlController {
 
         String paginationHtml = htmlCreator.getPaginationHtml(pagingDto);
 
-        return new FollowingsPagingHtmlResult(listHtml, paginationHtml);
-    }
-
-    @Data
-    public static class FollowersPagingHtmlResult {
-        final String followersHtml;
-        final String paginationHtml;
+        return new PageHtmlResult(listHtml, paginationHtml);
     }
 
     @Data
@@ -139,11 +134,5 @@ public class AccountPartialHtmlController {
         private String name;
         private LocalDateTime followDate;
         private boolean followingState;
-    }
-
-    @Data
-    public static class FollowingsPagingHtmlResult {
-        final String followingsHtml;
-        final String paginationHtml;
     }
 }

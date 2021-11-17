@@ -3,10 +3,10 @@ package com.brandpark.sharemusic.api.v2.album;
 import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.api.v1.album.query.dto.CommentDetailDto;
 import com.brandpark.sharemusic.api.v2.PagingHtmlCreator;
+import com.brandpark.sharemusic.api.v2.dto.PageHtmlResult;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -28,7 +28,7 @@ public class CommentPartialHtmlController {
     private final PagingHtmlCreator htmlCreator;
 
     @GetMapping("/albums/{albumId}/comments")
-    public CommentHtmlResult getCommentListHtml(@LoginAccount SessionAccount account, @PageableDefault Pageable pageable, @PathVariable Long albumId
+    public PageHtmlResult getCommentListHtml(@LoginAccount SessionAccount account, @PageableDefault Pageable pageable, @PathVariable Long albumId
             , HttpServletRequest request, HttpServletResponse response) {
 
         PagingDto<CommentDetailDto> pagingDto = albumQueryRepository.findAllCommentDetailDtoByAlbumId(albumId, pageable);
@@ -40,13 +40,6 @@ public class CommentPartialHtmlController {
         String listHtml = htmlCreator.getListHtml("partial/comments", context);
         String paginationHtml = htmlCreator.getPaginationHtml(pagingDto);
 
-        return new CommentHtmlResult(listHtml, paginationHtml);
-    }
-
-    @RequiredArgsConstructor
-    @Data
-    public static class CommentHtmlResult {
-        final String commentsHtml;
-        final String paginationHtml;
+        return new PageHtmlResult(listHtml, paginationHtml);
     }
 }

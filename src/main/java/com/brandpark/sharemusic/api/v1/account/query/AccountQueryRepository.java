@@ -3,7 +3,7 @@ package com.brandpark.sharemusic.api.v1.account.query;
 import com.brandpark.sharemusic.api.PagingDtoFactory;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
-import com.brandpark.sharemusic.api.v1.account.query.dto.ActivityDataResponse;
+import com.brandpark.sharemusic.api.v1.account.query.dto.FriendshipDataResponse;
 import com.brandpark.sharemusic.api.v1.search.dto.UserSearchResult;
 import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
@@ -31,8 +31,8 @@ public class AccountQueryRepository {
     QFollow follow = QFollow.follow;
     QAccount account = QAccount.account;
 
-    public ActivityDataResponse findFriendshipData(Long accountId) {
-        return queryFactory.select(Projections.fields(ActivityDataResponse.class,
+    public FriendshipDataResponse findFriendshipData(Long accountId) {
+        return queryFactory.select(Projections.fields(FriendshipDataResponse.class,
                         ExpressionUtils.as(
                                 JPAExpressions.select(count(album.id))
                                         .from(album)
@@ -102,7 +102,25 @@ public class AccountQueryRepository {
                         account.nickname,
                         account.bio,
                         account.profileImage,
-                        account.createdDate
+                        account.createdDate,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(count(album.id))
+                                        .from(album)
+                                        .where(album.accountId.eq(account.id)),
+                                "albumCount"
+                        ),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(count(follow.id))
+                                        .from(follow)
+                                        .where(follow.target.eq(account)),
+                                "followerCount"
+                        ),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(count(follow.id))
+                                        .from(follow)
+                                        .where(follow.follower.eq(account)),
+                                "followingCount"
+                        )
                 ))
                 .from(account)
                 .where(

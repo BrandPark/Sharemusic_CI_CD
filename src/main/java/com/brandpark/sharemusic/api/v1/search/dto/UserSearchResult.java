@@ -11,5 +11,8 @@ public class UserSearchResult {
     private String nickname;
     private String bio;
     private String profileImage;
+    private Long followerCount;
+    private Long followingCount;
+    private Long albumCount;
     private LocalDateTime createdDate;
 }

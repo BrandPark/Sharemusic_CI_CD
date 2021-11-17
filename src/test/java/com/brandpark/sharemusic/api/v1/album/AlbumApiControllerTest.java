@@ -494,7 +494,7 @@ class AlbumApiControllerTest {
                     assertThat(firstAlbum.getCreatedDate()).isAfterOrEqualTo(resultAlbums.get(1).getCreatedDate());
                     assertThat(firstAlbum.getTitle()).isEqualTo("앨범2");
                     assertThat(firstAlbum.getAlbumImage()).isEqualTo(expectedAlbumInfo.getAlbumImage());
-                    assertThat(firstAlbum.getCreator()).isEqualTo(userAccount.getNickname());
+                    assertThat(firstAlbum.getCreatorNickname()).isEqualTo(userAccount.getNickname());
                     assertThat(firstAlbum.getCreatorProfileImage()).isEqualTo(userAccount.getProfileImage());
                     assertThat(firstAlbum.getDescription()).isEqualTo(expectedAlbumInfo.getDescription());
                     assertThat(firstAlbum.getTrackCount()).isEqualTo(expectedAlbumInfo.getTrackCount());

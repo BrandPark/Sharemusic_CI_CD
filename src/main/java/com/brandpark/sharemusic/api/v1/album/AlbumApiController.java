@@ -29,7 +29,7 @@ public class AlbumApiController {
     @GetMapping("/albums")
     public PagingDto<AlbumShortDto> getAllAlbumShort(@PageableDefault(size = 9) Pageable pageable, SearchDto searchDto) {
 
-        return albumQueryRepository.findAllAlbumShortDto(pageable, searchDto);
+        return albumQueryRepository.findAllAlbumsByAccountIdList(pageable, searchDto);
     }
 
     @PostMapping("/albums")

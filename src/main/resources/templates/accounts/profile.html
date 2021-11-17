@@ -247,7 +247,7 @@
                     $('#follower-modal .modal-footer').empty();
                 },
                 _appendFollowers: function (data) {
-                    $('#follower-modal .modal-body').append(data['followersHtml']);
+                    $('#follower-modal .modal-body').append(data['listHtml']);
                     $('#follower-modal .modal-footer').append(data['paginationHtml']);
                 },
                 _clearFollowings: function () {
@@ -255,7 +255,7 @@
                     $('#following-modal .modal-footer').empty();
                 },
                 _appendFollowings: function (data) {
-                    $('#following-modal .modal-body').append(data['followingsHtml']);
+                    $('#following-modal .modal-body').append(data['listHtml']);
                     $('#following-modal .modal-footer').append(data['paginationHtml']);
                 },
                 _clearAlbums: function () {
@@ -263,7 +263,7 @@
                     $('#album-pagination-box').empty();
                 },
                 _appendAlbums: function (data) {
-                    $('#album-list').append(data['albumsHtml']);
+                    $('#album-list').append(data['listHtml']);
                     $('#album-pagination-box').append(data['paginationHtml']);
                 },
             }
