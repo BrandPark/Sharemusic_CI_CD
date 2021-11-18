@@ -1,12 +1,11 @@
-package com.brandpark.sharemusic.api.v2.album;
+package com.brandpark.sharemusic.modules.partial.album;
 
-import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
-import com.brandpark.sharemusic.api.v1.album.query.dto.CommentDetailDto;
-import com.brandpark.sharemusic.api.v2.PagingHtmlCreator;
-import com.brandpark.sharemusic.api.v2.dto.PageHtmlResult;
-import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.modules.partial.PageHtmlResult;
+import com.brandpark.sharemusic.modules.partial.PagingHtmlCreator;
+import com.brandpark.sharemusic.modules.partial.album.form.CommentInfoForm;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -20,26 +19,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/v2")
+@RequestMapping("/partial")
 @RestController
 public class CommentPartialHtmlController {
 
-    private final AlbumQueryRepository albumQueryRepository;
+    private final AlbumPartialRepository albumPartialRepository;
     private final PagingHtmlCreator htmlCreator;
 
     @GetMapping("/albums/{albumId}/comments")
     public PageHtmlResult getCommentListHtml(@LoginAccount SessionAccount account, @PageableDefault Pageable pageable, @PathVariable Long albumId
             , HttpServletRequest request, HttpServletResponse response) {
 
-        PagingDto<CommentDetailDto> pagingDto = albumQueryRepository.findAllCommentDetailDtoByAlbumId(albumId, pageable);
+        PagingDto<CommentInfoForm> page = albumPartialRepository.findAllComments(pageable, albumId);
 
         WebContext context = new WebContext(request, response, request.getServletContext());
-        context.setVariable("commentList", pagingDto.getContents());
         context.setVariable("account", account);
 
-        String listHtml = htmlCreator.getListHtml("partial/comments", context);
-        String paginationHtml = htmlCreator.getPaginationHtml(pagingDto);
-
-        return new PageHtmlResult(listHtml, paginationHtml);
+        return  htmlCreator.getPageHtmlResult(context, page, "commentList", "partial/comments");
     }
 }

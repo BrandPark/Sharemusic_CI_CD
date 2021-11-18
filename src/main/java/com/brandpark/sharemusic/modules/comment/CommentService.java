@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.modules.comment;
 
-import com.brandpark.sharemusic.modules.MyUtil;
+import com.brandpark.sharemusic.modules.util.MyUtil;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
 import com.brandpark.sharemusic.modules.event.CommentEvent;

@@ -6,7 +6,7 @@ import com.brandpark.sharemusic.api.v1.album.dto.AlbumSaveRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
 import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
-import com.brandpark.sharemusic.api.v2.dto.PagingDto;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.album.domain.Album;

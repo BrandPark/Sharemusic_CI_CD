@@ -1,41 +1,6 @@
-<div id="contents" class="container" style="margin-top:10px">
+<div id="contents" class="container" style="margin-top:10px; z-index:2">
     <div class="row">
-        <div id="album-card" class="col-md-3" th:each="albumInfo : ${albumList}">
-<!--            <a th:href="@{'/albums/' + ${albumInfo.albumId}}" class="card-description-panel container shadow fade">-->
-<!--                <div class="row" th:each="track: ${albumInfo.tracks}">-->
-<!--                    <div class="col-12 text-center">-->
-<!--                        <span class="track-name" th:text="${track.name}">음원 이름</span>-->
-<!--                        <span class="pr-2 pl-2">/</span>-->
-<!--                        <small class="track-artist" th:text="${track.artist}">아티스트</small>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </a>-->
-            <div class="text-decoration-none text-dark card mb-4 shadow">
-                <div class="card-img-top d-flex justify-content-center bg-light py-2">
-                    <img th:if="${#strings.isEmpty(albumInfo.albumImage)}" src="/images/album-default.jpg" class="card-img-top bg-light rounded-circle">
-                    <img th:if="${!#strings.isEmpty(albumInfo.albumImage)}" th:src="${albumInfo.albumImage}" class="card-img-top bg-light rounded-circle">
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title font-weight-bold" th:text="${albumInfo.title}">title</h5>
-                    <span style="font-size:0.7em;" class="card-text line-2-hidden" th:text="${albumInfo.description}">Short description</span>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <small class="text-muted">
-                                <i class="fa fa-music pr-2" aria-hidden="true"></i>
-                                <span th:text="${albumInfo.trackCount}"></span>곡
-                            </small>
-                        </div>
-                        <div>
-                            <small>
-                                <i th:if="${#strings.isEmpty(albumInfo.creatorProfileImage)}" class="fa fa-user-circle"></i>
-                                <img width="23" height="23" th:if="${!#strings.isEmpty(albumInfo.creatorProfileImage)}" th:src="${albumPreview.creatorProfileImage}">
-                                <span class="font-weight-bold" th:text="${albumInfo.creatorNickname}"></span>
-                            </small>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
+        <div th:replace="fragments.html::albumCardList(${list})"></div>
     </div>
 </div>
+<script th:replace="fragments.html::mouseoverShow('.card-description-panel')"></script>

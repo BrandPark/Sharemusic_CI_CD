@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.modules.account;
 
 import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
-import com.brandpark.sharemusic.api.v1.account.query.dto.ActivityDataResponse;
+import com.brandpark.sharemusic.api.v1.account.query.dto.FriendshipDataResponse;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.modules.Validator;
 import com.brandpark.sharemusic.modules.account.domain.Account;
@@ -77,7 +77,7 @@ public class AccountController {
         boolean isFollowing = account != null && followRepository.isFollowing(account.getId(), profileAccount.getId());
         model.addAttribute("isFollowing", isFollowing);
 
-        ActivityDataResponse activityData = accountQueryRepository.findFriendshipData(profileAccount.getId());
+        FriendshipDataResponse activityData = accountQueryRepository.findFriendshipData(profileAccount.getId());
         model.addAttribute("activityData", activityData);
 
         return "accounts/profile";

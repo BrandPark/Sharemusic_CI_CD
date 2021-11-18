@@ -5,7 +5,7 @@ import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.api.v1.notification.query.NotificationQueryRepository;
 import com.brandpark.sharemusic.api.v1.notification.query.dto.NotificationInfo;
-import com.brandpark.sharemusic.api.v2.dto.PagingDto;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.notification.NotificationService;

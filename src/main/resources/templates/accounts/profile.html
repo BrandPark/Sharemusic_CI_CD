@@ -45,28 +45,10 @@
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-center nav-tabs-wrapper-up mb-5">
-                <ul class="nav nav-tabs" id="myTab" role="tablist" style="z-index:1000">
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link active font-weight-bold text-secondary" id="albums-tab" data-toggle="tab"
-                           href="#albums-box" role="tab" aria-controls="albums" aria-selected="true">앨범</a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link font-weight-bold text-secondary" id="profile-tab" data-toggle="tab"
-                           href="#likes" role="tab" aria-controls="likes" aria-selected="false">좋아요</a>
-                    </li>
-                </ul>
-            </div>
-            <div class="row">
-                <div class="tab-content" id="myTabContent">
-                    <div id='albums-box' class="tab-pane fade show active" role="tabpanel" aria-labelledby="albums-tab">
-                        <div id="album-list" class="row"></div>
-                        <div id="album-pagination-box" class="d-flex justify-content-center"></div>
-                    </div>
-                    <div class="tab-pane fade" id="likes" role="tabpanel" aria-labelledby="likes-tab">
-                    </div>
-                </div>
-            </div>
+        </div>
+        <div id="profile-albums" class="container" style="z-index:3">
+            <div id="album-list" class="row"></div>
+            <div id="pagination" class="row justify-content-center"></div>
         </div>
         <!-- Modal -->
         <div th:replace="fragments.html::paging-modal(title='팔로우', id='follower-modal')"></div>
@@ -77,15 +59,17 @@
         <script>
             $(function () {
                 profile.init();
-                profile.loadAlbums(0);
             });
 
             let profile = {
                 init: function () {
-                    var _this = this;
-
+                    let _this = this;
+                    let requestAlbumObj = {
+                        size: 8
+                    }
+                    _this.loadAlbums(requestAlbumObj, 0);
                     $('#follow-button-box').on('click', ".btn-follow, .btn-unfollow", function (event) {
-                        var accountId = "[[${targetAccount.getId()}]]";
+                        let accountId = "[[${targetAccount.getId()}]]";
                         if ($(event.target).hasClass("btn-follow")) {
                             _this.follow(accountId, function(){
                                 $('#btn-follow').addClass('btn-danger');
@@ -95,7 +79,7 @@
                                 $('#btn-follow').text("언 팔로우");
                                 $('#btn-follow').attr('id', 'btn-unfollow');
 
-                                var followerCount = parseInt($('#follower').text());
+                                let followerCount = parseInt($('#follower').text());
                                 if (!isNaN(followerCount)) {
                                     $('#follower').text(followerCount + 1);
                                 }
@@ -109,42 +93,29 @@
                                 $('#btn-unfollow').text("팔로우");
                                 $('#btn-unfollow').attr('id', 'btn-follow');
 
-                                var followerCount = parseInt($('#follower').text());
+                                let followerCount = parseInt($('#follower').text());
                                 if (!isNaN(followerCount)) {
                                     $('#follower').text(followerCount - 1);
                                 }
                             });
                         }
                     });
-
+                    $('#pagination').on('click', '.page-link', function () {
+                        let page = $(this).attr('data-index');
+                        _this.loadAlbums(requestAlbumObj, page);
+                    });
                     $('#follower-modal #modal-pagination').on('click', '.btn-page', function () {
-                        var gotoPage = $(this).attr('data-index');
+                        let gotoPage = $(this).attr('data-index');
                         _this.loadFollowers(gotoPage);
                     });
                     $('#following-modal #modal-pagination').on('click', '.btn-page', function () {
-                        var gotoPage = $(this).attr('data-index');
+                        let gotoPage = $(this).attr('data-index');
                         _this.loadFollowings(gotoPage);
                     });
-                    $('#album-pagination-box').on('click', '.btn-page', function () {
-                        var gotoPage = $(this).attr('data-index');
-                        _this.loadAlbums(gotoPage);
-                    });
-                    $('#album-list').on('mouseover mouseout', '.description-panel', function (event){
-                        if (event.type === 'mouseover') {
-                            $(this).addClass('show');
-                            $(this).removeClass('fade');
-                        } else {
-                            $(this).addClass('fade');
-                            $(this).removeClass('show');
-                        }
-                    });
-                    $('#album-list').on('click', '.description-panel, img', function () {
-                        var albumId = $(this).closest('div[id^="album_"]').attr('id').replace('album_', '');
-                        window.location.href='/albums/' + albumId;
-                    });
+
                     $('#follower-modal, #following-modal').on('click', '.btn-follow, .btn-unfollow', function (event) {
-                        var btn = $(this)[0];
-                        var targetId = btn.getAttribute('data-index');
+                        let btn = $(this)[0];
+                        let targetId = btn.getAttribute('data-index');
 
                         if ($(event.target).hasClass('btn-follow')) {
                             _this.follow(targetId, function () {
@@ -166,7 +137,7 @@
                     });
                 },
                 follow: function (targetId, callback) {
-                    var _callback = callback;
+                    let _callback = callback;
 
                     $.ajax({
                         url: "/api/v1/accounts/" + targetId + "/follow",
@@ -180,7 +151,7 @@
                     });
                 },
                 unfollow: function (targetId, callback) {
-                    var _callback = callback;
+                    let _callback = callback;
 
                     $.ajax({
                         url: "/api/v1/accounts/" + targetId + "/unfollow",
@@ -204,10 +175,10 @@
                     $('#following-modal').modal();
                 },
                 loadFollowers: function (page) {
-                    var _this = this;
+                    let _this = this;
 
                     $.ajax({
-                        url: '/api/v2/accounts/[[${targetAccount.getId()}]]/followers?page=' + page,
+                        url: '/partial/accounts/[[${targetAccount.getId()}]]/followers?page=' + page,
                         method: 'get',
                     }).done(function (data) {
                         _this._clearFollowers();
@@ -217,10 +188,10 @@
                     });
                 },
                 loadFollowings: function (page) {
-                    var _this = this;
+                    let _this = this;
 
                     $.ajax({
-                        url: '/api/v2/accounts/[[${targetAccount.getId()}]]/followings?page=' + page,
+                        url: '/partial/accounts/[[${targetAccount.getId()}]]/followings?page=' + page,
                         method: 'get',
                     }).done(function (data) {
                         _this._clearFollowings();
@@ -229,12 +200,14 @@
                         alert("팔로잉들을 로드하는데 실패했습니다.");
                     });
                 },
-                loadAlbums: function (page) {
-                    var _this = this;
+                loadAlbums: function (requestObj, page) {
+                    requestObj.page = page;
+                    let _this = this;
 
                     $.ajax({
-                        url: '/api/v2/short-albums?page=' + page + '&q=[[${targetAccount.getNickname()}]]',
+                        url: '/partial/profile/albums',
                         method: 'GET',
+                        data: requestObj
                     }).done(function (data) {
                         _this._clearAlbums();
                         _this._appendAlbums(data);
@@ -260,11 +233,11 @@
                 },
                 _clearAlbums: function () {
                     $('#album-list').empty();
-                    $('#album-pagination-box').empty();
+                    $('#pagination').empty();
                 },
                 _appendAlbums: function (data) {
                     $('#album-list').append(data['listHtml']);
-                    $('#album-pagination-box').append(data['paginationHtml']);
+                    $('#pagination').append(data['paginationHtml']);
                 },
             }
         </script>

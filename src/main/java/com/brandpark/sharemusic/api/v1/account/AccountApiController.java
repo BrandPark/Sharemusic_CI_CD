@@ -5,7 +5,7 @@ import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
 import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
-import com.brandpark.sharemusic.api.v2.dto.PagingDto;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.Account;
@@ -37,7 +37,7 @@ public class AccountApiController {
         Account target = accountRepository.findById(targetId)
                 .orElseThrow(() -> new ApiException(Error.NOT_FOUND_ACCOUNT_EXCEPTION));
 
-        if (followRepository.isFollowing(account.getId(), targetId)) {
+        if (followRepository.isFollowing(account.getId(), targetId) || account.getId().equals(targetId)) {
             throw new ApiException(Error.ILLEGAL_ACCESS_EXCEPTION);
         }
 

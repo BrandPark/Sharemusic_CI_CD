@@ -1,6 +1,6 @@
-package com.brandpark.sharemusic.api;
+package com.brandpark.sharemusic.modules.util.page;
 
-import com.brandpark.sharemusic.api.v2.dto.PagingDto;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 

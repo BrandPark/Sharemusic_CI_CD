@@ -1,8 +1,8 @@
 package com.brandpark.sharemusic.api.v1.notification.query;
 
-import com.brandpark.sharemusic.api.PagingDtoFactory;
+import com.brandpark.sharemusic.modules.util.page.PagingDtoFactory;
 import com.brandpark.sharemusic.api.v1.notification.query.dto.NotificationInfo;
-import com.brandpark.sharemusic.api.v2.dto.PagingDto;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
 import com.brandpark.sharemusic.modules.notification.domain.QNotification;

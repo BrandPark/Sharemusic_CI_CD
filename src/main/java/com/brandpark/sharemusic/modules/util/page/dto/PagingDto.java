@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.api.v2.dto;
+package com.brandpark.sharemusic.modules.util.page.dto;
 
 import lombok.Data;
 

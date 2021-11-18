@@ -2,7 +2,7 @@ package com.brandpark.sharemusic.api.v1.search;
 
 import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
 import com.brandpark.sharemusic.api.v1.search.dto.UserSearchResult;
-import com.brandpark.sharemusic.api.v2.dto.PagingDto;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.modules.search.SearchType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

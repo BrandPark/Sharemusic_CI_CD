@@ -113,7 +113,7 @@
                 var _this = this;
 
                 $.ajax({
-                    url: '/api/v2/albums/' + albumId + '/comments?page=' + page,
+                    url: '/partial/albums/' + albumId + '/comments?page=' + page,
                     method: 'GET',
                 }).done(function (data) {
                     _this._clearComments();

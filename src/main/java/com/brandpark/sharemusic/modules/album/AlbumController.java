@@ -5,7 +5,7 @@ import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.Validator;
-import com.brandpark.sharemusic.modules.MyUtil;
+import com.brandpark.sharemusic.modules.util.MyUtil;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.form.AlbumUpdateForm;
 import com.brandpark.sharemusic.modules.album.service.AlbumService;

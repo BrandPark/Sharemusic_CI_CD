@@ -1,12 +1,12 @@
-package com.brandpark.sharemusic.api.v2;
+package com.brandpark.sharemusic.modules.partial;
 
 
-import com.brandpark.sharemusic.api.v2.dto.PagingDto;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.AbstractContext;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.context.WebContext;
 
 import java.util.stream.IntStream;
 
@@ -15,6 +15,15 @@ import java.util.stream.IntStream;
 public class PagingHtmlCreator {
 
     private final TemplateEngine templateEngine;
+
+    public PageHtmlResult getPageHtmlResult(AbstractContext context, PagingDto page, String listName, String viewPath) {
+        context.setVariable(listName, page.getContents());
+        String listHtml = getListHtml(viewPath, context);
+
+        String paginationHtml = getPaginationHtml(page);
+
+        return new PageHtmlResult(listHtml, paginationHtml);
+    }
 
     public <T> String getPaginationHtml(PagingDto<T> pageObj) {
 
@@ -32,11 +41,7 @@ public class PagingHtmlCreator {
         return templateEngine.process("partial/pagination", context);
     }
 
-    public String getListHtml(String viewPath, WebContext webContext) {
+    public String getListHtml(String viewPath, AbstractContext webContext) {
         return templateEngine.process(viewPath, webContext);
-    }
-
-    public String getListHtml(String viewPath, Context context) {
-        return templateEngine.process(viewPath, context);
     }
 }

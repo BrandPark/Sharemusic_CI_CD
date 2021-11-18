@@ -136,9 +136,46 @@ a.card-description-panel:hover {
     width:130px;
     height: 130px;
 }
+#profile-albums .card{
+    height: 250px;
+}
+#profile-albums .card img.card-img-top {
+    width:100px;
+    height: 100px;
+}
+#profile-albums .card-description-panel {
+    height: 250px;
+}
+#profile-albums .card .card-img-top {
+    height: 120px;
+}
 mark{
     background-color: darkorange;
 }
 #search-word {
     font-weight: 600;
+}
+.modal .btn {
+    font-size: 0.7em;
+}
+.btn-follow {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+.btn-follow:hover{
+    color: #fff;
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+.btn-unfollow {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+.btn-unfollow:hover {
+    color: #fff;
+    background-color: #c82333;
+    border-color: #bd2130;
 }

@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules;
+package com.brandpark.sharemusic.modules.util;
 
 public abstract class MyUtil {
 

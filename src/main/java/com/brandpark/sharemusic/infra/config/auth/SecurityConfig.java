@@ -38,7 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/api/v1/albums/*/comments/**").authenticated()
                 .mvcMatchers("/api/v1/accounts/*/*follow").authenticated()
                 .mvcMatchers("/api/v1/albums/**").hasRole("USER")
-                .mvcMatchers(GET, "/api/v2/**").permitAll()
+                .mvcMatchers(GET, "/partial/**").permitAll()
                 .mvcMatchers(GET, "/accounts/*").permitAll()
                 .mvcMatchers("/accounts/edit/*").authenticated()
                 .mvcMatchers(GET, "/albums/*").permitAll()

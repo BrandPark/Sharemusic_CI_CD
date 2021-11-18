@@ -1,10 +1,10 @@
-package com.brandpark.sharemusic.api.v2.notification;
+package com.brandpark.sharemusic.modules.partial.notification;
 
 import com.brandpark.sharemusic.api.v1.notification.query.NotificationQueryRepository;
 import com.brandpark.sharemusic.api.v1.notification.query.dto.NotificationInfo;
-import com.brandpark.sharemusic.api.v2.PagingHtmlCreator;
-import com.brandpark.sharemusic.api.v2.dto.PageHtmlResult;
-import com.brandpark.sharemusic.api.v2.dto.PagingDto;
+import com.brandpark.sharemusic.modules.partial.PagingHtmlCreator;
+import com.brandpark.sharemusic.modules.partial.PageHtmlResult;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.notification.NotificationService;
@@ -27,7 +27,7 @@ public class NotificationPartialHtmlController {
     private final NotificationService notificationService;
     private final PagingHtmlCreator htmlCreator;
 
-    @GetMapping("/api/v2/notifications")
+    @GetMapping("/partial/notifications")
     public PageHtmlResult getNotificationListHtml(@LoginAccount SessionAccount account
             , @PageableDefault(size = 10) Pageable pageable
             , @RequestParam(name = "type") String type) {

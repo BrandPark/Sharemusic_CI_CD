@@ -15,11 +15,13 @@
             </div>
         </div>
         <div class="col-3 d-flex justify-content-end align-items-center" th:if="${!#authentication.getName().equals('anonymousUser')}">
-            <button class="btn btn-primary row btn-follow" th:data-index="${following.followingId}" style="font-size:0.7em" th:if="${!following.followingState}">팔로우</button>
-            <button class="btn btn-danger row btn-unfollow" th:data-index="${following.followingId}" style="font-size:0.7em" th:if="${following.followingState}">언 팔로우</button>
+            <button class="btn row" th:data-index="${following.followingId}"
+                    th:classappend="${following.followingState} ? 'btn-unfollow' : 'btn-follow'"
+                    th:text="${following.followingState} ? '언 팔로우' : '팔로우'">
+            </button>
         </div>
     </div>
     <div class="row justify-content-center align-items-center h-100" th:if="${#lists.isEmpty(followings)}">
-        <p class="font-weight-bold">팔로워가 없습니다.</p>
+        <p class="font-weight-bold">팔로잉이 없습니다.</p>
     </div>
 </div>

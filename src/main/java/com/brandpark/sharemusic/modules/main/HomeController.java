@@ -1,6 +1,5 @@
 package com.brandpark.sharemusic.modules.main;
 
-import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequiredArgsConstructor
 @Controller
 public class HomeController /*implements ErrorController*/ {
-
-    private final AlbumQueryRepository albumQueryRepository;
 
     @GetMapping("/")
     public String viewHome(@LoginAccount SessionAccount account, Model model) {

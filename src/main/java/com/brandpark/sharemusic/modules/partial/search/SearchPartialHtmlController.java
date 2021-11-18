@@ -1,13 +1,13 @@
-package com.brandpark.sharemusic.api.v2.search;
+package com.brandpark.sharemusic.modules.partial.search;
 
 import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
 import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.api.v1.search.dto.AlbumSearchResult;
 import com.brandpark.sharemusic.api.v1.search.dto.SearchRequest;
 import com.brandpark.sharemusic.api.v1.search.dto.UserSearchResult;
-import com.brandpark.sharemusic.api.v2.PagingHtmlCreator;
-import com.brandpark.sharemusic.api.v2.dto.PageHtmlResult;
-import com.brandpark.sharemusic.api.v2.dto.PagingDto;
+import com.brandpark.sharemusic.modules.partial.PagingHtmlCreator;
+import com.brandpark.sharemusic.modules.partial.PageHtmlResult;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.modules.search.SearchType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import static com.brandpark.sharemusic.modules.search.SearchType.*;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/v2")
+@RequestMapping("/partial")
 @RestController
 public class SearchPartialHtmlController {
 

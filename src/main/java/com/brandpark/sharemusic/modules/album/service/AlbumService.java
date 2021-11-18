@@ -3,7 +3,7 @@ package com.brandpark.sharemusic.modules.album.service;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumSaveRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.TrackUpdateRequest;
-import com.brandpark.sharemusic.modules.MyUtil;
+import com.brandpark.sharemusic.modules.util.MyUtil;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.album.domain.Track;

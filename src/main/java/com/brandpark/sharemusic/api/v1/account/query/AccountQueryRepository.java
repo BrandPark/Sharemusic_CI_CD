@@ -1,14 +1,14 @@
 package com.brandpark.sharemusic.api.v1.account.query;
 
-import com.brandpark.sharemusic.api.PagingDtoFactory;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
 import com.brandpark.sharemusic.api.v1.account.query.dto.FriendshipDataResponse;
 import com.brandpark.sharemusic.api.v1.search.dto.UserSearchResult;
-import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.follow.domain.QFollow;
+import com.brandpark.sharemusic.modules.util.page.PagingDtoFactory;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -57,7 +57,7 @@ public class AccountQueryRepository {
                 .fetchOne();
     }
 
-    public PagingDto<FollowerInfoDto> findAllFollowersByPaging(Long accountId, Pageable pageable) {
+    public PagingDto<FollowerInfoDto> findAllFollowersByPaging(Long targetAccountId, Pageable pageable) {
 
         QueryResults<FollowerInfoDto> queryResults = queryFactory.select(Projections.fields(FollowerInfoDto.class,
                         follow.follower.id.as("followerId"),
@@ -67,7 +67,7 @@ public class AccountQueryRepository {
                         follow.createdDate.as("followDate")
                 ))
                 .from(follow)
-                .where(follow.target.id.eq(accountId))
+                .where(follow.target.id.eq(targetAccountId))
                 .orderBy(follow.createdDate.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

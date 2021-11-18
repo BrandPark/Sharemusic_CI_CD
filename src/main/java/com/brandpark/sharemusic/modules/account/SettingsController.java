@@ -3,7 +3,7 @@ package com.brandpark.sharemusic.modules.account;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.Validator;
-import com.brandpark.sharemusic.modules.MyUtil;
+import com.brandpark.sharemusic.modules.util.MyUtil;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
