@@ -28,7 +28,7 @@ public class AlbumPartialHtmlController {
     private final PagingHtmlCreator htmlCreator;
 
     @GetMapping("/albums")
-    public PageHtmlResult getAlbumsHtml(@LoginAccount SessionAccount account, Pageable pageable
+    public PageHtmlResult homeViewAlbumsHtml(@LoginAccount SessionAccount account, Pageable pageable
             , HttpServletRequest request, HttpServletResponse response) {
 
         WebContext context = new WebContext(request, response, request.getServletContext());
@@ -48,7 +48,7 @@ public class AlbumPartialHtmlController {
     }
 
     @GetMapping("/profile/{targetId}/albums")
-    public PageHtmlResult getProfileAlbumsHtml(@LoginAccount SessionAccount account, Pageable pageable
+    public PageHtmlResult profileViewAlbumsHtml(@LoginAccount SessionAccount account, Pageable pageable
             , @PathVariable Long targetId, HttpServletRequest request, HttpServletResponse response) {
 
         if (account == null) {

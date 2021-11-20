@@ -23,4 +23,8 @@ abstract public class PagingDtoFactory {
 
         return result;
     }
+
+    public static final <T> PagingDto<T> createPagingDto(List<T> contents, Pageable pageable, long total) {
+        return createPagingDto(contents, pageable, total, 10);
+    }
 }

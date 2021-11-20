@@ -2,16 +2,18 @@ package com.brandpark.sharemusic.modules.account.service;
 
 import com.brandpark.sharemusic.infra.config.auth.CustomUserDetails;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
-import com.brandpark.sharemusic.modules.util.MyUtil;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
+import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
+import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
 import com.brandpark.sharemusic.modules.event.FollowEvent;
 import com.brandpark.sharemusic.modules.follow.domain.Follow;
 import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
+import com.brandpark.sharemusic.modules.util.MyUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
@@ -50,6 +52,17 @@ public class AccountService implements UserDetailsService {
 
         login(mapToSessionAccount(newAccount));
         return newAccount;
+    }
+
+    @Transactional
+    public Long createAccount(CreateAccountDto data) {
+        Account newAccount = Account.createAccount(
+                data.getEmail(),
+                data.getName(),
+                data.getNickname(),
+                passwordEncoder.encode(data.getPassword()));
+
+        return accountRepository.save(newAccount).getId();
     }
 
     @Override
@@ -107,6 +120,16 @@ public class AccountService implements UserDetailsService {
                 .follower(follower)
                 .target(target)
                 .build()).getId();
+    }
+
+    @Transactional
+    public void updateInfo(UpdateAccountDto data, Account targetAccount) {
+        targetAccount.updateInfo(
+                data.getName(),
+                data.getNickName(),
+                data.getBio(),
+                data.getProfileImage()
+        );
     }
 
     public SessionAccount mapToSessionAccount(Account account) {

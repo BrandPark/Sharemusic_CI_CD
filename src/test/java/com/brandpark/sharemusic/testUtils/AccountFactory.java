@@ -3,6 +3,7 @@ package com.brandpark.sharemusic.testUtils;
 
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
@@ -12,17 +13,28 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
+@ActiveProfiles("test")
 @Component
 public class AccountFactory {
 
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final AccountRepository accountRepository;
+
+    public List<Account> persistAccountList(String name, int size) {
+        return accountRepository.saveAll(createAccountList(name, size));
+    }
+
+    public Account persistAccount(String name) {
+        return accountRepository.save(createAccount(name));
+    }
 
     public SessionAccount createSessionAccount(String name) {
         Account account = createAccount(name);

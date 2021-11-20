@@ -54,4 +54,23 @@ public class Account extends BaseTimeEntity {
         if(this.role != role)
             this.role = role;
     }
+
+    public void updateInfo(String name, String nickName, String bio, String profileImage) {
+        this.name = name;
+        this.nickname = nickName;
+        this.bio = bio;
+        this.profileImage = profileImage;
+    }
+
+    public static Account createAccount(String email, String name, String nickname, String password) {
+        Account newAccount = new Account();
+
+        newAccount.email = email;
+        newAccount.name = name;
+        newAccount.nickname = nickname;
+        newAccount.password = password;
+        newAccount.role = Role.GUEST;
+
+        return newAccount;
+    }
 }

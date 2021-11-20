@@ -1,80 +1,68 @@
 package com.brandpark.sharemusic.api.v1.account;
 
-import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
-import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
-import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
+import com.brandpark.sharemusic.api.page.PageResult;
+import com.brandpark.sharemusic.api.page.PageResultFactory;
+import com.brandpark.sharemusic.api.v1.account.dto.AccountInfoResponse;
+import com.brandpark.sharemusic.api.v1.account.dto.CreateAccountRequest;
+import com.brandpark.sharemusic.api.v1.account.dto.UpdateAccountRequest;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
-import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
+import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
-import com.brandpark.sharemusic.modules.follow.domain.Follow;
-import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.brandpark.sharemusic.api.v1.exception.Error.NOT_FOUND_ACCOUNT_EXCEPTION;
 
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @RestController
 public class AccountApiController {
 
-    private final AccountRepository accountRepository;
     private final AccountService accountService;
-    private final FollowRepository followRepository;
-    private final AccountQueryRepository accountQueryRepository;
+    private final AccountRepository accountRepository;
 
-    @PostMapping("/accounts/{targetId}/follow")
-    public Long doFollow(@LoginAccount SessionAccount account, @PathVariable Long targetId) {
+    @GetMapping("/accounts")
+    public PageResult<AccountInfoResponse> getAllAccountInfosByPage(@PageableDefault Pageable pageable) {
 
-        Account follower = accountRepository.findById(account.getId())
-                .orElseThrow(() -> new ApiException(Error.NOT_FOUND_ACCOUNT_EXCEPTION));
+        Page<Account> allAccountPage = accountRepository.findAll(pageable);
 
-        Account target = accountRepository.findById(targetId)
-                .orElseThrow(() -> new ApiException(Error.NOT_FOUND_ACCOUNT_EXCEPTION));
+        List<AccountInfoResponse> resultContent = allAccountPage.getContent()
+                .stream()
+                .map(AccountInfoResponse::new)
+                .collect(Collectors.toList());
 
-        if (followRepository.isFollowing(account.getId(), targetId) || account.getId().equals(targetId)) {
-            throw new ApiException(Error.ILLEGAL_ACCESS_EXCEPTION);
-        }
-
-        return accountService.doFollow(follower, target);
+        return PageResultFactory.createPageResult(resultContent, pageable, allAccountPage.getTotalElements());
     }
 
-    @PostMapping("/accounts/{targetId}/unfollow")
-    public Long doUnfollow(@LoginAccount SessionAccount account, @PathVariable Long targetId) {
+    @PutMapping("/accounts/{targetAccountId}")
+    public Long updateAccount(@LoginAccount SessionAccount loginAccount, @PathVariable Long targetAccountId
+            , @RequestBody UpdateAccountRequest reqDto) {
 
-        if (!accountRepository.existsById(targetId)) {
-            throw new ApiException(Error.NOT_FOUND_ACCOUNT_EXCEPTION);
+        if (!loginAccount.getId().equals(targetAccountId)) {
+            throw new ApiException(Error.FORBIDDEN_EXCEPTION);
         }
 
-        Follow follow = followRepository.findByFollowerIdAndTargetId(account.getId(), targetId)
-                .orElseThrow(() -> new ApiException(Error.ILLEGAL_ACCESS_EXCEPTION));
+        Account targetAccount = accountRepository.findById(targetAccountId)
+                .orElseThrow(() -> new ApiException(NOT_FOUND_ACCOUNT_EXCEPTION, targetAccountId + " 계정을 찾을 수 없습니다."));
 
-        followRepository.delete(follow);
+        accountService.updateInfo(new UpdateAccountDto(reqDto), targetAccount);
 
-        return follow.getId();
+        return targetAccountId;
     }
 
-    @GetMapping("/accounts/{targetId}/followers")
-    public PagingDto<FollowerInfoDto> findAllFollowersByPaging(@PathVariable Long targetId, @PageableDefault(size = 6) Pageable pageable) {
-
-        if (!accountRepository.existsById(targetId)) {
-            throw new ApiException(Error.NOT_FOUND_ACCOUNT_EXCEPTION);
-        }
-        return accountQueryRepository.findAllFollowersByPaging(targetId, pageable);
-    }
-
-    @GetMapping("/accounts/{targetId}/followings")
-    public PagingDto<FollowingInfoDto> findAllFollowingsByPaging(@PathVariable Long targetId, @PageableDefault(size = 6) Pageable pageable) {
-
-        if (!accountRepository.existsById(targetId)) {
-            throw new ApiException(Error.NOT_FOUND_ACCOUNT_EXCEPTION);
-        }
-
-        return accountQueryRepository.findAllFollowingsByPaging(targetId, pageable);
+    @PostMapping("/accounts")
+    public Long createAccount(CreateAccountRequest reqDto) {
+        return accountService.createAccount(reqDto.toModuleDto());
     }
 }
