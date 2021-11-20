@@ -11,6 +11,7 @@ import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.thymeleaf.context.WebContext;
@@ -46,15 +47,15 @@ public class AlbumPartialHtmlController {
         return htmlCreator.getPageHtmlResult(context, page, "albumList", "partial/home-albums");
     }
 
-    @GetMapping("/profile/albums")
-    public PageHtmlResult getMyAlbumsHtml(@LoginAccount SessionAccount account, Pageable pageable
-            , HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("/profile/{targetId}/albums")
+    public PageHtmlResult getProfileAlbumsHtml(@LoginAccount SessionAccount account, Pageable pageable
+            , @PathVariable Long targetId, HttpServletRequest request, HttpServletResponse response) {
 
         if (account == null) {
             throw new ApiException(Error.ILLEGAL_ACCESS_EXCEPTION);
         }
 
-        PagingDto<AlbumCardForm> page = albumPartialRepository.findAllMyAlbumCardsInfo(pageable, account.getId());
+        PagingDto<AlbumCardForm> page = albumPartialRepository.findAllProfileAlbumCardsInfo(pageable, targetId);
 
         WebContext context = new WebContext(request, response, request.getServletContext());
         return htmlCreator.getPageHtmlResult(context, page, "list", "partial/albums");

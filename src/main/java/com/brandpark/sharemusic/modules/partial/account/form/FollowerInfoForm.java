@@ -11,5 +11,5 @@ public class FollowerInfoForm {
     private String nickname;
     private String name;
     private LocalDateTime followDate;
-    private boolean followingState;
+    private Boolean followingState;
 }

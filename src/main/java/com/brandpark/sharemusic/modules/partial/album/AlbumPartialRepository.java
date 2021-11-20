@@ -53,8 +53,6 @@ public class AlbumPartialRepository {
 
         QueryResults<AlbumCardForm> findAlbumQueryResults = getAllAlbumCardsInfo(pageable, isInFollowingIdList(targetIdList));
 
-        setTracks(findAlbumQueryResults.getResults());
-
         return PagingDtoFactory.createPagingDto(findAlbumQueryResults.getResults(), pageable, findAlbumQueryResults.getTotal(), 10);
     }
 
@@ -62,18 +60,37 @@ public class AlbumPartialRepository {
 
         QueryResults<AlbumCardForm> findAlbumsQueryResults = getAllAlbumCardsInfo(pageable, null);
 
-        setTracks(findAlbumsQueryResults.getResults());
+        return PagingDtoFactory.createPagingDto(findAlbumsQueryResults.getResults(), pageable, findAlbumsQueryResults.getTotal(), 10);
+    }
+
+    public PagingDto<AlbumCardForm> findAllProfileAlbumCardsInfo(Pageable pageable, Long targetAccountId) {
+
+        QueryResults<AlbumCardForm> queryResults = getAllAlbumCardsInfo(pageable, account.id.eq(targetAccountId));
+
+        return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
+    }
+
+    public PagingDto<AlbumCardForm> findAllAlbumsByAlbumName(Pageable pageable, String albumName) {
+
+        QueryResults<AlbumCardForm> findAlbumsQueryResults = getAllAlbumCardsInfo(pageable, album.title.containsIgnoreCase(albumName));
 
         return PagingDtoFactory.createPagingDto(findAlbumsQueryResults.getResults(), pageable, findAlbumsQueryResults.getTotal(), 10);
     }
 
-    public PagingDto<AlbumCardForm> findAllMyAlbumCardsInfo(Pageable pageable, Long myAccountId) {
+    public PagingDto<AlbumCardForm> findAllAlbumsByTrackName(Pageable pageable, String trackName) {
+        List<Long> albumIds = getDistinctAlbumIdList(track.name.containsIgnoreCase(trackName));
 
-        QueryResults<AlbumCardForm> queryResults = getAllAlbumCardsInfo(pageable, account.id.eq(myAccountId));
+        QueryResults<AlbumCardForm> findAlbumsQueryResults = getAllAlbumCardsInfo(pageable, album.id.in(albumIds));
 
-        setTracks(queryResults.getResults());
+        return PagingDtoFactory.createPagingDto(findAlbumsQueryResults.getResults(), pageable, findAlbumsQueryResults.getTotal(), 10);
+    }
 
-        return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
+    public PagingDto<AlbumCardForm> findAllAlbumsByTrackArtist(Pageable pageable, String trackArtist) {
+        List<Long> albumIds = getDistinctAlbumIdList(track.artist.containsIgnoreCase(trackArtist));
+
+        QueryResults<AlbumCardForm> findAlbumsQueryResults = getAllAlbumCardsInfo(pageable, album.id.in(albumIds));
+
+        return PagingDtoFactory.createPagingDto(findAlbumsQueryResults.getResults(), pageable, findAlbumsQueryResults.getTotal(), 10);
     }
 
     public PagingDto<CommentInfoForm> findAllComments(Pageable pageable, Long albumId) {
@@ -97,7 +114,7 @@ public class AlbumPartialRepository {
     }
 
     private QueryResults<AlbumCardForm> getAllAlbumCardsInfo(Pageable pageable, BooleanExpression booleanExpression) {
-        return queryFactory.select(Projections.fields(AlbumCardForm.class,
+        QueryResults<AlbumCardForm> findAlbumsQueryResults = queryFactory.select(Projections.fields(AlbumCardForm.class,
                         album.id.as("albumId"),
                         album.title,
                         album.description,
@@ -113,17 +130,30 @@ public class AlbumPartialRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();
+
+        setTracks(findAlbumsQueryResults.getResults());
+
+        return findAlbumsQueryResults;
     }
 
-    private List<Long> getAlbumIdList(List<AlbumCardForm> albumCardFormList) {
+    private List<Long> getAlbumIdListByAlbums(List<AlbumCardForm> albumCardFormList) {
         return albumCardFormList
                 .stream()
                 .map(AlbumCardForm::getAlbumId)
                 .collect(Collectors.toList());
     }
 
+    private List<Long> getDistinctAlbumIdList(BooleanExpression booleanExpression) {
+        return queryFactory.selectDistinct(
+                        track.album.id
+                )
+                .from(track)
+                .where(booleanExpression)
+                .fetch();
+    }
+
     private void setTracks(List<AlbumCardForm> albumCardFormList) {
-        List<Long> albumIdList = getAlbumIdList(albumCardFormList);
+        List<Long> albumIdList = getAlbumIdListByAlbums(albumCardFormList);
 
         Map<Long, List<TrackInfoForm>> tracksMap = queryFactory.select(Projections.fields(TrackInfoForm.class,
                         album.id.as("albumId"),

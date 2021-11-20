@@ -1,14 +1,13 @@
 package com.brandpark.sharemusic.modules.partial.notification;
 
-import com.brandpark.sharemusic.api.v1.notification.query.NotificationQueryRepository;
-import com.brandpark.sharemusic.api.v1.notification.query.dto.NotificationInfo;
-import com.brandpark.sharemusic.modules.partial.PagingHtmlCreator;
-import com.brandpark.sharemusic.modules.partial.PageHtmlResult;
-import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.notification.NotificationService;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
+import com.brandpark.sharemusic.modules.partial.PageHtmlResult;
+import com.brandpark.sharemusic.modules.partial.PagingHtmlCreator;
+import com.brandpark.sharemusic.modules.partial.notification.form.NotificationInfoForm;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -23,31 +22,23 @@ import java.util.List;
 @RestController
 public class NotificationPartialHtmlController {
 
-    private final NotificationQueryRepository notificationQueryRepository;
+    private final NotificationPartialRepository notificationPartialRepository;
     private final NotificationService notificationService;
     private final PagingHtmlCreator htmlCreator;
 
     @GetMapping("/partial/notifications")
     public PageHtmlResult getNotificationListHtml(@LoginAccount SessionAccount account
-            , @PageableDefault(size = 10) Pageable pageable
-            , @RequestParam(name = "type") String type) {
+            , @PageableDefault Pageable pageable, @RequestParam(name = "type") String type) {
 
         NotificationType notificationType = NotificationType.getTypeByName(type);
 
-        int notReadCount = notificationService.getNotReadCount(account.getId(), notificationType);
-
-        PagingDto<NotificationInfo> page = notificationQueryRepository.findAllNotifications(pageable, notificationType, account.getId());
-        List<NotificationInfo> notifications = page.getContents();
+        PagingDto<NotificationInfoForm> page = notificationPartialRepository.findAllNotifications(pageable, notificationType, account.getId());
+        List<NotificationInfoForm> notifications = page.getContents();
 
         Context context = new Context();
         context.setVariable("hasNotification", notifications.size() > 0);
-        context.setVariable("notReadCount", notReadCount);
-        context.setVariable("notifications", notifications);
+        context.setVariable("notReadCount", notificationService.getNotReadCount(account.getId(), notificationType));
 
-        String notificationsHtml = htmlCreator.getListHtml("partial/notifications", context);
-
-        String paginationHtml = htmlCreator.getPaginationHtml(page);
-
-        return new PageHtmlResult(notificationsHtml, paginationHtml);
+        return htmlCreator.getPageHtmlResult(context, page, "notifications", "partial/notifications");
     }
 }

@@ -1,5 +1,8 @@
 <div id="contents" class="container" style="margin-top:10px; z-index:2">
-    <div class="row">
+    <div class="row justify-content-center">
+        <div th:if="${#lists.isEmpty(list)}">
+            <h3>앨범이 없습니다.</h3>
+        </div>
         <div th:replace="fragments.html::albumCardList(${list})"></div>
     </div>
 </div>

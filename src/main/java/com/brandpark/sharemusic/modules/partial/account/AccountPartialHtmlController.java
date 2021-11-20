@@ -1,9 +1,7 @@
 package com.brandpark.sharemusic.modules.partial.account;
 
-import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
-import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import com.brandpark.sharemusic.modules.partial.PageHtmlResult;
 import com.brandpark.sharemusic.modules.partial.PagingHtmlCreator;
 import com.brandpark.sharemusic.modules.partial.account.form.FollowerInfoForm;
@@ -26,9 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 public class AccountPartialHtmlController {
 
-    private final AccountQueryRepository accountQueryRepository;
     private final AccountPartialRepository accountPartialRepository;
-    private final FollowRepository followRepository;
     private final PagingHtmlCreator htmlCreator;
 
     @GetMapping("/accounts/{targetId}/followers")
@@ -36,9 +32,15 @@ public class AccountPartialHtmlController {
             , @PathVariable Long targetId, @PageableDefault Pageable pageable
             , HttpServletRequest request, HttpServletResponse response) {
 
-        PagingDto<FollowerInfoForm> page = accountPartialRepository.findAllFollowersByAccountId(pageable, targetId, loginAccount.getId());
-
         WebContext context = new WebContext(request, response, request.getServletContext());
+
+        PagingDto<FollowerInfoForm> page = accountPartialRepository.findAllFollowersByAccountId(pageable, targetId, loginAccount.getId());
+        for (FollowerInfoForm form : page.getContents()) {
+            if (form.getFollowerId().equals(loginAccount.getId())) {
+                form.setFollowingState(null);
+            }
+        }
+
         return htmlCreator.getPageHtmlResult(context, page, "followers", "partial/followers");
     }
 
@@ -47,40 +49,14 @@ public class AccountPartialHtmlController {
             , @PathVariable Long targetId, @PageableDefault Pageable pageable
             , HttpServletRequest request, HttpServletResponse response) {
 
-//        PagingDto<FollowingInfoDto> pagingDto = accountQueryRepository.findAllFollowingsByPaging(targetId, pageable);
-//
-//        WebContext context = new WebContext(request, response, request.getServletContext());
-//
-//        if (loginAccount != null) {
-//            List<Long> followerIds = pagingDto.getContents().stream().map(FollowingInfoDto::getFollowingId).collect(Collectors.toList());
-//            Map<Long, Boolean> followingStateMap = followRepository.getFollowingStateByFollowingIds(followerIds, loginAccount.getId());
-//
-//            List<FollowingDtoForView> followings = new ArrayList<>();
-//            for (FollowingInfoDto followingInfoDto : pagingDto.getContents()) {
-//                FollowingDtoForView following = new FollowingDtoForView();
-//                following.setFollowingId(followingInfoDto.getFollowingId());
-//                following.setName(followingInfoDto.getName());
-//                following.setFollowDate(followingInfoDto.getFollowingDate());
-//                following.setNickname(followingInfoDto.getNickname());
-//                following.setProfileImage(followingInfoDto.getProfileImage());
-//                following.setFollowingState(followingStateMap.get(followingInfoDto.getFollowingId()));
-//
-//                followings.add(following);
-//            }
-//
-//            context.setVariable("followings", followings);
-//        } else {
-//            context.setVariable("followings", pagingDto.getContents());
-//        }
-//
-//        String listHtml = htmlCreator.getListHtml("partial/followings", context);
-//
-//        String paginationHtml = htmlCreator.getPaginationHtml(pagingDto);
-//
-//        return new PageHtmlResult(listHtml, paginationHtml);
         WebContext context = new WebContext(request, response, request.getServletContext());
 
         PagingDto<FollowingInfoForm> page = accountPartialRepository.findAllFollowingsByAccountId(pageable, targetId, loginAccount.getId());
+        for (FollowingInfoForm form : page.getContents()) {
+            if (form.getFollowingId().equals(loginAccount.getId())) {
+                form.setFollowingState(null);
+            }
+        }
 
         return htmlCreator.getPageHtmlResult(context, page, "followings", "partial/followings");
     }

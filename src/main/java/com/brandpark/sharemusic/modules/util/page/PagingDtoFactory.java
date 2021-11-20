@@ -8,7 +8,7 @@ import java.util.List;
 
 
 abstract public class PagingDtoFactory {
-    public static final <T> PagingDto createPagingDto(List<T> contents, Pageable pageable, long total, int paginationUnit) {
+    public static final <T> PagingDto<T> createPagingDto(List<T> contents, Pageable pageable, long total, int paginationUnit) {
         PageImpl<T> page = new PageImpl<T>(contents, pageable, total);
 
         PagingDto result = new PagingDto<T>();

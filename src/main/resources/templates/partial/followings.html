@@ -15,7 +15,8 @@
             </div>
         </div>
         <div class="col-3 d-flex justify-content-end align-items-center" th:if="${!#authentication.getName().equals('anonymousUser')}">
-            <button class="btn row" th:data-index="${following.followingId}"
+            <button class="btn row" th:if="${following.followingState != null}"
+                    th:data-index="${following.followingId}"
                     th:classappend="${following.followingState} ? 'btn-unfollow' : 'btn-follow'"
                     th:text="${following.followingState} ? '언 팔로우' : '팔로우'">
             </button>

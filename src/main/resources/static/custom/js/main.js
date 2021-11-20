@@ -4,11 +4,82 @@ $(function () {
             $(this).height(1).height($(this).prop('scrollHeight') + 12);
         }
     });
+    viewController.btnInit();
+
     search.init();
     wave.init();
     notification.init();
     dateConverter.formRelativeTime();
 });
+
+const viewController = {
+    btnInit: function () {
+        this._followBtnInit();
+    },
+    _followBtnInit: function () {
+        let _this = this;
+        $('body').on('click', '.btn-follow, #btn-follow', function () {
+            let $this = $(this);
+            $this.removeClass("btn-follow");
+            $this.addClass("btn-unfollow");
+            $this.text("언 팔로우");
+
+            let targetId = $this.attr('data-index');
+            _this._follow(targetId, function(){
+                if ($this.hasClass('btn-profile')) {
+                    let followerCnt = parseInt($('#follower').text())
+                    if (!isNaN(followerCnt)) {
+                        $('#follower').text(followerCnt + 1);
+                    }
+                }
+            });
+        });
+        $('body').on('click', '.btn-unfollow', function () {
+            let $this = $(this);
+            $this.removeClass("btn-unfollow");
+            $this.addClass("btn-follow");
+            $this.text("팔로우");
+
+            let targetId = $this.attr('data-index');
+            _this._unfollow(targetId, function () {
+                if ($this.hasClass('btn-profile')) {
+                    let followerCnt = parseInt($('#follower').text())
+                    if (!isNaN(followerCnt)) {
+                        $('#follower').text(followerCnt - 1);
+                    }
+                }
+            });
+        });
+    },
+    _follow: function (targetId, callback) {
+        let _callback = callback;
+
+        $.ajax({
+            url: "/api/v1/accounts/" + targetId + "/follow",
+            method: 'post',
+        }).done(function (data) {
+            if (data) {
+                _callback();
+            }
+        }).fail(function () {
+            alert("팔로우를 실패하였습니다.");
+        });
+    },
+    _unfollow: function (targetId, callback) {
+        let _callback = callback;
+
+        $.ajax({
+            url: "/api/v1/accounts/" + targetId + "/unfollow",
+            method: 'post',
+        }).done(function (data) {
+            if (data) {
+                _callback();
+            }
+        }).fail(function () {
+            alert("언팔로우를 실패하였습니다.");
+        });
+    },
+}
 
 const search = {
     init: function () {
