@@ -27,6 +27,7 @@ public class AccountFactory {
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final AccountRepository accountRepository;
+    private String password = "000000000";
 
     public List<Account> persistAccountList(String name, int size) {
         return accountRepository.saveAll(createAccountList(name, size));
@@ -84,8 +85,8 @@ public class AccountFactory {
         form.setEmail(name + "@email.com");
         form.setName(name);
         form.setNickname(name);
-        form.setPassword("000000000");
-        form.setConfirmPassword("000000000");
+        form.setPassword(password);
+        form.setConfirmPassword(password);
 
         return form;
     }
@@ -103,7 +104,7 @@ public class AccountFactory {
 
     public UpdatePasswordForm createUpdatePasswordForm() {
         UpdatePasswordForm form = new UpdatePasswordForm();
-        form.setCurrentPassword("000000000");
+        form.setCurrentPassword(password);
         form.setPassword("111111111");
         form.setConfirmPassword("111111111");
 
@@ -118,5 +119,9 @@ public class AccountFactory {
         }
 
         return result;
+    }
+
+    public Account persistAccount(String name, Role role) {
+        return accountRepository.save(createAccount(name, role));
     }
 }

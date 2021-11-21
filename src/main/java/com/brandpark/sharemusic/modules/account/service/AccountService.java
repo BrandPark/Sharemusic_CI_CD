@@ -7,6 +7,7 @@ import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
+import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordDto;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
@@ -101,11 +102,26 @@ public class AccountService implements UserDetailsService {
     }
 
     @Transactional
+    public void updatePassword(Long targetAccountId, UpdatePasswordDto reqDto) {
+        Account myAccount = accountRepository.findById(targetAccountId).get();
+
+        String encodedUpdatePassword = passwordEncoder.encode(reqDto.getUpdatePassword());
+
+        myAccount.updatePassword(encodedUpdatePassword);
+    }
+
+    @Transactional
     public void succeedVerifyEmailCheckToken(SessionAccount account) {
         Account persistAccount = accountRepository.findByEmail(account.getEmail());
         persistAccount.assignRole(Role.USER);
 
         login(mapToSessionAccount(persistAccount));
+    }
+
+    @Transactional
+    public void succeedVerifyEmailCheckToken(Long accountId) {
+        Account account = accountRepository.findById(accountId).get();
+        account.assignRole(Role.USER);
     }
 
     @Transactional
@@ -123,7 +139,7 @@ public class AccountService implements UserDetailsService {
     }
 
     @Transactional
-    public void updateInfo(UpdateAccountDto data, Account targetAccount) {
+    public void updateAccountInfo(UpdateAccountDto data, Account targetAccount) {
         targetAccount.updateInfo(
                 data.getName(),
                 data.getNickName(),

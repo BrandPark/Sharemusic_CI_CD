@@ -62,6 +62,10 @@ public class Account extends BaseTimeEntity {
         this.profileImage = profileImage;
     }
 
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
     public static Account createAccount(String email, String name, String nickname, String password) {
         Account newAccount = new Account();
 
@@ -69,7 +73,9 @@ public class Account extends BaseTimeEntity {
         newAccount.name = name;
         newAccount.nickname = nickname;
         newAccount.password = password;
-        newAccount.role = Role.GUEST;
+
+        newAccount.assignRole(Role.GUEST);
+        newAccount.generateEmailCheckToken();
 
         return newAccount;
     }
