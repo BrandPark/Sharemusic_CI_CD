@@ -217,6 +217,35 @@ class AccountApiControllerTest {
     }
 
     @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 수정 - 실패(Nickname 에 특수문자가 있는 경우)")
+    @Test
+    public void UpdateAccount_Fail_When_NameContainsSpecialCharacter() throws Exception {
+
+        // given
+        String url = "/api/v1/accounts/" + myAccount.getId();
+
+        UpdateAccountRequest reqData = new UpdateAccountRequest();
+        reqData.setName("수정이름!");
+        reqData.setBio("수정 소개");
+        reqData.setNickname("수정닉네임");
+        reqData.setProfileImage("수정 이미지");
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("계정 수정 - 실패(Nickname 이 비어있는 경우)")
     @Test
     public void UpdateAccount_Fail_When_EmptyNickname() throws Exception {
@@ -257,6 +286,35 @@ class AccountApiControllerTest {
         reqData.setName("수정이름");
         reqData.setBio("수정 소개");
         reqData.setNickname("공 백");
+        reqData.setProfileImage("수정 이미지");
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 수정 - 실패(Nickname 에 특수문자가 있는 경우)")
+    @Test
+    public void UpdateAccount_Fail_When_NicknameContainsSpecialCharacter() throws Exception {
+
+        // given
+        String url = "/api/v1/accounts/" + myAccount.getId();
+
+        UpdateAccountRequest reqData = new UpdateAccountRequest();
+        reqData.setName("수정이름");
+        reqData.setBio("수정 소개");
+        reqData.setNickname("수정닉네임!");
         reqData.setProfileImage("수정 이미지");
 
         // when
@@ -738,7 +796,7 @@ class AccountApiControllerTest {
                         .content(objectMapper.writeValueAsString(reqData)))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> {
-                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
 
                     ExceptionResult exceptionResult = getExceptionResult(result);
                     assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
@@ -768,7 +826,7 @@ class AccountApiControllerTest {
                         .content(objectMapper.writeValueAsString(reqData)))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> {
-                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
 
                     ExceptionResult exceptionResult = getExceptionResult(result);
                     assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());

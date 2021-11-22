@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class UpdateAccountDto {
     private String name;
-    private String nickName;
+    private String nickname;
     private String bio;
     private String profileImage;
 }

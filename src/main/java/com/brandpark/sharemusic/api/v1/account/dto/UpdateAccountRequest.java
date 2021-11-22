@@ -21,7 +21,7 @@ public class UpdateAccountRequest {
 
     private String profileImage;
 
-    public UpdateAccountDto toModuleAccount() {
+    public UpdateAccountDto toModuleDto() {
         return new UpdateAccountDto(
                 name,
                 nickname,

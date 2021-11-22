@@ -1,0 +1,7 @@
+1637509293000|1|statement|connection 14424|url jdbc:h2:~/sharemusic|     drop table if exists account CASCADE |     drop table if exists account CASCADE 
+1637509293001|0|statement|connection 14424|url jdbc:h2:~/sharemusic|     drop table if exists album CASCADE |     drop table if exists album CASCADE 
+1637509293002|1|statement|connection 14424|url jdbc:h2:~/sharemusic|     drop table if exists comment CASCADE |     drop table if exists comment CASCADE 
+1637509293003|0|statement|connection 14424|url jdbc:h2:~/sharemusic|     drop table if exists follow CASCADE |     drop table if exists follow CASCADE 
+1637509293003|0|statement|connection 14424|url jdbc:h2:~/sharemusic|     drop table if exists notification CASCADE |     drop table if exists notification CASCADE 
+1637509293003|0|statement|connection 14424|url jdbc:h2:~/sharemusic|     drop table if exists persistent_logins CASCADE |     drop table if exists persistent_logins CASCADE 
+1637509293003|0|statement|connection 14424|url jdbc:h2:~/sharemusic|     drop table if exists track CASCADE |     drop table if exists track CASCADE 

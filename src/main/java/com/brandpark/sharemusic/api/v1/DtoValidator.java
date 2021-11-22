@@ -1,8 +1,5 @@
 package com.brandpark.sharemusic.api.v1;
 
-import com.brandpark.sharemusic.api.v1.account.dto.CreateAccountRequest;
-import com.brandpark.sharemusic.api.v1.account.dto.UpdateAccountRequest;
-import com.brandpark.sharemusic.api.v1.account.dto.UpdatePasswordRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumSaveRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.TrackSaveRequest;
@@ -10,20 +7,17 @@ import com.brandpark.sharemusic.api.v1.album.dto.TrackUpdateRequest;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
-import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.brandpark.sharemusic.api.v1.exception.Error.*;
+import static com.brandpark.sharemusic.api.v1.exception.Error.DUPLICATE_FIELD_EXCEPTION;
 
 @RequiredArgsConstructor
 @Component
@@ -31,7 +25,6 @@ public class DtoValidator {
 
     private final AlbumRepository albumRepository;
     private final AccountRepository accountRepository;
-    private final PasswordEncoder passwordEncoder;
 
     public void validateAlbumSaveDto(AlbumSaveRequest requestDto, Long accountId) {
 
@@ -129,48 +122,11 @@ public class DtoValidator {
         }
     }
 
-    public void validateUpdateAccountData(UpdateAccountRequest reqDto, SessionAccount loginAccount, Long targetAccountId) {
-
-        final String name = reqDto.getName();
-        final String nickname = reqDto.getNickname();
-
-        if (!nickname.equals(loginAccount.getNickname())) {
-            validateDuplicateNickname(nickname);
-        }
-    }
-
-    public void validateCreateAccountData(CreateAccountRequest reqDto) {
-        final String nickname = reqDto.getNickname();
-        final String password = reqDto.getPassword();
-        final String confirmPassword = reqDto.getConfirmPassword();
-
-        validateDuplicateNickname(nickname);
-        validatePassword(password, confirmPassword);
-    }
-
-    public void validateSameAccount(SessionAccount loginAccount, Long targetAccountId) {
-        if (!loginAccount.getId().equals(targetAccountId)) {
-            throw new ApiException(FORBIDDEN_EXCEPTION);
-        }
-    }
-
-    public void validateEmailCheckToken(Long targetAccountId, String emailCheckToken) {
-
-        Account myAccount = accountRepository.findById(targetAccountId).get();
-
-        if (myAccount.getRole() == Role.USER) {
-            throw new ApiException(Error.ILLEGAL_ACCESS_EXCEPTION
-                    , "'" + myAccount.getEmail() + "' 은 이미 인증된 이메일 계정입니다.");
-        } else if (!myAccount.getEmailCheckToken().equals(emailCheckToken)) {
-            throw new ApiException(Error.ILLEGAL_ARGUMENT_EXCEPTION, "인증 토큰이 일치하지 않습니다.");
-        }
-    }
-
     private void validatePassword(String password, String confirmPassword) {
         if (!StringUtils.hasText(password)) {
             throw new ApiException(Error.ILLEGAL_ARGUMENT_EXCEPTION, "비밀번호를 입력해주세요");
         } else {
-            if (!StringUtils.hasText(confirmPassword) || !confirmPassword.equals(password)) {
+            if (!confirmPassword.equals(password)) {
                 throw new ApiException(Error.ILLEGAL_ARGUMENT_EXCEPTION, "비밀번호가 일치하지 않습니다.");
             }
         }
@@ -184,27 +140,5 @@ public class DtoValidator {
 
     private boolean hasText(String name) {
         return StringUtils.hasText(name);
-    }
-
-    public void validateUpdatePassword(UpdatePasswordRequest reqDto, Long targetAccountId) {
-
-        final Account myAccount = accountRepository.findById(targetAccountId).get();
-        final String originPassword = reqDto.getOriginPassword();
-        final String updatePassword = reqDto.getUpdatePassword();
-        final String confirmPassword = reqDto.getConfirmPassword();
-
-        if (!StringUtils.hasText(originPassword)) {
-            throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "현재 비밀번호를 입력 해주세요");
-        }
-        if (!passwordEncoder.matches(originPassword, myAccount.getPassword())) {
-            throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "현재 비밀번호가 일치하지 않습니다.");
-        }
-
-        validatePassword(updatePassword, confirmPassword);
-
-        if (originPassword.equals(updatePassword)) {
-            throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "변경할 비밀번호가 현재 비밀번호와 같습니다.");
-        }
-
     }
 }

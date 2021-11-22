@@ -2,15 +2,18 @@ package com.brandpark.sharemusic.api.v1.account;
 
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.page.PageResultFactory;
-import com.brandpark.sharemusic.api.v1.DtoValidator;
 import com.brandpark.sharemusic.api.v1.account.dto.AccountInfoResponse;
 import com.brandpark.sharemusic.api.v1.account.dto.CreateAccountRequest;
 import com.brandpark.sharemusic.api.v1.account.dto.UpdateAccountRequest;
 import com.brandpark.sharemusic.api.v1.account.dto.UpdatePasswordRequest;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.modules.Validator;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
+import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
+import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
+import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordDto;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,7 +32,7 @@ public class AccountApiController {
 
     private final AccountService accountService;
     private final AccountRepository accountRepository;
-    private final DtoValidator validator;
+    private final Validator validator;
 
     @GetMapping("/accounts")
     public PageResult<AccountInfoResponse> getAllAccountInfosByPage(@PageableDefault Pageable pageable) {
@@ -48,12 +51,11 @@ public class AccountApiController {
     public Long updateAccount(@LoginAccount SessionAccount loginAccount, @PathVariable Long targetAccountId
             , @RequestBody @Valid UpdateAccountRequest reqDto) {
 
-        validator.validateSameAccount(loginAccount, targetAccountId);
-        validator.validateUpdateAccountData(reqDto, loginAccount, targetAccountId);
+        final UpdateAccountDto updateData = reqDto.toModuleDto();
 
-        Account targetAccount = accountRepository.findById(targetAccountId).get();
+        validator.validateUpdateAccountLogic(loginAccount, targetAccountId, updateData);
 
-        accountService.updateAccountInfo(reqDto.toModuleAccount(), targetAccount);
+        accountService.updateAccountInfo(updateData, targetAccountId);
 
         return targetAccountId;
     }
@@ -61,19 +63,22 @@ public class AccountApiController {
     @PostMapping("/accounts")
     public Long createAccount(@RequestBody @Valid CreateAccountRequest reqDto) {
 
-        validator.validateCreateAccountData(reqDto);
+        final CreateAccountDto createData = reqDto.toModuleDto();
 
-        return accountService.createAccount(reqDto.toModuleDto());
+        validator.validateCreateAccountLogic(createData);
+
+        return accountService.createAccount(createData);
     }
 
     @PostMapping("/accounts/{targetAccountId}/password")
     public Long updatePassword(@LoginAccount SessionAccount loginAccount, @PathVariable Long targetAccountId
-            , @RequestBody UpdatePasswordRequest reqDto) {
+            , @RequestBody @Valid UpdatePasswordRequest reqDto) {
 
-        validator.validateSameAccount(loginAccount, targetAccountId);
-        validator.validateUpdatePassword(reqDto, targetAccountId);
+        final UpdatePasswordDto updateData = reqDto.toModuleDto();
 
-        accountService.updatePassword(targetAccountId, reqDto.toModuleDto());
+        validator.validateUpdatePasswordLogic(loginAccount, targetAccountId, updateData);
+
+        accountService.updatePassword(targetAccountId, updateData);
 
         return targetAccountId;
     }
@@ -82,8 +87,7 @@ public class AccountApiController {
     public Long verifyEmail(@LoginAccount SessionAccount loginAccount, @PathVariable Long targetAccountId
             , String emailCheckToken) {
 
-        validator.validateSameAccount(loginAccount, targetAccountId);
-        validator.validateEmailCheckToken(targetAccountId, emailCheckToken);
+        validator.validateVerifyEmailCheckTokenLogic(loginAccount, targetAccountId, emailCheckToken);
 
         accountService.succeedVerifyEmailCheckToken(targetAccountId);
 

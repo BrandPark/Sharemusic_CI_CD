@@ -3,10 +3,10 @@ package com.brandpark.sharemusic.modules.account;
 import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
 import com.brandpark.sharemusic.api.v1.account.query.dto.FriendshipDataResponse;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
-import com.brandpark.sharemusic.modules.Validator;
+import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.modules.OldValidator;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import com.brandpark.sharemusic.modules.account.service.VerifyMailService;
@@ -32,7 +32,7 @@ public class AccountController {
     private final AccountRepository accountRepository;
     private final FollowRepository followRepository;
     private final AccountQueryRepository accountQueryRepository;
-    private final Validator formValidator;
+    private final OldValidator oldValidator;
 
     @GetMapping("/signup")
     public String signUpForm(Model model) {
@@ -44,7 +44,7 @@ public class AccountController {
     @PostMapping("/signup")
     public String signUpSubmit(@Valid SignUpForm form, BindingResult errors) {
 
-        formValidator.validateSignUpForm(form, errors);
+        oldValidator.validateSignUpForm(form, errors);
         if (errors.hasErrors()) {
             return "accounts/signup";
         }

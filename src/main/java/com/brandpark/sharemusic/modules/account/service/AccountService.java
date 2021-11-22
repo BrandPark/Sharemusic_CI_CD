@@ -139,10 +139,13 @@ public class AccountService implements UserDetailsService {
     }
 
     @Transactional
-    public void updateAccountInfo(UpdateAccountDto data, Account targetAccount) {
+    public void updateAccountInfo(UpdateAccountDto data, Long targetAccountId) {
+
+        Account targetAccount = accountRepository.findById(targetAccountId).get();
+
         targetAccount.updateInfo(
                 data.getName(),
-                data.getNickName(),
+                data.getNickname(),
                 data.getBio(),
                 data.getProfileImage()
         );
