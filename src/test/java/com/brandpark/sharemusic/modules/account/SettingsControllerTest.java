@@ -152,12 +152,12 @@ class SettingsControllerTest {
 
         // when, then
         mockMvc.perform(post("/accounts/edit/password")
-                        .param("currentPassword", wrongCurrentPassword)
-                        .param("password", "newPassword")
+                        .param("originPassword", wrongCurrentPassword)
+                        .param("updatePassword", "newPassword")
                         .param("confirmPassword", "newPassword")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeHasFieldErrorCode("updatePasswordForm", "currentPassword", "error.currentPassword"))
+                .andExpect(model().attributeHasFieldErrorCode("updatePasswordForm", "originPassword", "error.originPassword"))
                 .andExpect(model().attributeExists("account", "updatePasswordForm"))
                 .andExpect(view().name("accounts/settings/password"));
     }
@@ -172,8 +172,8 @@ class SettingsControllerTest {
 
         // when, then
         mockMvc.perform(post("/accounts/edit/password")
-                        .param("currentPassword", "000000000")
-                        .param("password", newPassword)
+                        .param("originPassword", "000000000")
+                        .param("updatePassword", newPassword)
                         .param("confirmPassword", newPassword + "diff")
                         .with(csrf()))
                 .andExpect(status().isOk())
@@ -189,14 +189,14 @@ class SettingsControllerTest {
 
         // given
         UpdatePasswordForm updatePasswordForm = new UpdatePasswordForm();
-        updatePasswordForm.setCurrentPassword("000000000");
-        updatePasswordForm.setPassword("newPassword");
+        updatePasswordForm.setOriginPassword("000000000");
+        updatePasswordForm.setUpdatePassword("newPassword");
         updatePasswordForm.setConfirmPassword("newPassword");
 
         // when
         mockMvc.perform(post("/accounts/edit/password")
-                        .param("currentPassword", updatePasswordForm.getCurrentPassword())
-                        .param("password", updatePasswordForm.getPassword())
+                        .param("originPassword", updatePasswordForm.getOriginPassword())
+                        .param("updatePassword", updatePasswordForm.getUpdatePassword())
                         .param("confirmPassword", updatePasswordForm.getConfirmPassword())
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
@@ -205,6 +205,6 @@ class SettingsControllerTest {
 
         // then
         Account account = accountRepository.findByEmail(savedAccount.getEmail());
-        assertTrue(passwordEncoder.matches(updatePasswordForm.getPassword(), account.getPassword()));
+        assertTrue(passwordEncoder.matches(updatePasswordForm.getUpdatePassword(), account.getPassword()));
     }
 }

@@ -3,7 +3,6 @@ package com.brandpark.sharemusic.modules.account;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.OldValidator;
-import com.brandpark.sharemusic.modules.util.MyUtil;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
@@ -29,8 +28,7 @@ public class SettingsController {
     @GetMapping("/basicinfo")
     public String basicInfoForm(@LoginAccount SessionAccount account, Model model) {
 
-        UpdateBasicInfoForm form = accountService.mapToForm(account);
-        form.setBio(MyUtil.toEscape(form.getBio()));
+        UpdateBasicInfoForm form = new UpdateBasicInfoForm(account);
 
         model.addAttribute("account", account);;
         model.addAttribute(form);
@@ -49,7 +47,7 @@ public class SettingsController {
             return "accounts/settings/basic-info";
         }
 
-        accountService.updateBasicInfo(form, account);
+        accountService.updateBasicInfo(form.toModuleDto(), account);
 
         attributes.addFlashAttribute("updateMessage", "프로필이 수정되었습니다.");
         return "redirect:/accounts/edit/basicinfo";
@@ -75,7 +73,7 @@ public class SettingsController {
             return "accounts/settings/password";
         }
 
-        accountService.updatePassword(form, account);
+        accountService.updatePasswordInfo(form.toModuleDto(), account);
 
         attributes.addFlashAttribute("updateMessage", "프로필이 수정되었습니다.");
         return "redirect:/accounts/edit/password";

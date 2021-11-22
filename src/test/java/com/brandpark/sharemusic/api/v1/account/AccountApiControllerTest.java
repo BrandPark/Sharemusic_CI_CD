@@ -646,6 +646,35 @@ class AccountApiControllerTest {
                 });
     }
 
+    @DisplayName("계정 생성 - 실패(이미 사용중인 이메일인 경우)")
+    @Test
+    public void CreateAccount_Fail_When_AlreadyUsedEmail() throws Exception {
+
+        // given
+        CreateAccountRequest reqData = new CreateAccountRequest();
+        reqData.setEmail(otherAccount.getEmail());
+        reqData.setName("newAccountName");
+        reqData.setNickname("newAccountNickname");
+        reqData.setPassword("password");
+        reqData.setConfirmPassword("password");
+
+        String url = "/api/v1/accounts";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.DUPLICATE_FIELD_EXCEPTION.getCode());
+                });
+    }
+
     @DisplayName("계정 생성 - 실패(비밀번호를 다르게 입력할 경우)")
     @Test
     public void CreateAccount_Fail_When_UnMatchPassword() throws Exception {

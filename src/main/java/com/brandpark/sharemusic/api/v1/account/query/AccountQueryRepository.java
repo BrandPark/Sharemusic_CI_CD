@@ -2,7 +2,7 @@ package com.brandpark.sharemusic.api.v1.account.query;
 
 import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
-import com.brandpark.sharemusic.api.v1.account.query.dto.FriendshipDataResponse;
+import com.brandpark.sharemusic.api.v1.account.query.dto.FriendshipDataForm;
 import com.brandpark.sharemusic.api.v1.search.dto.UserSearchResult;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
@@ -31,8 +31,8 @@ public class AccountQueryRepository {
     QFollow follow = QFollow.follow;
     QAccount account = QAccount.account;
 
-    public FriendshipDataResponse findFriendshipData(Long accountId) {
-        return queryFactory.select(Projections.fields(FriendshipDataResponse.class,
+    public FriendshipDataForm findFriendshipData(Long accountId) {
+        return queryFactory.select(Projections.fields(FriendshipDataForm.class,
                         ExpressionUtils.as(
                                 JPAExpressions.select(count(album.id))
                                         .from(album)

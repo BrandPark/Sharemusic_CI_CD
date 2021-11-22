@@ -67,7 +67,7 @@ public class AccountApiController {
 
         validator.validateCreateAccountLogic(createData);
 
-        return accountService.createAccount(createData);
+        return accountService.createAccount(createData).getId();
     }
 
     @PostMapping("/accounts/{targetAccountId}/password")
@@ -78,7 +78,7 @@ public class AccountApiController {
 
         validator.validateUpdatePasswordLogic(loginAccount, targetAccountId, updateData);
 
-        accountService.updatePassword(targetAccountId, updateData);
+        accountService.updateAccountPassword(updateData, targetAccountId);
 
         return targetAccountId;
     }
@@ -89,7 +89,7 @@ public class AccountApiController {
 
         validator.validateVerifyEmailCheckTokenLogic(loginAccount, targetAccountId, emailCheckToken);
 
-        accountService.succeedVerifyEmailCheckToken(targetAccountId);
+        accountService.assignUserRole(targetAccountId);
 
         return targetAccountId;
     }

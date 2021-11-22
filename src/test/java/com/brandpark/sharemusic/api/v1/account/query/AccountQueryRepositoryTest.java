@@ -3,7 +3,7 @@ package com.brandpark.sharemusic.api.v1.account.query;
 import com.brandpark.sharemusic.api.AlbumFactory;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
 import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
-import com.brandpark.sharemusic.api.v1.account.query.dto.FriendshipDataResponse;
+import com.brandpark.sharemusic.api.v1.account.query.dto.FriendshipDataForm;
 import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
@@ -62,10 +62,10 @@ class AccountQueryRepositoryTest {
         albumRepository.saveAll(albums);
 
         // when
-        FriendshipDataResponse activityData = accountQueryRepository.findFriendshipData(myAccount.getId());
+        FriendshipDataForm friendshipData = accountQueryRepository.findFriendshipData(myAccount.getId());
 
         // then
-        assertThat(activityData.getAlbumCount()).isEqualTo(albums.size());
+        assertThat(friendshipData.getAlbumCount()).isEqualTo(albums.size());
     }
 
     @DisplayName("팔로워 수 가져오기")
@@ -79,7 +79,7 @@ class AccountQueryRepositoryTest {
                 .build());
 
         // when
-        FriendshipDataResponse result = accountQueryRepository.findFriendshipData(myAccount.getId());
+        FriendshipDataForm result = accountQueryRepository.findFriendshipData(myAccount.getId());
 
         // then
         assertThat(result.getFollowerCount()).isEqualTo(1);
@@ -96,7 +96,7 @@ class AccountQueryRepositoryTest {
                 .build());
 
         // when
-        FriendshipDataResponse result = accountQueryRepository.findFriendshipData(myAccount.getId());
+        FriendshipDataForm result = accountQueryRepository.findFriendshipData(myAccount.getId());
 
         // then
         assertThat(result.getFollowingCount()).isEqualTo(1);

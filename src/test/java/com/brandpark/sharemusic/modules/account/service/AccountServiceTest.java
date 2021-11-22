@@ -1,11 +1,10 @@
 package com.brandpark.sharemusic.modules.account.service;
 
-import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
+import com.brandpark.sharemusic.testUtils.AccountFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -61,31 +60,13 @@ class AccountServiceTest {
         method.setAccessible(true);
 
         UpdatePasswordForm form = accountFactory.createUpdatePasswordForm();
-        String rawPassword = form.getPassword();
+        String rawPassword = form.getUpdatePassword();
 
         // when
         UpdatePasswordForm encodedForm = (UpdatePasswordForm) method.invoke(accountService, form);
 
         // then
-        assertThat(passwordEncoder.matches(rawPassword, encodedForm.getPassword())).isTrue();
-    }
-
-    @DisplayName("SessionAccount -> UpdateBasicInfoForm 필드 단순 삽입")
-    @Test
-    public void Account_To_UpdateBasicInfoForm() throws Exception {
-
-        // given
-        SessionAccount account = accountFactory.createSessionAccount("newAccount");
-
-        // when
-        UpdateBasicInfoForm form = accountService.mapToForm(account);
-
-        // then
-        assertThat(form.getEmail()).isEqualTo(account.getEmail());
-        assertThat(form.getNickname()).isEqualTo(account.getNickname());
-        assertThat(form.getBio()).isEqualTo(account.getBio());
-        assertThat(form.getName()).isEqualTo(account.getName());
-        assertThat(form.getProfileImage()).isEqualTo(account.getProfileImage());
+        assertThat(passwordEncoder.matches(rawPassword, encodedForm.getUpdatePassword())).isTrue();
     }
 
     @DisplayName("UpdateBasicInfoForm -> Account 필드 단순 삽입")
@@ -125,6 +106,6 @@ class AccountServiceTest {
         method.invoke(accountService, form, account);
 
         // then
-        assertThat(account.getPassword()).isEqualTo(form.getPassword());
+        assertThat(account.getPassword()).isEqualTo(form.getUpdatePassword());
     }
 }

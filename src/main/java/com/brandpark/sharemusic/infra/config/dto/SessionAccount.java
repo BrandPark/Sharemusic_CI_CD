@@ -1,5 +1,6 @@
 package com.brandpark.sharemusic.infra.config.dto;
 
+import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.Role;
 import lombok.Getter;
 
@@ -25,4 +26,16 @@ public class SessionAccount implements Serializable {
     private Role role;
 
     private String emailCheckToken;
+
+    public SessionAccount(Account account) {
+        id = account.getId();
+        name = account.getName();
+        nickname = account.getNickname();
+        email = account.getEmail();
+        password = account.getPassword();
+        bio = account.getBio();
+        profileImage = account.getProfileImage();
+        role = account.getRole();
+        emailCheckToken = account.getEmailCheckToken();
+    }
 }

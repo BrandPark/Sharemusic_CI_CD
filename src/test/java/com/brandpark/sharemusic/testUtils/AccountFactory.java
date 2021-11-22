@@ -104,8 +104,8 @@ public class AccountFactory {
 
     public UpdatePasswordForm createUpdatePasswordForm() {
         UpdatePasswordForm form = new UpdatePasswordForm();
-        form.setCurrentPassword(password);
-        form.setPassword("111111111");
+        form.setOriginPassword(password);
+        form.setUpdatePassword("111111111");
         form.setConfirmPassword("111111111");
 
         return form;

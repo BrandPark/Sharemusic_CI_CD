@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.modules.account;
 
 import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
-import com.brandpark.sharemusic.api.v1.account.query.dto.FriendshipDataResponse;
+import com.brandpark.sharemusic.api.v1.account.query.dto.FriendshipDataForm;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.OldValidator;
@@ -49,26 +49,22 @@ public class AccountController {
             return "accounts/signup";
         }
 
-        Account newAccount = accountService.signUp(form);
+        SessionAccount newAccount = accountService.signUp(form.toModuleDto());
 
-        SessionAccount sessionAccount = accountService.mapToSessionAccount(newAccount);
-        verifyMailService.sendSignUpConfirmMail(sessionAccount);
+        verifyMailService.sendSignUpConfirmMail(newAccount);
 
         return "redirect:/send-mail-info";
     }
 
     @GetMapping("/{nickname}")
-    public String profileView(@LoginAccount SessionAccount account, @PathVariable String nickname, Model model) {
+    public String viewProfile(@LoginAccount SessionAccount account, @PathVariable String nickname, Model model) {
 
+        oldValidator.validateViewProfile(nickname);
         if (account != null) {
             model.addAttribute("account", account);
         }
 
         Account profileAccount = accountRepository.findByNickname(nickname);
-        if (profileAccount == null) {
-            throw new IllegalArgumentException(nickname + "은(는) 존재하지 않는 닉네임 입니다.");
-        }
-
         model.addAttribute("targetAccount", profileAccount);
 
         boolean isOwner = account != null && nickname.equals(account.getNickname());
@@ -77,8 +73,8 @@ public class AccountController {
         boolean isFollowing = account != null && followRepository.isFollowing(account.getId(), profileAccount.getId());
         model.addAttribute("isFollowing", isFollowing);
 
-        FriendshipDataResponse activityData = accountQueryRepository.findFriendshipData(profileAccount.getId());
-        model.addAttribute("activityData", activityData);
+        FriendshipDataForm friendshipData = accountQueryRepository.findFriendshipData(profileAccount.getId());
+        model.addAttribute("friendshipData", friendshipData);
 
         return "accounts/profile";
     }

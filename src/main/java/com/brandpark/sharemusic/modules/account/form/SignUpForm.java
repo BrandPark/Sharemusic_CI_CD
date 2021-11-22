@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.modules.account.form;
 
-import com.brandpark.sharemusic.modules.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
@@ -33,12 +33,13 @@ public class SignUpForm {
     @Length(min = 8, max = 30, message = "비밀번호는 8자 이상 30자 이하로 입력해 주세요.")
     private String confirmPassword;
 
-    public Account toEntity() {
-        return Account.builder()
-                .email(email)
-                .name(name)
-                .nickname(nickname)
-                .password(password)
-                .build();
+    public CreateAccountDto toModuleDto() {
+        return new CreateAccountDto(
+                email,
+                name,
+                nickname,
+                password,
+                confirmPassword
+        );
     }
 }

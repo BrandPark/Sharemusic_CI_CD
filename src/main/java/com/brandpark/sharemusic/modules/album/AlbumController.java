@@ -30,9 +30,9 @@ public class AlbumController {
     }
 
     @GetMapping("/albums/{albumId}/update")
-    public String updateAlbumForm(@LoginAccount SessionAccount account, Model model, @PathVariable("albumId") Album album) {
+    public String viewUpdateAlbumForm(@LoginAccount SessionAccount account, Model model, @PathVariable("albumId") Album album) {
 
-        validator.validateAlbumHost(account.getId(), album.getAccountId());
+        validator.validateViewUpdateAlbumForm(account.getId(), album.getAccountId());
 
         model.addAttribute("account", account);
 

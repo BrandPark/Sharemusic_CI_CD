@@ -26,16 +26,16 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-2 p-0">
-                            앨범 <span class="font-weight-bold" th:text="${activityData.getAlbumCount()}">0</span>
+                            앨범 <span class="font-weight-bold" th:text="${friendshipData.getAlbumCount()}">0</span>
                         </div>
                         <div class="col-md-2 p-0">
                             <a class="text-dark" href="javascript:profile.popFollowerList()">
-                                팔로워 <span id="follower" class="font-weight-bold" th:text="${activityData.getFollowerCount()}">0</span>
+                                팔로워 <span id="follower" class="font-weight-bold" th:text="${friendshipData.getFollowerCount()}">0</span>
                             </a>
                         </div>
                         <div class="col-md-2 p-0">
                             <a class="text-dark" href="javascript:profile.popFollowingList()">
-                                팔로잉 <span id="following" class="font-weight-bold" th:text="${activityData.getFollowingCount()}">0</span>
+                                팔로잉 <span id="following" class="font-weight-bold" th:text="${friendshipData.getFollowingCount()}">0</span>
                             </a>
                         </div>
                     </div>

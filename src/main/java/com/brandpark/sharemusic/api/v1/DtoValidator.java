@@ -17,8 +17,6 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.brandpark.sharemusic.api.v1.exception.Error.DUPLICATE_FIELD_EXCEPTION;
-
 @RequiredArgsConstructor
 @Component
 public class DtoValidator {
@@ -119,22 +117,6 @@ public class DtoValidator {
     public void validateNotification(Long loginId, Long notificationAccountId) {
         if (!loginId.equals(notificationAccountId)) {
             throw new ApiException(Error.FORBIDDEN_EXCEPTION, "해당 알림에 대한 권한이 없습니다.");
-        }
-    }
-
-    private void validatePassword(String password, String confirmPassword) {
-        if (!StringUtils.hasText(password)) {
-            throw new ApiException(Error.ILLEGAL_ARGUMENT_EXCEPTION, "비밀번호를 입력해주세요");
-        } else {
-            if (!confirmPassword.equals(password)) {
-                throw new ApiException(Error.ILLEGAL_ARGUMENT_EXCEPTION, "비밀번호가 일치하지 않습니다.");
-            }
-        }
-    }
-
-    private void validateDuplicateNickname(String nickname) {
-        if (accountRepository.existsByNickname(nickname)) {
-            throw new ApiException(DUPLICATE_FIELD_EXCEPTION, "이미 존재하는 닉네임입니다.");
         }
     }
 

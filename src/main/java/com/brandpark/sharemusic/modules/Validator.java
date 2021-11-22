@@ -1,94 +1,103 @@
 package com.brandpark.sharemusic.modules;
 
+import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
-import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
-import com.brandpark.sharemusic.modules.account.form.SignUpForm;
-import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
-import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
-import com.brandpark.sharemusic.modules.exception.ForbiddenAccessException;
+import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
+import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
+import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.validation.BindingResult;
+
+import static com.brandpark.sharemusic.api.v1.exception.Error.*;
 
 @RequiredArgsConstructor
 @Component
 public class Validator {
 
     private final AccountRepository accountRepository;
+    private final PasswordEncoder encoder;
 
-    private final PasswordEncoder passwordEncoder;
+    public void validateUpdateAccountLogic(SessionAccount loginAccount, Long targetAccountId, UpdateAccountDto updateData) {
 
-    public void validateSignUpForm(SignUpForm form, BindingResult errors) {
-        validateDuplicateEmail(form.getEmail(), errors);
-        validateDuplicateNickname(form.getNickname(), errors);
-        validatePasswordDiff(form.getPassword(), form.getConfirmPassword(), errors);
-    }
+        checkAuthorityToModify(loginAccount, targetAccountId);
 
-    public void validateBasicInfoForm(SessionAccount account, UpdateBasicInfoForm form, BindingResult errors) {
-        if (!form.getNickname().equals(account.getNickname())) {
-            validateDuplicateNickname(form.getNickname(), errors);
+        final String currentNickname = loginAccount.getNickname();
+        final String updateNickname = updateData.getNickname();
+        final boolean isModifiedNickname = !updateNickname.equals(currentNickname);
+
+        if (isModifiedNickname) {
+            checkDuplicatedNickname(updateNickname);
         }
     }
 
-    public void validatePasswordForm(SessionAccount account, UpdatePasswordForm form, BindingResult errors) {
-        validatePasswordDiff(form.getPassword(), form.getConfirmPassword(), errors);
-        validateInputCurrentPassword(form.getCurrentPassword(), account.getPassword(), errors);
+    public void validateCreateAccountLogic(CreateAccountDto createData) {
+        final String email = createData.getEmail();
+        final String nickname = createData.getNickname();
+        final String password = createData.getPassword();
+        final String confirmPassword = createData.getConfirmPassword();
+
+        checkDuplicatedEmail(email);
+        checkDuplicatedNickname(nickname);
+        checkCorrectConfirmPassword(password, confirmPassword);
     }
 
-    private void validateDuplicateNickname(String nickname, BindingResult errors) {
-        if (accountRepository.existsByNickname(nickname)) {
-            errors.rejectValue("nickname", "error.nickname", "이미 존재하는 닉네임입니다.");
-        }
-    }
-
-    private void validateDuplicateEmail(String email, BindingResult errors) {
+    private void checkDuplicatedEmail(String email) {
         if (accountRepository.existsByEmail(email)) {
-            errors.rejectValue("email", "error.email", "이미 가입된 계정이 있습니다.");
+            throw new ApiException(DUPLICATE_FIELD_EXCEPTION, "이미 계정이 존재하는 이메일입니다.");
         }
     }
 
-    private void validateInputCurrentPassword(String inputCurrentPassword, String originCurrentPassword, BindingResult errors) {
-        if (!passwordEncoder.matches(inputCurrentPassword, originCurrentPassword)) {
-            errors.rejectValue("currentPassword", "error.currentPassword"
-                    , "현재 비밀번호가 일치하지 않습니다.");
+    public void validateUpdatePasswordLogic(SessionAccount loginAccount, Long targetAccountId, UpdatePasswordDto updateData) {
+
+        checkAuthorityToModify(loginAccount, targetAccountId);
+
+        final String originPassword = updateData.getOriginPassword();
+        final String updatePassword = updateData.getUpdatePassword();
+        final String confirmPassword = updateData.getConfirmPassword();
+
+        if (!encoder.matches(originPassword, loginAccount.getPassword())) {
+            throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        checkCorrectConfirmPassword(updatePassword, confirmPassword);
+
+        if (originPassword.equals(updatePassword)) {
+            throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "변경할 비밀번호가 현재 비밀번호와 같습니다.");
         }
     }
 
-    public void validatePasswordDiff(String password, String confirmPassword, BindingResult errors) {
-        if (!password.equals(confirmPassword)) {
-            errors.rejectValue("confirmPassword", "error.confirmPassword", "패스워드가 일치하지 않습니다.");
+    public void validateVerifyEmailCheckTokenLogic(SessionAccount loginAccount, Long targetAccountId, String emailCheckToken) {
+
+        checkAuthorityToModify(loginAccount, targetAccountId);
+
+        if (loginAccount.getRole() == Role.USER) {
+            throw new ApiException(ILLEGAL_ACCESS_EXCEPTION
+                    , "'" + loginAccount.getEmail() + "' 은 이미 인증된 이메일 계정입니다.");
+
+        } else if (!StringUtils.hasText(emailCheckToken) || !loginAccount.getEmailCheckToken().equals(emailCheckToken)) {
+            throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "인증 토큰이 유효하지 않습니다.");
         }
     }
 
-    public void validateVerificationEmailToken(String token, String email, BindingResult errors) {
-
-        if (!StringUtils.hasText(token) || !StringUtils.hasText(email)) {
-
-            String message = "유효하지 않은 링크입니다. 메일 재전송 버튼을 눌러주세요.";
-            errors.reject("error.verifyEmailLink", message);
-        }
-
-        Account accountByEmail = accountRepository.findByEmail(email);
-        if (accountByEmail == null || !accountByEmail.getEmailCheckToken().equals(token)) {
-
-            String message = "발신자 신원을 확인할 수 없습니다. 메일 재전송 버튼을 눌러주세요.";
-            errors.reject("error.notValidToken", message);
-        }
-
-        else if (accountByEmail.getRole() == Role.USER) {
-
-            String message = "이미 인증이 완료된 계정입니다.";
-            errors.reject("error.alreadyVerified", message);
+    private void checkCorrectConfirmPassword(String password, String confirmPassword) {
+        if (!confirmPassword.equals(password)) {
+            throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "비밀번호가 일치하지 않습니다.");
         }
     }
 
-    public void validateAlbumHost(Long loginId, Long albumHostId) {
-        if (!loginId.equals(albumHostId)) {
-            throw new ForbiddenAccessException("올바르지 않은 접근입니다. ");
+    private void checkDuplicatedNickname(String updateNickname) {
+        if (accountRepository.existsByNickname(updateNickname)) {
+            throw new ApiException(DUPLICATE_FIELD_EXCEPTION, "이미 존재하는 닉네임입니다.");
+        }
+    }
+
+    private void checkAuthorityToModify(SessionAccount loginAccount, Long targetAccountId) {
+        if (!loginAccount.getId().equals(targetAccountId)) {
+            throw new ApiException(FORBIDDEN_EXCEPTION);
         }
     }
 }
