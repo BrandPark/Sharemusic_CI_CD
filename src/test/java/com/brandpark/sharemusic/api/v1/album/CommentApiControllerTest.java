@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.api.v1.album;
 
-import com.brandpark.sharemusic.api.AlbumFactory;
+import com.brandpark.sharemusic.testUtils.AlbumFactory;
 import com.brandpark.sharemusic.api.v1.album.query.dto.CommentDetailDto;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;

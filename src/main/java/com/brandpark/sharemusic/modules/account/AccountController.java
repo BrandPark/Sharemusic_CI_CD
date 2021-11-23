@@ -1,16 +1,16 @@
 package com.brandpark.sharemusic.modules.account;
 
 import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
-import com.brandpark.sharemusic.api.v1.account.query.dto.FriendshipDataForm;
+import com.brandpark.sharemusic.modules.account.form.FriendshipDataForm;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
-import com.brandpark.sharemusic.modules.OldValidator;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.FormValidator;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import com.brandpark.sharemusic.modules.account.service.VerifyMailService;
-import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
+import com.brandpark.sharemusic.modules.account.domain.FollowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,7 +32,7 @@ public class AccountController {
     private final AccountRepository accountRepository;
     private final FollowRepository followRepository;
     private final AccountQueryRepository accountQueryRepository;
-    private final OldValidator oldValidator;
+    private final FormValidator formValidator;
 
     @GetMapping("/signup")
     public String signUpForm(Model model) {
@@ -44,7 +44,7 @@ public class AccountController {
     @PostMapping("/signup")
     public String signUpSubmit(@Valid SignUpForm form, BindingResult errors) {
 
-        oldValidator.validateSignUpForm(form, errors);
+        formValidator.validateSignUpForm(form, errors);
         if (errors.hasErrors()) {
             return "accounts/signup";
         }
@@ -59,7 +59,7 @@ public class AccountController {
     @GetMapping("/{nickname}")
     public String viewProfile(@LoginAccount SessionAccount account, @PathVariable String nickname, Model model) {
 
-        oldValidator.validateViewProfile(nickname);
+        formValidator.validateViewProfile(nickname);
         if (account != null) {
             model.addAttribute("account", account);
         }
@@ -73,7 +73,7 @@ public class AccountController {
         boolean isFollowing = account != null && followRepository.isFollowing(account.getId(), profileAccount.getId());
         model.addAttribute("isFollowing", isFollowing);
 
-        FriendshipDataForm friendshipData = accountQueryRepository.findFriendshipData(profileAccount.getId());
+        FriendshipDataForm friendshipData = accountRepository.findFriendshipData(profileAccount.getId());
         model.addAttribute("friendshipData", friendshipData);
 
         return "accounts/profile";

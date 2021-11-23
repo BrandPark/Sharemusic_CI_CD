@@ -3,8 +3,8 @@ package com.brandpark.sharemusic.modules.album;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
-import com.brandpark.sharemusic.modules.OldValidator;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.FormValidator;
 import com.brandpark.sharemusic.modules.util.MyUtil;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.form.AlbumUpdateForm;
@@ -21,7 +21,7 @@ public class AlbumController {
 
     private final AlbumService albumService;
     private final AlbumQueryRepository albumQueryRepository;
-    private final OldValidator validator;
+    private final FormValidator validator;
 
     @GetMapping("/albums")
     public String createAlbumForm(@LoginAccount SessionAccount account, Model model) {

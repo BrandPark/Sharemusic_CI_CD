@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.modules.search;
 
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.search.form.SearchForm;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

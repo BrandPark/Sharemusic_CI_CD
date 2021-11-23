@@ -1,12 +1,14 @@
 package com.brandpark.sharemusic.modules;
 
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.api.v1.exception.Error;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordDto;
+import com.brandpark.sharemusic.modules.account.domain.FollowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,7 @@ import static com.brandpark.sharemusic.api.v1.exception.Error.*;
 public class Validator {
 
     private final AccountRepository accountRepository;
+    private final FollowRepository followRepository;
     private final PasswordEncoder encoder;
 
     public void validateUpdateAccountLogic(SessionAccount loginAccount, Long targetAccountId, UpdateAccountDto updateData) {
@@ -80,6 +83,47 @@ public class Validator {
 
         } else if (!StringUtils.hasText(emailCheckToken) || !loginAccount.getEmailCheckToken().equals(emailCheckToken)) {
             throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "인증 토큰이 유효하지 않습니다.");
+        }
+    }
+
+    public void validateFindAllFollowers(Long targetAccountId) {
+        checkExistAccountById(targetAccountId);
+    }
+
+    public void validateFindAllFollowings(Long targetAccountId) {
+        checkExistAccountById(targetAccountId);
+    }
+
+    public void validateFollow(SessionAccount loginAccount, Long targetAccountId) {
+        checkExistAccountById(targetAccountId);
+
+        checkEnableFollow(loginAccount.getId(), targetAccountId);
+    }
+
+    public void validateUnfollow(SessionAccount loginAccount, Long targetAccountId) {
+        checkExistAccountById(targetAccountId);
+
+        checkEnableUnfollow(loginAccount.getId(), targetAccountId);
+    }
+
+    private void checkEnableFollow(Long loginAccountId, Long targetAccountId) {
+        if (followRepository.isFollowing(loginAccountId, targetAccountId)) {
+            throw new ApiException(Error.ILLEGAL_ACCESS_EXCEPTION, "이미 팔로우 중입니다.");
+        }
+        if (loginAccountId.equals(targetAccountId)) {
+            throw new ApiException(Error.ILLEGAL_ACCESS_EXCEPTION, "자기 자신은 팔로우 할 수 없습니다.");
+        }
+    }
+
+    private void checkEnableUnfollow(Long loginAccountId, Long targetAccountId) {
+        if (!followRepository.isFollowing(loginAccountId, targetAccountId)) {
+            throw new ApiException(Error.ILLEGAL_ACCESS_EXCEPTION, "팔로잉 상태가 아닙니다.");
+        }
+    }
+
+    private void checkExistAccountById(Long targetAccountId) {
+        if (!accountRepository.existsById(targetAccountId)) {
+            throw new ApiException(NOT_FOUND_ACCOUNT_EXCEPTION);
         }
     }
 

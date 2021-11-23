@@ -13,6 +13,7 @@ import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
+import com.brandpark.sharemusic.testUtils.AssertUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,10 +66,13 @@ class AccountApiControllerTest {
         // given
         accountFactory.persistAccountList("otherAccounts", 10);
 
-        String url = "/api/v1/accounts";
         int pageNum = 0;
         int pageSize = 10;
         int totalElementCount = 13;
+
+        int expectedFindResultCount = 10;
+
+        String url = "/api/v1/accounts";
 
         // when
         mockMvc.perform(get(url)
@@ -82,11 +86,11 @@ class AccountApiControllerTest {
                     });
 
                     // then
-                    assertPage(pageNum, pageSize, totalElementCount, resultPage);
+                    AssertUtil.assertPage(pageNum, pageSize, totalElementCount, resultPage);
 
                     List<AccountInfoResponse> result = resultPage.getContent();
 
-                    assertThat(result.size()).isEqualTo(pageSize);
+                    assertThat(result.size()).isEqualTo(expectedFindResultCount);
 
                     assertAccountInfoResponse(result.get(0));
                 });
@@ -99,10 +103,13 @@ class AccountApiControllerTest {
         // given
         accountFactory.persistAccountList("otherAccounts", 10);
 
-        String url = "/api/v1/accounts";
         int pageNum = 1;
         int pageSize = 10;
         int totalElementCount = 13;
+
+        int expectedFindResultCount = 3;
+
+        String url = "/api/v1/accounts";
 
         // when
         mockMvc.perform(get(url)
@@ -117,11 +124,11 @@ class AccountApiControllerTest {
                     });
 
                     // then
-                    assertPage(pageNum, pageSize, totalElementCount, resultPage);
+                    AssertUtil.assertPage(pageNum, pageSize, totalElementCount, resultPage);
 
                     List<AccountInfoResponse> result = resultPage.getContent();
 
-                    assertThat(result.size()).isEqualTo(totalElementCount - (pageSize * pageNum));
+                    assertThat(result.size()).isEqualTo(expectedFindResultCount);
 
                     AccountInfoResponse resultOne = result.get(0);
                     assertAccountInfoResponse(resultOne);
@@ -1098,15 +1105,6 @@ class AccountApiControllerTest {
         assertThat(resultOne.getProfileImage()).containsIgnoringCase("image");
         assertThat(resultOne.getRole()).isNotNull();
         assertThat(resultOne.getEmailVerified()).isNotNull();
-    }
-
-    private void assertPage(int pageNum, int pageSize, int totalElementCount, PageResult<AccountInfoResponse> page) {
-        assertThat(page.getPageNumber()).isEqualTo(pageNum);
-        assertThat(page.getPageSize()).isEqualTo(pageSize);
-        assertThat(page.getOffset()).isEqualTo(pageSize * pageNum);
-        assertThat(page.getTotalPages()).isGreaterThan(0);
-        assertThat(page.getNumberOfElements()).isGreaterThan(0);
-        assertThat(page.getTotalElements()).isEqualTo(totalElementCount);
     }
 
     private boolean isSamePassword(String rawPassword, String encodedPassword) {

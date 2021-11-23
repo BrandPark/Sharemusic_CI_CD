@@ -7,7 +7,7 @@ import com.brandpark.sharemusic.api.v1.notification.query.NotificationQueryRepos
 import com.brandpark.sharemusic.api.v1.notification.query.dto.NotificationInfo;
 import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.notification.NotificationService;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
 import com.brandpark.sharemusic.modules.notification.domain.Notification;

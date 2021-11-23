@@ -1,7 +1,9 @@
 package com.brandpark.sharemusic.modules.account.service;
 
+import com.brandpark.sharemusic.api.v1.exception.ApiException;
+import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.infra.config.auth.CustomUserDetails;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
@@ -9,8 +11,8 @@ import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordDto;
 import com.brandpark.sharemusic.modules.event.FollowEvent;
-import com.brandpark.sharemusic.modules.follow.domain.Follow;
-import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
+import com.brandpark.sharemusic.modules.account.domain.Follow;
+import com.brandpark.sharemusic.modules.account.domain.FollowRepository;
 import com.brandpark.sharemusic.modules.util.MyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -112,7 +114,10 @@ public class AccountService implements UserDetailsService {
     }
 
     @Transactional
-    public Long doFollow(Account follower, Account target) {
+    public Long doFollow(Long followerId, Long targetAccountId) {
+
+        final Account follower = accountRepository.findById(followerId).get();
+        final Account target = accountRepository.findById(targetAccountId).get();
 
         eventPublisher.publishEvent(FollowEvent.builder()
                 .follower(follower)
@@ -123,6 +128,17 @@ public class AccountService implements UserDetailsService {
                 .follower(follower)
                 .target(target)
                 .build()).getId();
+    }
+
+    @Transactional
+    public Long doUnfollow(Long followerId, Long targetAccountId) {
+
+        Follow follow = followRepository.findByFollowerIdAndTargetId(followerId, targetAccountId)
+                .orElseThrow(() -> new ApiException(Error.ILLEGAL_ACCESS_EXCEPTION));
+
+        followRepository.delete(follow);
+
+        return follow.getId();
     }
 
     @Override

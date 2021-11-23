@@ -7,7 +7,7 @@ import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.comment.CommentService;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;

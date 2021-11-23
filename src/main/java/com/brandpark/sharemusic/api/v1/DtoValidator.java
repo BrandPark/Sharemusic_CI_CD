@@ -6,7 +6,7 @@ import com.brandpark.sharemusic.api.v1.album.dto.TrackSaveRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.TrackUpdateRequest;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;

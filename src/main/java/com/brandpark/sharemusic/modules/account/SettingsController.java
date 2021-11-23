@@ -1,8 +1,8 @@
 package com.brandpark.sharemusic.modules.account;
 
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
-import com.brandpark.sharemusic.modules.OldValidator;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.FormValidator;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
@@ -23,14 +23,14 @@ import javax.validation.Valid;
 public class SettingsController {
 
     private final AccountService accountService;
-    private final OldValidator formValidator;
+    private final FormValidator formValidator;
 
     @GetMapping("/basicinfo")
     public String basicInfoForm(@LoginAccount SessionAccount account, Model model) {
 
         UpdateBasicInfoForm form = new UpdateBasicInfoForm(account);
 
-        model.addAttribute("account", account);;
+        model.addAttribute("account", account);
         model.addAttribute(form);
 
         return "accounts/settings/basic-info";

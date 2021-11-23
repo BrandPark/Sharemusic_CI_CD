@@ -4,7 +4,7 @@ import com.brandpark.sharemusic.infra.config.AppProperties;
 import com.brandpark.sharemusic.infra.mail.MailMessage;
 import com.brandpark.sharemusic.infra.mail.MailService;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

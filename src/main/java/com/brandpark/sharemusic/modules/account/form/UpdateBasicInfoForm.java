@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.modules.account.form;
 
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
 import com.brandpark.sharemusic.modules.util.MyUtil;
 import lombok.Data;
