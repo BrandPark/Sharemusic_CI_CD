@@ -4,12 +4,13 @@ import com.brandpark.sharemusic.testUtils.AlbumFactory;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AlbumSaveRequestTest {
 
-    AlbumFactory albumFactory = new AlbumFactory();
+    @Autowired AlbumFactory albumFactory;
 
     @DisplayName("AlbumSaveRequest -> Album-Track 도메인 생성")
     @Test

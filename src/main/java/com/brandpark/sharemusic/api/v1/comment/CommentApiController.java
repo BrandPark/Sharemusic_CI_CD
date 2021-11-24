@@ -1,6 +1,6 @@
-package com.brandpark.sharemusic.api.v1.album;
+package com.brandpark.sharemusic.api.v1.comment;
 
-import com.brandpark.sharemusic.api.v1.DtoValidator;
+import com.brandpark.sharemusic.api.v1.OldApiValidator;
 import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.api.v1.album.query.dto.CommentDetailDto;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
@@ -25,7 +25,7 @@ public class CommentApiController {
     private final AlbumQueryRepository albumQueryRepository;
     private final CommentService commentService;
     private final CommentRepository commentRepository;
-    private final DtoValidator dtoValidator;
+    private final OldApiValidator oldApiValidator;
 
     @GetMapping("/albums/{albumId}/comments")
     public PagingDto<CommentDetailDto> getAllComments(@PathVariable Long albumId, @PageableDefault(size = 10) Pageable pageable) {
@@ -47,7 +47,7 @@ public class CommentApiController {
     @DeleteMapping("/albums/{albumId}/comments/{commentId}")
     public void deleteComment(@LoginAccount SessionAccount account, @PathVariable("commentId") Comment comment) {
 
-        dtoValidator.validateDeleteComment(comment, account);
+        oldApiValidator.validateDeleteComment(comment, account);
 
         commentRepository.delete(comment);
     }

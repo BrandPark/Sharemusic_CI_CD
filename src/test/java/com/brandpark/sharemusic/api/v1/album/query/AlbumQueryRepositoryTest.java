@@ -1,18 +1,19 @@
 package com.brandpark.sharemusic.api.v1.album.query;
 
-import com.brandpark.sharemusic.testUtils.AlbumFactory;
 import com.brandpark.sharemusic.api.SearchDto;
+import com.brandpark.sharemusic.api.page.PageResult;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
-import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
-import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
+import com.brandpark.sharemusic.testUtils.AccountFactory;
+import com.brandpark.sharemusic.testUtils.AlbumFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,27 +33,47 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 class AlbumQueryRepositoryTest {
 
-    @Autowired AlbumQueryRepository queryRepository;
+    @Autowired AlbumQueryRepository albumQueryRepository;
     @Autowired AlbumFactory albumFactory;
     @Autowired AccountFactory accountFactory;
     @Autowired AlbumRepository albumRepository;
     @Autowired AccountRepository accountRepository;
     @Autowired CommentRepository commentRepository;
-    Account user;
+    Account account;
     Album firstAlbum;
     List<Album> savedAlbums = new ArrayList<>();
 
     @BeforeEach
     public void setUp() {
-        user = accountFactory.createAccount("닉네임");
-        accountRepository.save(user);
+//        account = accountFactory.persistAccount("myAccount");
+//
+//        firstAlbum = albumFactory.createAlbumWithTracks("처음 생성된 앨범", 5, account.getId());
+//        albumRepository.save(firstAlbum);
+//        savedAlbums.add(firstAlbum);
+//
+//        createComments();
+//        createAndAddAlbums(savedAlbums);
+    }
 
-        firstAlbum = albumFactory.createAlbumWithTracks("처음 생성된 앨범", 5, user.getId());
-        albumRepository.save(firstAlbum);
-        savedAlbums.add(firstAlbum);
+    @DisplayName("앨범정보 모두 조회")
+    @Test
+    public void FindAllAlbumInfoResponse() throws Exception {
 
-        createComments();
-        createAndAddAlbums(savedAlbums);
+        // given
+        Account accountHasAlbum = accountFactory.persistAccount("accountHasAlbum");
+        int albumCount = 12;
+
+        albumFactory.persistAlbumsWithTracks("앨범", albumCount, 10, accountHasAlbum.getId());
+
+        assertThat(albumRepository.count()).isEqualTo(albumCount);
+
+        PageRequest request = PageRequest.of(0, 5);
+
+        // when
+        List<AlbumInfoResponse> allAlbumsInfo = albumQueryRepository.findAllAlbumsInfo(request);
+
+        // then
+        assertThat(allAlbumsInfo.size()).isEqualTo(10);
     }
 
     @DisplayName("한 페이지 앨범의 간략한 정보 DB 생성날짜 내림차순 조회 - 성공")
@@ -63,9 +84,9 @@ class AlbumQueryRepositoryTest {
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // when
-        PagingDto<AlbumShortDto> responseDto = queryRepository.findAllAlbumsByAccountIdList(pageRequest,  new SearchDto());
+        PageResult<AlbumShortDto> responseDto = albumQueryRepository.findAllAlbumsByAccountIdList(pageRequest,  new SearchDto());
 
-        List<AlbumShortDto> pageContent = responseDto.getContents();
+        List<AlbumShortDto> pageContent = responseDto.getContent();
         AlbumShortDto resultFirst = pageContent.get(0);
 
         // then
@@ -78,8 +99,8 @@ class AlbumQueryRepositoryTest {
         assertThat(resultFirst.getAlbumImage()).isEqualTo(lastCreateAlbum.getAlbumImage());
         assertThat(resultFirst.getDescription()).isEqualTo(lastCreateAlbum.getDescription());
         assertThat(resultFirst.getTrackCount()).isEqualTo(lastCreateAlbum.getTrackCount());
-        assertThat(resultFirst.getCreatorNickname()).isEqualTo(user.getNickname());
-        assertThat(resultFirst.getCreatorProfileImage()).isEqualTo(user.getProfileImage());
+        assertThat(resultFirst.getCreatorNickname()).isEqualTo(account.getNickname());
+        assertThat(resultFirst.getCreatorProfileImage()).isEqualTo(account.getProfileImage());
     }
 
     @DisplayName("앨범의 디테일 정보 DB 조회")
@@ -90,15 +111,15 @@ class AlbumQueryRepositoryTest {
         Long retrieveAlbumId = firstAlbum.getId();
 
         // when
-        AlbumDetailDto result = queryRepository.findAlbumDetailDtoById(retrieveAlbumId);
+        AlbumDetailDto result = albumQueryRepository.findAlbumDetailDtoById(retrieveAlbumId);
 
         // then
         assertThat(result.getId()).isEqualTo(firstAlbum.getId());
         assertThat(result.getTitle()).isEqualTo(firstAlbum.getTitle());
         assertThat(result.getAlbumImage()).isEqualTo(firstAlbum.getAlbumImage());
         assertThat(result.getDescription()).isEqualTo(firstAlbum.getDescription());
-        assertThat(result.getCreator()).isEqualTo(user.getNickname());
-        assertThat(result.getCreatorProfileImage()).isEqualTo(user.getProfileImage());
+        assertThat(result.getCreator()).isEqualTo(account.getNickname());
+        assertThat(result.getCreatorProfileImage()).isEqualTo(account.getProfileImage());
 
         List<TrackDetailDto> tracks = result.getTracks();
         assertThat(tracks.size()).isEqualTo(firstAlbum.getTracks().size());
@@ -109,7 +130,7 @@ class AlbumQueryRepositoryTest {
 
     private void createAndAddAlbums(List<Album> albums) {
         for (int i = 0; i < 30; i++) {
-            Album album = albumFactory.createAlbumWithTracks("또다른 앨범" + i, 5, user.getId());
+            Album album = albumFactory.createAlbumWithTracks("또다른 앨범" + i, 5, account.getId());
             albumRepository.save(album);
 
             albums.add(album);
@@ -118,7 +139,7 @@ class AlbumQueryRepositoryTest {
 
     private void createComments() {
         for (int i = 0; i < 9; i++) {
-            Comment comment = albumFactory.createComment(firstAlbum.getId(), user.getId(), firstAlbum.getTitle() + ".댓글_" + i);
+            Comment comment = albumFactory.createComment(firstAlbum.getId(), account.getId(), firstAlbum.getTitle() + ".댓글_" + i);
             commentRepository.save(comment);
         }
     }

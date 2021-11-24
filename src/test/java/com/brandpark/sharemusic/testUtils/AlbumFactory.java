@@ -5,28 +5,51 @@ import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.TrackSaveRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.TrackUpdateRequest;
 import com.brandpark.sharemusic.modules.album.domain.Album;
+import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.album.domain.Track;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Profile("test")
 @Component
 public class AlbumFactory {
 
-    @Autowired ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+    private final AlbumRepository albumRepository;
+
+    public Album persistAlbumWithTracks(String title, int trackCount, Long accountId) {
+        return albumRepository.save(createAlbumWithTracks(title, trackCount, accountId));
+    }
+
+    public List<Album> persistAlbumsWithTracks(String title, int albumCount, int trackCount, Long accountId) {
+        return albumRepository.saveAll(createAlbumsWithTracks(title, albumCount, trackCount, accountId));
+    }
+
+    public List<Album> createAlbumsWithTracks(String title, int albumCount, int trackCount, Long accountId) {
+        List<Album> result = new ArrayList<>();
+
+        for (int i = 0; i < albumCount; i++) {
+            Album albumWithTracks = createAlbumWithTracks("title" + i, trackCount, accountId);
+            result.add(albumWithTracks);
+        }
+
+        return result;
+    }
 
     public Album createAlbumWithTracks(String title, int trackCount, Long accountId) {
         Album album = Album.builder()
                 .title(title)
+                .trackCount(trackCount)
                 .accountId(accountId)
-                .description("앨범 소개")
-                .albumImage("앨범 이미지")
+                .description(title + ".description")
+                .albumImage(title + ".image")
                 .build();
 
         List<Track> tracks = createTracksContainingAlbum(trackCount, album);
@@ -45,7 +68,9 @@ public class AlbumFactory {
 
         List<Track> tracks = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            tracks.add(createTrackContainingAlbum("이름" + i, "아티스트" + i, album));
+            String name = album.getTitle() + ".track" + i + ".name";
+            String artist = album.getTitle() + ".track" + i + ".artist";
+            tracks.add(createTrackContainingAlbum(name, artist, album));
         }
 
         return tracks;

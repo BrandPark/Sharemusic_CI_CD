@@ -7,7 +7,6 @@ import com.brandpark.sharemusic.api.v1.album.dto.TrackUpdateRequest;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +18,9 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
-public class DtoValidator {
+public class OldApiValidator {
 
     private final AlbumRepository albumRepository;
-    private final AccountRepository accountRepository;
 
     public void validateAlbumSaveDto(AlbumSaveRequest requestDto, Long accountId) {
 

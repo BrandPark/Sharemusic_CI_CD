@@ -1,18 +1,22 @@
 package com.brandpark.sharemusic.api.v1.album.query;
 
-import com.brandpark.sharemusic.modules.util.page.PagingDtoFactory;
 import com.brandpark.sharemusic.api.SearchDto;
+import com.brandpark.sharemusic.api.page.PageResult;
+import com.brandpark.sharemusic.api.page.PageResultFactory;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
+import com.brandpark.sharemusic.api.v1.album.dto.TrackInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.CommentDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
 import com.brandpark.sharemusic.api.v1.search.dto.AlbumSearchResult;
 import com.brandpark.sharemusic.api.v1.search.dto.TrackSearchResult;
-import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.album.domain.QTrack;
 import com.brandpark.sharemusic.modules.comment.domain.QComment;
+import com.brandpark.sharemusic.modules.util.page.PagingDtoFactory;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -23,6 +27,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.querydsl.core.group.GroupBy.groupBy;
+import static com.querydsl.core.group.GroupBy.list;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -35,7 +42,40 @@ public class AlbumQueryRepository {
     QTrack track = QTrack.track;
     QComment comment = QComment.comment;
 
-    public PagingDto<AlbumShortDto> findAllAlbumsByAccountIdList(Pageable pageable, SearchDto searchDto) {
+    public List<AlbumInfoResponse> findAllAlbumsInfo(Pageable pageable) {
+
+        List<AlbumInfoResponse> result = queryFactory.from(album)
+                .innerJoin(account).on(album.accountId.eq(account.id))
+                .innerJoin(album.tracks, track)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .transform(
+                        groupBy(album.id).list(
+                                Projections.fields(
+                                        AlbumInfoResponse.class,
+                                        album.id.as("albumId"),
+                                        album.title,
+                                        album.albumImage,
+                                        album.description,
+                                        album.trackCount,
+                                        account.id.as("accountId"),
+                                        album.createdDate,
+                                        album.modifiedDate,
+                                        list(
+                                                Projections.fields(
+                                                        TrackInfoResponse.class,
+                                                        track.id.as("trackId"),
+                                                        track.name,
+                                                        track.artist
+                                                )
+                                        ).as("tracks")
+                                )
+                        )
+                );
+        return result;
+    }
+
+    public PageResult<AlbumShortDto> findAllAlbumsByAccountIdList(Pageable pageable, SearchDto searchDto) {
 
         QueryResults<AlbumShortDto> queryResults = queryFactory.select(
                         Projections.bean(AlbumShortDto.class,
@@ -46,7 +86,8 @@ public class AlbumQueryRepository {
                                 album.trackCount,
                                 account.nickname.as("creatorNickname"),
                                 account.profileImage.as("creatorProfileImage"),
-                                album.createdDate
+                                album.createdDate,
+                                album.modifiedDate
                         ))
                 .from(album)
                 .innerJoin(account).on(album.accountId.eq(account.id))
@@ -56,7 +97,7 @@ public class AlbumQueryRepository {
                 .limit(pageable.getPageSize())
                 .fetchResults();
 
-        return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
+        return PageResultFactory.createPageResult(queryResults.getResults(), pageable, queryResults.getTotal());
     }
 
     public AlbumDetailDto findAlbumDetailDtoById(Long albumId) {

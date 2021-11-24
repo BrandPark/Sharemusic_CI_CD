@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.api.v1.notification;
 
-import com.brandpark.sharemusic.api.v1.DtoValidator;
+import com.brandpark.sharemusic.api.v1.OldApiValidator;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.api.v1.notification.query.NotificationQueryRepository;
@@ -25,7 +25,7 @@ public class NotificationApiController {
     private final NotificationRepository notificationRepository;
     private final NotificationQueryRepository notificationQueryRepository;
     private final NotificationService notificationService;
-    private final DtoValidator validator;
+    private final OldApiValidator validator;
 
     @PutMapping("/notifications/{notificationId}")
     public Long checkNotification(@LoginAccount SessionAccount account, @PathVariable Long notificationId) {
