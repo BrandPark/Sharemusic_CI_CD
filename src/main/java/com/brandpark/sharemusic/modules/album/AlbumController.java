@@ -1,11 +1,10 @@
 package com.brandpark.sharemusic.modules.album;
 
-import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
+import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.FormValidator;
-import com.brandpark.sharemusic.modules.util.MyUtil;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.form.AlbumUpdateForm;
 import com.brandpark.sharemusic.modules.album.service.AlbumService;
@@ -37,7 +36,6 @@ public class AlbumController {
         model.addAttribute("account", account);
 
         AlbumUpdateForm form = albumService.entityToForm(album);
-        form.setDescription(MyUtil.toEscape(form.getDescription()));
 
         model.addAttribute("album", form);
         model.addAttribute("tracks", form.getTracks());

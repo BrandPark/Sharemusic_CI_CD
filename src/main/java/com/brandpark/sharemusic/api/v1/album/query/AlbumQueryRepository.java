@@ -27,6 +27,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.group.GroupBy.list;
@@ -42,37 +44,55 @@ public class AlbumQueryRepository {
     QTrack track = QTrack.track;
     QComment comment = QComment.comment;
 
-    public List<AlbumInfoResponse> findAllAlbumsInfo(Pageable pageable) {
+    public PageResult<AlbumInfoResponse> findAllAlbumsInfo(Pageable pageable) {
 
-        List<AlbumInfoResponse> result = queryFactory.from(album)
-                .innerJoin(account).on(album.accountId.eq(account.id))
-                .innerJoin(album.tracks, track)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+        QueryResults<AlbumInfoResponse> queryResults = getAllAlbumsInfoWithoutTrack(pageable);
+
+        setTrackInfo(queryResults);
+
+        return PageResultFactory.createPageResult(queryResults.getResults(), pageable, queryResults.getTotal());
+    }
+
+    private void setTrackInfo(QueryResults<AlbumInfoResponse> queryResults) {
+        List<Long> albumIdList = queryResults.getResults().stream()
+                .map(AlbumInfoResponse::getAlbumId)
+                .collect(Collectors.toList());
+
+
+        Map<Long, List<TrackInfoResponse>> trackMap = queryFactory.from(track)
+                .where(track.album.id.in(albumIdList))
                 .transform(
-                        groupBy(album.id).list(
-                                Projections.fields(
-                                        AlbumInfoResponse.class,
-                                        album.id.as("albumId"),
-                                        album.title,
-                                        album.albumImage,
-                                        album.description,
-                                        album.trackCount,
-                                        account.id.as("accountId"),
-                                        album.createdDate,
-                                        album.modifiedDate,
-                                        list(
-                                                Projections.fields(
-                                                        TrackInfoResponse.class,
-                                                        track.id.as("trackId"),
-                                                        track.name,
-                                                        track.artist
-                                                )
-                                        ).as("tracks")
-                                )
+                        groupBy(track.album.id).as(list(Projections.fields(
+                                TrackInfoResponse.class,
+                                track.id.as("trackId"),
+                                track.name,
+                                track.artist))
                         )
                 );
-        return result;
+
+        queryResults.getResults().stream()
+                .forEach(album -> {
+                    album.setTracks(trackMap.get(album.getAlbumId()));
+                });
+    }
+
+    private QueryResults<AlbumInfoResponse> getAllAlbumsInfoWithoutTrack(Pageable pageable) {
+        return queryFactory.select(
+                        Projections.bean(AlbumInfoResponse.class,
+                                album.id.as("albumId"),
+                                album.title,
+                                album.albumImage,
+                                album.description,
+                                album.trackCount,
+                                account.id.as("accountId"),
+                                album.createdDate,
+                                album.modifiedDate
+                        ))
+                .from(album)
+                .innerJoin(account).on(album.accountId.eq(account.id))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
     }
 
     public PageResult<AlbumShortDto> findAllAlbumsByAccountIdList(Pageable pageable, SearchDto searchDto) {

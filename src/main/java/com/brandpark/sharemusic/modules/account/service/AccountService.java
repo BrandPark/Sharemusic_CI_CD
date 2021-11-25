@@ -4,16 +4,11 @@ import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.infra.config.auth.CustomUserDetails;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.account.domain.Account;
-import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.account.domain.Role;
+import com.brandpark.sharemusic.modules.account.domain.*;
 import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordDto;
 import com.brandpark.sharemusic.modules.event.FollowEvent;
-import com.brandpark.sharemusic.modules.account.domain.Follow;
-import com.brandpark.sharemusic.modules.account.domain.FollowRepository;
-import com.brandpark.sharemusic.modules.util.MyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -51,8 +46,6 @@ public class AccountService implements UserDetailsService {
 
     @Transactional
     public void updateBasicInfo(UpdateAccountDto data, SessionAccount account) {
-        data.setBio(MyUtil.toBrTag(data.getBio()));
-
         updateAccountInfo(data, account.getId());
 
         login(account);
@@ -74,13 +67,7 @@ public class AccountService implements UserDetailsService {
 
     @Transactional
     public Account createAccount(CreateAccountDto data) {
-        Account newAccount = Account.createAccount(
-                data.getEmail(),
-                data.getName(),
-                data.getNickname(),
-                passwordEncoder.encode(data.getPassword()));
-
-        return accountRepository.save(newAccount);
+        return accountRepository.save(data.toEntity(passwordEncoder));
     }
 
     @Transactional
@@ -100,9 +87,7 @@ public class AccountService implements UserDetailsService {
     public void updateAccountPassword(UpdatePasswordDto data, Long targetAccountId) {
         Account myAccount = accountRepository.findById(targetAccountId).get();
 
-        String encodedUpdatePassword = passwordEncoder.encode(data.getUpdatePassword());
-
-        myAccount.updatePassword(encodedUpdatePassword);
+        myAccount.updatePassword(passwordEncoder.encode(data.getUpdatePassword()));
     }
 
     @Transactional

@@ -3,6 +3,7 @@ package com.brandpark.sharemusic.api.v1.album.query;
 import com.brandpark.sharemusic.api.SearchDto;
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
+import com.brandpark.sharemusic.api.v1.album.dto.TrackInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
@@ -26,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.brandpark.sharemusic.testUtils.AssertUtil.assertDtoIsNotEmpty;
+import static com.brandpark.sharemusic.testUtils.AssertUtil.assertPage;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
@@ -62,18 +65,30 @@ class AlbumQueryRepositoryTest {
         // given
         Account accountHasAlbum = accountFactory.persistAccount("accountHasAlbum");
         int albumCount = 12;
-
-        albumFactory.persistAlbumsWithTracks("앨범", albumCount, 10, accountHasAlbum.getId());
+        int trackCount = 10;
+        albumFactory.persistAlbumsWithTracks("앨범", albumCount, trackCount, accountHasAlbum.getId());
 
         assertThat(albumRepository.count()).isEqualTo(albumCount);
 
-        PageRequest request = PageRequest.of(0, 5);
+        int pageSize = 5;
+        PageRequest request = PageRequest.of(0, pageSize);
 
         // when
-        List<AlbumInfoResponse> allAlbumsInfo = albumQueryRepository.findAllAlbumsInfo(request);
+        PageResult<AlbumInfoResponse> resultPage = albumQueryRepository.findAllAlbumsInfo(request);
 
         // then
-        assertThat(allAlbumsInfo.size()).isEqualTo(10);
+        assertPage(0, pageSize, albumCount, resultPage);
+
+        List<AlbumInfoResponse> resultAlbums = resultPage.getContent();
+        AlbumInfoResponse albumOne = resultAlbums.get(0);
+        List<TrackInfoResponse> resultTracks = albumOne.getTracks();
+        TrackInfoResponse trackOne = resultTracks.get(0);
+
+        assertThat(resultAlbums.size()).isEqualTo(pageSize);
+        assertDtoIsNotEmpty(albumOne);
+
+        assertThat(resultTracks.size()).isEqualTo(trackCount);
+        assertDtoIsNotEmpty(trackOne);
     }
 
     @DisplayName("한 페이지 앨범의 간략한 정보 DB 생성날짜 내림차순 조회 - 성공")

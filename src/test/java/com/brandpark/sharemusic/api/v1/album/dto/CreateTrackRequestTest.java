@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TrackSaveRequestTest {
+class CreateTrackRequestTest {
 
     @Autowired AlbumFactory albumFactory;
 
@@ -19,7 +19,7 @@ class TrackSaveRequestTest {
 
         // given
         Album album = albumFactory.createAlbumWithTracks(5, 1L);
-        TrackSaveRequest dto = albumFactory.createTrackSaveDto("이름", "아티스트");
+        CreateTrackRequest dto = albumFactory.createTrackSaveDto("이름", "아티스트");
 
         // when
         Track track = dto.toEntity(album);

@@ -1,14 +1,15 @@
 package com.brandpark.sharemusic.modules.album.service;
 
-import com.brandpark.sharemusic.api.v1.album.dto.AlbumSaveRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.TrackUpdateRequest;
-import com.brandpark.sharemusic.modules.util.MyUtil;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.album.domain.Track;
+import com.brandpark.sharemusic.modules.album.dto.CreateAlbumDto;
 import com.brandpark.sharemusic.modules.album.form.AlbumUpdateForm;
 import com.brandpark.sharemusic.modules.event.CreateAlbumEvent;
+import com.brandpark.sharemusic.modules.util.MyUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
@@ -32,16 +33,12 @@ public class AlbumService {
         return modelMapper.map(album, AlbumUpdateForm.class);
     }
 
-    @Transactional
-    public Long saveAlbum(Long accountId, AlbumSaveRequest requestDto) {
-
-        requestDto.setDescription(MyUtil.toBrTag(requestDto.getDescription()));
-
-        Long albumId = albumRepository.save(requestDto.toEntity(accountId)).getId();
+    public Long createAlbum(CreateAlbumDto data, SessionAccount loginAccount) {
+        Long albumId = albumRepository.save(data.toEntity(loginAccount.getId())).getId();
 
         eventPublisher.publishEvent(CreateAlbumEvent.builder()
                 .albumId(albumId)
-                .creatorId(accountId)
+                .creatorId(loginAccount.getId())
                 .build());
 
         return albumId;

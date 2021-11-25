@@ -33,4 +33,13 @@ public class Track extends BaseTimeEntity {
             this.album = album;
         }
     }
+
+    public static Track createTrack(String name, String artist) {
+        Track track = new Track();
+
+        track.name = name;
+        track.artist = artist;
+
+        return track;
+    }
 }

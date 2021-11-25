@@ -1,18 +1,24 @@
 package com.brandpark.sharemusic.modules;
 
+import com.brandpark.sharemusic.api.v1.album.dto.CreateAlbumRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.UpdateAlbumRequest;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
+import com.brandpark.sharemusic.modules.account.domain.FollowRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordDto;
-import com.brandpark.sharemusic.modules.account.domain.FollowRepository;
+import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.brandpark.sharemusic.api.v1.exception.Error.*;
 
@@ -22,7 +28,9 @@ public class Validator {
 
     private final AccountRepository accountRepository;
     private final FollowRepository followRepository;
+    private final AlbumRepository albumRepository;
     private final PasswordEncoder encoder;
+
 
     public void validateUpdateAccountLogic(SessionAccount loginAccount, Long targetAccountId, UpdateAccountDto updateData) {
 
@@ -104,6 +112,52 @@ public class Validator {
         checkExistAccountById(targetAccountId);
 
         checkEnableUnfollow(loginAccount.getId(), targetAccountId);
+    }
+
+    public void validateCreateAlbum(SessionAccount loginAccount, CreateAlbumRequest reqDto) {
+        checkDuplicatedAlbumTitle(loginAccount.getId(), reqDto.getTitle(), null);
+
+        distinctTrackList(reqDto.getTracks());
+    }
+
+    public void validateUpdateAlbum(SessionAccount loginAccount, UpdateAlbumRequest reqDto, Long albumId) {
+        checkExistAlbumById(albumId);
+
+        checkDuplicatedAlbumTitle(loginAccount.getId(), reqDto.getTitle(), albumId);
+    }
+
+    private void checkExistAlbumById(Long albumId) {
+        if (!albumRepository.existsById(albumId)) {
+            throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "존재하지 않는 앨범입니다.");
+        }
+    }
+
+    private <T> void distinctTrackList(List<T> tracks) {
+        List<T> distinctTrackList = tracks.stream().distinct().collect(Collectors.toList());
+
+        if (tracks.size() > distinctTrackList.size()) {
+            tracks.clear();
+            tracks.addAll(distinctTrackList);
+        }
+    }
+
+    private void checkDuplicatedAlbumTitle(Long albumAccountId, String title, Long albumId) {
+        if (albumId == null) {
+            if (albumRepository.existsByAccountIdAndTitle(albumAccountId, title)) {
+                throw new ApiException(DUPLICATE_FIELD_EXCEPTION, "유저가 같은 제목의 앨범을 이미 갖고 있습니다.");
+            }
+        } else {
+            albumRepository.findByAccountIdAndTitle(albumAccountId, title)
+                    .ifPresent(duplicatedTitleAlbum -> {
+                        boolean isSameAlbum = duplicatedTitleAlbum.getId() == albumId;
+
+                        if (isSameAlbum) {
+                            return;
+                        }
+
+                        throw new ApiException(DUPLICATE_FIELD_EXCEPTION, "유저가 같은 제목의 앨범을 이미 갖고 있습니다.");
+                    });
+        }
     }
 
     private void checkEnableFollow(Long loginAccountId, Long targetAccountId) {

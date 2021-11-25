@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Builder @Getter @Setter(AccessLevel.PRIVATE)
+@Builder @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
@@ -68,5 +68,16 @@ public class Album extends BaseTimeEntity {
     public void addAllTrack(List<Track> trackEntities) {
         tracks.addAll(trackEntities);
         trackCount += trackEntities.size();
+    }
+
+    public static Album createAlbum(String title, String description, String albumImage, Long accountId) {
+        Album album = new Album();
+
+        album.title = title;
+        album.description = description;
+        album.albumImage = albumImage;
+        album.accountId = accountId;
+
+        return album;
     }
 }

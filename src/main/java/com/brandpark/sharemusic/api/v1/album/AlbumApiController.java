@@ -1,20 +1,22 @@
 package com.brandpark.sharemusic.api.v1.album;
 
-import com.brandpark.sharemusic.api.SearchDto;
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.v1.OldApiValidator;
-import com.brandpark.sharemusic.api.v1.album.dto.AlbumSaveRequest;
-import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
+import com.brandpark.sharemusic.api.v1.album.dto.CreateAlbumRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.UpdateAlbumRequest;
 import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
-import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.album.domain.Album;
+import com.brandpark.sharemusic.modules.Validator;
 import com.brandpark.sharemusic.modules.album.service.AlbumService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
 
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -23,30 +25,31 @@ public class AlbumApiController {
 
     private final AlbumService albumService;
     private final OldApiValidator oldApiValidator;
+    private final Validator validator;
     private final AlbumQueryRepository albumQueryRepository;
 
     @GetMapping("/albums")
-    public PageResult<AlbumShortDto> getAllAlbumShort(@PageableDefault Pageable pageable, SearchDto searchDto) {
-
-        return albumQueryRepository.findAllAlbumsByAccountIdList(pageable, searchDto);
+    public PageResult<AlbumInfoResponse> getAllAlbumShort(@PageableDefault Pageable pageable) {
+        return albumQueryRepository.findAllAlbumsInfo(pageable);
     }
 
     @PostMapping("/albums")
-    public Long createAlbum(@LoginAccount SessionAccount account, @RequestBody AlbumSaveRequest requestDto) {
+    public Long createAlbum(@LoginAccount SessionAccount loginAccount, @RequestBody @Valid CreateAlbumRequest reqDto) {
 
-        oldApiValidator.validateAlbumSaveDto(requestDto, account.getId());
+        validator.validateCreateAlbum(loginAccount, reqDto);
 
-        return albumService.saveAlbum(account.getId(), requestDto);
+        return albumService.createAlbum(reqDto.toModuleDto(), loginAccount);
     }
 
     @PutMapping("/albums/{albumId}")
-    public Long updateAlbum(@LoginAccount SessionAccount account, @RequestBody AlbumUpdateRequest requestDto
-            , @PathVariable("albumId") Album album) {
+    public Long updateAlbum(@LoginAccount SessionAccount loginAccount, @RequestBody @Valid UpdateAlbumRequest reqDto
+            , @PathVariable Long albumId) {
 
-        oldApiValidator.validateAlbumUpdateDto(requestDto, account.getId(), album.getId());
+//        oldApiValidator.validateAlbumUpdateDto(reqDto, loginAccount.getId(), album.getId());
+        validator.validateUpdateAlbum(loginAccount, reqDto, albumId);
 
-        albumService.updateAlbum(requestDto, album);
+//        albumService.updateAlbum(reqDto, album);
 
-        return album.getId();
+        return albumId;
     }
 }

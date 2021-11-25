@@ -1,8 +1,8 @@
 package com.brandpark.sharemusic.testUtils;
 
-import com.brandpark.sharemusic.api.v1.album.dto.AlbumSaveRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.CreateAlbumRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
-import com.brandpark.sharemusic.api.v1.album.dto.TrackSaveRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.CreateTrackRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.TrackUpdateRequest;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,13 +24,24 @@ public class AlbumFactory {
 
     private final ModelMapper modelMapper;
     private final AlbumRepository albumRepository;
+    private final EntityManager entityManager;
 
     public Album persistAlbumWithTracks(String title, int trackCount, Long accountId) {
-        return albumRepository.save(createAlbumWithTracks(title, trackCount, accountId));
+        Album result = albumRepository.save(createAlbumWithTracks(title, trackCount, accountId));
+
+        entityManager.clear();
+        entityManager.flush();
+
+        return result;
     }
 
     public List<Album> persistAlbumsWithTracks(String title, int albumCount, int trackCount, Long accountId) {
-        return albumRepository.saveAll(createAlbumsWithTracks(title, albumCount, trackCount, accountId));
+        List<Album> result = albumRepository.saveAll(createAlbumsWithTracks(title, albumCount, trackCount, accountId));
+
+        entityManager.clear();
+        entityManager.flush();
+
+        return result;
     }
 
     public List<Album> createAlbumsWithTracks(String title, int albumCount, int trackCount, Long accountId) {
@@ -84,25 +96,25 @@ public class AlbumFactory {
                 .build();
     }
 
-    public List<TrackSaveRequest> createTrackSaveDtos(int trackCount) {
-        List<TrackSaveRequest> tracks = new ArrayList<>();
+    public List<CreateTrackRequest> createTrackSaveDtos(int trackCount) {
+        List<CreateTrackRequest> tracks = new ArrayList<>();
         for (int i = 0; i < trackCount; i++) {
-            TrackSaveRequest trackDto = createTrackSaveDto("이름" + i, "아티스트" + i);
+            CreateTrackRequest trackDto = createTrackSaveDto("이름" + i, "아티스트" + i);
             tracks.add(trackDto);
         }
         return tracks;
     }
 
-    public TrackSaveRequest createTrackSaveDto(String name, String artist) {
-        TrackSaveRequest trackDto = new TrackSaveRequest();
+    public CreateTrackRequest createTrackSaveDto(String name, String artist) {
+        CreateTrackRequest trackDto = new CreateTrackRequest();
         trackDto.setName(name);
         trackDto.setArtist(artist);
 
         return trackDto;
     }
 
-    public AlbumSaveRequest createAlbumSaveDto() {
-        AlbumSaveRequest albumDto = new AlbumSaveRequest();
+    public CreateAlbumRequest createAlbumSaveDto() {
+        CreateAlbumRequest albumDto = new CreateAlbumRequest();
         albumDto.setTitle("앨범 제목");
         albumDto.setDescription("앨범 소개");
         albumDto.setAlbumImage("앨범 이미지");
