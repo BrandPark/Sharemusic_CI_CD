@@ -48,6 +48,7 @@ public class AlbumApiController {
 //        oldApiValidator.validateAlbumUpdateDto(reqDto, loginAccount.getId(), album.getId());
         validator.validateUpdateAlbum(loginAccount, reqDto, albumId);
 
+        albumService.updateAlbum(reqDto.toModuleDto(), albumId);
 //        albumService.updateAlbum(reqDto, album);
 
         return albumId;

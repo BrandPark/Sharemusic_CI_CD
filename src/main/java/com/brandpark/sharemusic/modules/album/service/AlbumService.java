@@ -3,10 +3,9 @@ package com.brandpark.sharemusic.modules.album.service;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.TrackUpdateRequest;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.album.domain.Album;
-import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
-import com.brandpark.sharemusic.modules.album.domain.Track;
+import com.brandpark.sharemusic.modules.album.domain.*;
 import com.brandpark.sharemusic.modules.album.dto.CreateAlbumDto;
+import com.brandpark.sharemusic.modules.album.dto.UpdateAlbumDto;
 import com.brandpark.sharemusic.modules.album.form.AlbumUpdateForm;
 import com.brandpark.sharemusic.modules.event.CreateAlbumEvent;
 import com.brandpark.sharemusic.modules.util.MyUtil;
@@ -16,6 +15,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class AlbumService {
 
     private final ModelMapper modelMapper;
     private final AlbumRepository albumRepository;
+    private final TrackRepository trackRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     public AlbumUpdateForm entityToForm(Album album) {
@@ -72,5 +74,44 @@ public class AlbumService {
             }
         }
      }
+
+    @Transactional
+    public void updateAlbum(UpdateAlbumDto data, Long albumId) {
+        Album album = albumRepository.findById(albumId).get();
+
+        album.updateAlbum(data.getTitle(), data.getAlbumImage(), data.getDescription());
+
+        Map<Long, Track> lookupTrackMap = album.getTracks().stream()
+                .collect(Collectors.toMap(Track::getId, Function.identity()));
+
+        List<Track> insertTrackList = new ArrayList<>();
+        List<Track> updateTrackList = new ArrayList<>();
+        List<Track> removeTrackList = new ArrayList<>();
+
+        for (UpdateAlbumDto.UpdateTrackDto tData : data.getTracks()) {
+
+            TrackStatus trackStatus = tData.getStatus();
+
+            switch (trackStatus) {
+                case NONE: break;
+                case INSERT:
+                    insertTrackList.add(lookupTrackMap.get(tData.getId()));
+                    break;
+                case UPDATE:
+                    updateTrackList.add(lookupTrackMap.get(tData.getId()));
+                    break;
+                case REMOVE:
+                    removeTrackList.add(lookupTrackMap.get(tData.getId()));
+                    break;
+            }
+
+            trackRepository.batchInsert(insertTrackList);
+
+
+
+        }
+
+
+    }
 }
 

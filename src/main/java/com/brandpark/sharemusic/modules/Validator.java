@@ -124,6 +124,8 @@ public class Validator {
         checkExistAlbumById(albumId);
 
         checkDuplicatedAlbumTitle(loginAccount.getId(), reqDto.getTitle(), albumId);
+
+        // TODO : REMOVE 상태를 제외한 track들의 수, 중복 track 체크 & update, remove 상태의 트랙이 현재 앨범에 있는 트랙인지 확인
     }
 
     private void checkExistAlbumById(Long albumId) {

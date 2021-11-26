@@ -1,12 +1,13 @@
 package com.brandpark.sharemusic.api.v1.album.dto;
 
+import com.brandpark.sharemusic.modules.album.domain.TrackStatus;
+import com.brandpark.sharemusic.modules.album.dto.UpdateAlbumDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 @Data
@@ -20,9 +21,12 @@ public class UpdateAlbumRequest {
     private String albumImage;
 
     @Valid
-    @Size(max = 5, message = "트랙의 수는 최대 5개 입니다.")
     @NotEmpty(message = "트랙을 추가해 주세요.")
     private List<UpdateTrackRequest> tracks;
+
+    public UpdateAlbumDto toModuleDto() {
+        return null;
+    }
 
     @EqualsAndHashCode(of = {"name", "artist"})
     @Data
@@ -34,5 +38,7 @@ public class UpdateAlbumRequest {
 
         @NotBlank(message = "트랙의 아티스트를 입력해 주세요.")
         private String artist;
+
+        private TrackStatus status = TrackStatus.NONE;
     }
 }

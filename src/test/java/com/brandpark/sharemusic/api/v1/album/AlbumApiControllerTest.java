@@ -11,6 +11,7 @@ import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
+import com.brandpark.sharemusic.modules.album.domain.TrackStatus;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.testUtils.AlbumFactory;
 import com.brandpark.sharemusic.testUtils.TestUtil;
@@ -575,11 +576,30 @@ class AlbumApiControllerTest {
     @DisplayName("앨범 수정 - 실패(트랙이 비어있을 경우)")
     @Test
     public void UpdateAlbum_Fail_When_EmptyTrack() throws Exception {
+
         // given
-        
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 5, userAccount.getId());
+        Album savedOtherAlbum = albumFactory.persistAlbumWithTracks("savedOtherAlbum", 5, userAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
+        reqDto.setTitle(savedOtherAlbum.getTitle());
+
+        String url = "/api/v1/albums/" + savedAlbum.getId();
+
         // when
-        
-        // then
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(DUPLICATE_FIELD_EXCEPTION.getCode());
+                });
     }
 //
 //    @WithUserDetails(value = "guestAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
@@ -736,6 +756,7 @@ class AlbumApiControllerTest {
                     result.setId(t.getId());
                     result.setName(t.getName());
                     result.setArtist(t.getArtist());
+                    result.setStatus(TrackStatus.NONE);
 
                     return result;
                 }).collect(Collectors.toList());

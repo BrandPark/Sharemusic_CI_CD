@@ -29,7 +29,7 @@ public class Track extends BaseTimeEntity {
     private Album album;
 
     public void initAlbum(Album album) {
-        if (album != null) {
+        if (album != null && this.album == null) {
             this.album = album;
         }
     }
@@ -41,5 +41,10 @@ public class Track extends BaseTimeEntity {
         track.artist = artist;
 
         return track;
+    }
+
+    public void updateTrack(String name, String artist) {
+        this.name = name;
+        this.artist = artist;
     }
 }
