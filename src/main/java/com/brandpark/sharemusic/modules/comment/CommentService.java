@@ -1,9 +1,9 @@
 package com.brandpark.sharemusic.modules.comment;
 
-import com.brandpark.sharemusic.modules.util.MyUtil;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
 import com.brandpark.sharemusic.modules.event.CommentEvent;
+import com.brandpark.sharemusic.modules.util.MyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

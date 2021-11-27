@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class UpdateAlbumRequest {
@@ -25,7 +26,18 @@ public class UpdateAlbumRequest {
     private List<UpdateTrackRequest> tracks;
 
     public UpdateAlbumDto toModuleDto() {
-        return null;
+        return new UpdateAlbumDto(
+                title,
+                description,
+                albumImage,
+                tracks.stream()
+                        .map(t -> new UpdateAlbumDto.UpdateTrackDto(
+                                        t.getId(),
+                                        t.getName(),
+                                        t.getArtist(),
+                                        t.getStatus())
+                        ).collect(Collectors.toList())
+        );
     }
 
     @EqualsAndHashCode(of = {"name", "artist"})

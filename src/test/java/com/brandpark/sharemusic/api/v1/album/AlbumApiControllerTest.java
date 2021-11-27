@@ -2,6 +2,7 @@ package com.brandpark.sharemusic.api.v1.album;
 
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.v1.album.dto.*;
+import com.brandpark.sharemusic.api.v1.album.dto.UpdateAlbumRequest.UpdateTrackRequest;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
 import com.brandpark.sharemusic.infra.MockMvcTest;
@@ -9,11 +10,12 @@ import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
-import com.brandpark.sharemusic.modules.album.domain.Album;
-import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
-import com.brandpark.sharemusic.modules.album.domain.TrackStatus;
+import com.brandpark.sharemusic.modules.album.domain.*;
+import com.brandpark.sharemusic.modules.comment.domain.Comment;
+import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.testUtils.AlbumFactory;
+import com.brandpark.sharemusic.testUtils.CommentFactory;
 import com.brandpark.sharemusic.testUtils.TestUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,12 +29,12 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.brandpark.sharemusic.api.v1.exception.Error.DUPLICATE_FIELD_EXCEPTION;
-import static com.brandpark.sharemusic.api.v1.exception.Error.ILLEGAL_ARGUMENT_EXCEPTION;
+import static com.brandpark.sharemusic.api.v1.exception.Error.*;
 import static com.brandpark.sharemusic.testUtils.AssertUtil.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,8 +50,12 @@ class AlbumApiControllerTest {
     @Autowired AlbumFactory albumFactory;
     @Autowired AccountFactory accountFactory;
     @Autowired AccountRepository accountRepository;
+    @Autowired TrackRepository trackRepository;
     @Autowired AccountService accountService;
     @Autowired AlbumRepository albumRepository;
+    @Autowired EntityManager entityManager;
+    @Autowired CommentFactory commentFactory;
+    @Autowired CommentRepository commentRepository;
     Account guestAccount;
     Account userAccount;
 
@@ -88,7 +94,7 @@ class AlbumApiControllerTest {
                     PageResult<AlbumInfoResponse> resultPage = objectMapper.readValue(json, new TypeReference<>() {
                     });
 
-                    assertPage(pageNum, pageSize, totalAlbumCount, resultPage);
+                    assertPageResult(pageNum, pageSize, totalAlbumCount, resultPage);
 
                     List<AlbumInfoResponse> resultAlbums = resultPage.getContent();
                     AlbumInfoResponse albumOne = resultAlbums.get(0);
@@ -134,7 +140,7 @@ class AlbumApiControllerTest {
                     PageResult<AlbumInfoResponse> resultPage = objectMapper.readValue(json, new TypeReference<>() {
                     });
 
-                    assertPage(pageNum, pageSize, totalAlbumCount, resultPage);
+                    assertPageResult(pageNum, pageSize, totalAlbumCount, resultPage);
 
                     List<AlbumInfoResponse> resultAlbums = resultPage.getContent();
                     AlbumInfoResponse albumOne = resultAlbums.get(0);
@@ -168,7 +174,7 @@ class AlbumApiControllerTest {
         reqDto.setTracks(reqDtoTracks);
 
         String url = "/api/v1/albums";
-        
+
         // when
         mockMvc.perform(post(url)
                         .with(csrf())
@@ -373,9 +379,9 @@ class AlbumApiControllerTest {
     }
 
     @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    @DisplayName("앨범 저장 - 무시(중복된 트랙이 있는 경우 하나만 저장된다.)")
+    @DisplayName("앨범 저장 - 실패(중복된 트랙이 있는 경우)")
     @Test
-    public void CreateAlbum_Ignore_When_DuplicatedTrack() throws Exception {
+    public void CreateAlbum_Fail_When_DuplicatedTrack() throws Exception {
 
         // given
         int trackCount = 5;
@@ -390,8 +396,6 @@ class AlbumApiControllerTest {
         reqDtoTracks.get(0).setArtist(reqDtoTracks.get(1).getArtist());
         reqDto.setTracks(reqDtoTracks);
 
-        int expectedSavedTrackCount = 4;
-
         String url = "/api/v1/albums";
 
         // when
@@ -402,21 +406,14 @@ class AlbumApiControllerTest {
                         .content(objectMapper.writeValueAsString(reqDto)))
 
                 // then
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> {
-                    String json = result.getResponse().getContentAsString(UTF_8);
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
 
-                    Long albumId = objectMapper.readValue(json, Long.class);
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
 
-                    assertThat(albumId).isNotNull();
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(ILLEGAL_ARGUMENT_EXCEPTION.getCode());
                 });
-
-        // then
-        Album savedAlbum = albumRepository.findAll().get(0);
-
-        assertEntityIsNotEmpty(savedAlbum, reqDto);
-        assertThat(savedAlbum.getTrackCount()).isEqualTo(expectedSavedTrackCount);
-        assertThat(savedAlbum.getAccountId()).isEqualTo(userAccount.getId());
     }
 
     @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
@@ -457,8 +454,11 @@ class AlbumApiControllerTest {
         // then
         Album savedAlbum = albumRepository.findAll().get(0);
 
-        assertEntityIsNotEmpty(savedAlbum, reqDto);
+        assertEntityIsNotEmpty(savedAlbum);
         assertThat(savedAlbum.getTrackCount()).isEqualTo(trackCount);
+        assertThat(savedAlbum.getTitle()).isEqualTo(reqDto.getTitle());
+        assertThat(savedAlbum.getDescription()).isEqualTo(reqDto.getDescription());
+        assertThat(savedAlbum.getAlbumImage()).isEqualTo(reqDto.getAlbumImage());
         assertThat(savedAlbum.getAccountId()).isEqualTo(userAccount.getId());
     }
 
@@ -544,7 +544,7 @@ class AlbumApiControllerTest {
     }
 
     @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    @DisplayName("앨범 수정 - 실패(바꿀 제목으로된 앨범을 이미 사용자가 갖고 있는 경우)")
+    @DisplayName("앨범 수정 - 실패(바꿀 제목으로 된 앨범을 이미 사용자가 갖고 있는 경우)")
     @Test
     public void UpdateAlbum_Fail_When_DuplicateModifiedAlbumTitleInMyAccount() throws Exception {
 
@@ -573,16 +573,18 @@ class AlbumApiControllerTest {
                 });
     }
 
-    @DisplayName("앨범 수정 - 실패(트랙이 비어있을 경우)")
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 실패(트랙이 모두 REMOVE 상태인 경우)")
     @Test
-    public void UpdateAlbum_Fail_When_EmptyTrack() throws Exception {
+    public void UpdateAlbum_Fail_When_AllTracksRemoveStatus() throws Exception {
 
         // given
         Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 5, userAccount.getId());
-        Album savedOtherAlbum = albumFactory.persistAlbumWithTracks("savedOtherAlbum", 5, userAccount.getId());
 
         UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
-        reqDto.setTitle(savedOtherAlbum.getTitle());
+        for (UpdateTrackRequest trackDto : reqDto.getTracks()) {
+            trackDto.setStatus(TrackStatus.REMOVE);
+        }
 
         String url = "/api/v1/albums/" + savedAlbum.getId();
 
@@ -598,144 +600,569 @@ class AlbumApiControllerTest {
 
                     ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
 
-                    assertThat(exceptionResult.getErrorCode()).isEqualTo(DUPLICATE_FIELD_EXCEPTION.getCode());
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(ILLEGAL_ARGUMENT_EXCEPTION.getCode());
                 });
     }
-//
-//    @WithUserDetails(value = "guestAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-//    @DisplayName("앨범 수정 실패 - 권한 오류(GUEST 계정 : 이메일 인증을 하지 않은 계정)")
-//    @Test
-//    public void UpdateAlbum_Fail_When_GuestAccount() throws Exception {
-//
-//        // given
-//        AlbumUpdateRequest albumDto = albumFactory.createAlbumUpdateDtoByEntity(savedAlbum);
-//
-//        // when
-//        mockMvc.perform(put("/api/v1/albums/" + savedAlbum.getId())
-//                        .with(csrf())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .characterEncoding("UTF-8")
-//                        .content(objectMapper.writeValueAsString(albumDto)))
-//
-//                // then
-//                .andExpect(status().isForbidden());
-//    }
-//
-//    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-//    @DisplayName("앨범 수정 실패 - 중복된 앨범 제목")
-//    @Test
-//    public void UpdateAlbum_Fail_When_DuplicateTitle() throws Exception {
-//
-//        // given
-//        Album otherSavedAlbum = albumFactory.createAlbumWithTracks("다른 앨범의 제목", 5, userAccount.getId());
-////        albumRepository.save(otherSavedAlbum);
-//
-//        AlbumUpdateRequest albumDto = albumFactory.createAlbumUpdateDtoByEntity(savedAlbum);
-//
-//        // when
-//        albumDto.setTitle(otherSavedAlbum.getTitle());
-//
-//        mockMvc.perform(put("/api/v1/albums/" + savedAlbum.getId())
-//                        .with(csrf())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .characterEncoding("UTF-8")
-//                        .content(objectMapper.writeValueAsString(albumDto)))
-//
-//                // then
-//                .andExpect(status().is4xxClientError())
-//                .andExpect(result -> {
-//                    assertThat(result.getResolvedException() instanceof ApiException).isTrue();
-//
-//                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
-//
-//                    assertThat(exceptionResult.getErrorCode()).isEqualTo(DUPLICATE_ALBUM_TITLE_EXCEPTION.getCode());
-//                    assertThat(exceptionResult.getErrorMessage()).contains("같은 이름의 앨범");
-//                });
-//    }
-//
-//    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-//    @DisplayName("앨범 수정 실패 - 입력 값 오류(동일한 앨범에 같은 음원 삽입 불가)")
-//    @Test
-//    public void UpdateAlbum_Fail_When_InputDuplicateTrack() throws Exception {
-//
-//        // given
-//        List<TrackUpdateRequest> duplicateTrackList = new ArrayList<>();
-//        for (int i = 0; i < 2; i++) {
-//            TrackUpdateRequest duplicateTrackDto = albumFactory.createTrackUpdateDto("중복음원명", "중복아티스트명");
-//            duplicateTrackList.add(duplicateTrackDto);
-//        }
-//
-//        AlbumUpdateRequest albumDto = albumFactory.createAlbumUpdateDtoByEntity(savedAlbum);
-//
-//        // when
-//        albumDto.setTracks(duplicateTrackList);
-//        mockMvc.perform(put("/api/v1/albums/" + savedAlbum.getId())
-//                        .with(csrf())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .characterEncoding("UTF-8")
-//                        .content(objectMapper.writeValueAsString(albumDto)))
-//
-//                // then
-//                .andExpect(status().is4xxClientError())
-//                .andExpect(result -> {
-//                    assertThat(result.getResolvedException() instanceof ApiException).isTrue();
-//
-//                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
-//
-//                    assertThat(exceptionResult.getErrorCode()).isEqualTo(DUPLICATE_TRACK_EXCEPTION.getCode());
-//                    assertThat(exceptionResult.getErrorMessage()).contains("중복된 트랙");
-//                });
-//    }
-//
-//    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-//    @DisplayName("앨범 수정 성공 - (트랙 추가, 트랙 삭제, 트랙 수정)")
-//    @Test
-//    public void UpdateAlbum_Success() throws Exception {
-//        // given
-//        AlbumUpdateRequest albumDto = albumFactory.createAlbumUpdateDtoByEntity(savedAlbum);
-//
-//        // when : 앨범 정보 수정, 트랙 추가, 삭제, 수정
-//        albumDto.setTitle("수정된 제목");
-//        albumDto.setAlbumImage("수정된 이미지");
-//        albumDto.setDescription("수정된 소개");
-//
-//        List<TrackUpdateRequest> trackDtos = albumDto.getTracks();
-//        trackDtos.add(0, albumFactory.createTrackUpdateDto("추가된 트랙 이름", "추가된 트랙 아티스트"));
-//        trackDtos.get(1).setName("수정된 트랙 이름");
-//        trackDtos.get(1).setArtist("수정된 트랙 아티스트");
-//        trackDtos.remove(4);
-//        trackDtos.remove(4);
-//
-//        mockMvc.perform(put("/api/v1/albums/" + savedAlbum.getId())
-//                        .with(csrf())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .characterEncoding("UTF-8")
-//                        .content(objectMapper.writeValueAsString(albumDto)))
-//
-//                // then
-//                .andExpect(status().isOk())
-//                .andExpect(result -> {
-//
-//                    Long albumId = objectMapper.readValue(result.getResponse().getContentAsString(UTF_8), Long.class);
-//                    assertThat(albumId).isNotNull();
-//
-//                    Album album = null;
-//                    assertThat(album).isNotNull();
-//                    assertThat(album.getTitle()).isEqualTo("수정된 제목");
-//                    assertThat(album.getDescription()).isEqualTo("수정된 소개");
-//                    assertThat(album.getAlbumImage()).isEqualTo("수정된 이미지");
-//
-//                    // 트랙 이름순 정렬
-//                    List<Track> tracks = album.getTracks().stream()
-//                            .sorted((o1, o2) -> o1.getName().compareTo(o2.getName())).collect(Collectors.toList());
-//
-//                    assertThat(tracks.size()).isEqualTo(trackDtos.size());
-//                    assertThat(tracks.get(0).getName()).isEqualTo("수정된 트랙 이름");
-//                    assertThat(tracks.get(0).getArtist()).isEqualTo("수정된 트랙 아티스트");
-//                    assertThat(tracks.get(3).getName()).isEqualTo("추가된 트랙 이름");
-//                    assertThat(tracks.get(3).getArtist()).isEqualTo("추가된 트랙 아티스트");
-//                });
-//    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 실패(저장할 트랙이 5개 보다 많을 경우)")
+    @Test
+    public void UpdateAlbum_Fail_When_TrackToSaveGreaterThan5() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 5, userAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
+
+        UpdateTrackRequest moreTrackData = new UpdateTrackRequest();
+        moreTrackData.setStatus(TrackStatus.INSERT);
+        moreTrackData.setName("newTrackName");
+        moreTrackData.setArtist("newTrackArtist");
+
+        reqDto.getTracks().add(moreTrackData);
+
+        String url = "/api/v1/albums/" + savedAlbum.getId();
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 실패(INSERT 상태의 트랙이 ID가 있을 경우)")
+    @Test
+    public void UpdateAlbum_Fail_When_InsertStatusTrackHasId() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 3, userAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
+
+        UpdateTrackRequest notValidTrackData = new UpdateTrackRequest();
+        notValidTrackData.setStatus(TrackStatus.INSERT);
+        notValidTrackData.setId(20L);
+        notValidTrackData.setName("newTrackName");
+        notValidTrackData.setArtist("newTrackArtist");
+
+        reqDto.getTracks().add(notValidTrackData);
+
+        String url = "/api/v1/albums/" + savedAlbum.getId();
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(ILLEGAL_ACCESS_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 실패(UPDATE 상태의 트랙이 ID가 없을 경우)")
+    @Test
+    public void UpdateAlbum_Fail_When_UpdateStatusTrackIdNull() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 3, userAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
+
+        UpdateTrackRequest notValidTrackData = new UpdateTrackRequest();
+        notValidTrackData.setStatus(TrackStatus.UPDATE);
+        notValidTrackData.setId(null);
+        notValidTrackData.setName("newTrackName");
+        notValidTrackData.setArtist("newTrackArtist");
+
+        reqDto.getTracks().add(notValidTrackData);
+
+        String url = "/api/v1/albums/" + savedAlbum.getId();
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(ILLEGAL_ACCESS_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 실패(UPDATE 상태의 트랙이 기존에 없는 트랙인 경우)")
+    @Test
+    public void UpdateAlbum_Fail_When_UpdateStatusTrackIsNotExistsInOriginAlbum() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 3, userAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
+
+        Long notExistsTrackId = 9999L;
+
+        UpdateTrackRequest notValidTrackData = new UpdateTrackRequest();
+        notValidTrackData.setStatus(TrackStatus.UPDATE);
+        notValidTrackData.setId(notExistsTrackId);
+        notValidTrackData.setName("newTrackName");
+        notValidTrackData.setArtist("newTrackArtist");
+
+        boolean notExistsTrack = !trackRepository.existsTrackByIdAndAlbumId(notExistsTrackId, savedAlbum.getId());
+        assertThat(notExistsTrack).isTrue();
+
+        reqDto.getTracks().add(notValidTrackData);
+
+        String url = "/api/v1/albums/" + savedAlbum.getId();
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(ILLEGAL_ACCESS_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 실패(REMOVE 상태의 트랙이 ID가 없을 경우)")
+    @Test
+    public void UpdateAlbum_Fail_When_RemoveStatusTrackIdNull() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 3, userAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
+
+        UpdateTrackRequest notValidTrackData = new UpdateTrackRequest();
+        notValidTrackData.setStatus(TrackStatus.REMOVE);
+        notValidTrackData.setId(null);
+        notValidTrackData.setName("newTrackName");
+        notValidTrackData.setArtist("newTrackArtist");
+
+        reqDto.getTracks().add(notValidTrackData);
+
+        String url = "/api/v1/albums/" + savedAlbum.getId();
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(ILLEGAL_ACCESS_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 실패(REMOVE 상태의 트랙이 기존에 없는 트랙인 경우)")
+    @Test
+    public void UpdateAlbum_Fail_When_RemoveStatusTrackIsNotExistsInOriginAlbum() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 3, userAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
+
+        Long notExistsTrackId = 9999L;
+
+        UpdateTrackRequest notValidTrackData = new UpdateTrackRequest();
+        notValidTrackData.setStatus(TrackStatus.REMOVE);
+        notValidTrackData.setId(notExistsTrackId);
+        notValidTrackData.setName("newTrackName");
+        notValidTrackData.setArtist("newTrackArtist");
+
+        boolean notExistsTrack = !trackRepository.existsTrackByIdAndAlbumId(notExistsTrackId, savedAlbum.getId());
+        assertThat(notExistsTrack).isTrue();
+
+        reqDto.getTracks().add(notValidTrackData);
+
+        String url = "/api/v1/albums/" + savedAlbum.getId();
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(ILLEGAL_ACCESS_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 실패(INSERT 상태의 트랙이 저장될 다른 트랙과 중복될 경우)")
+    @Test
+    public void UpdateAlbum_Fail_When_InsertStatusTrackIsDuplicateWithOtherTrackToSave() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 3, userAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
+        UpdateTrackRequest savedTrack = reqDto.getTracks().get(0);
+
+        UpdateTrackRequest duplicateTrackData = new UpdateTrackRequest();
+        duplicateTrackData.setStatus(TrackStatus.INSERT);
+        duplicateTrackData.setName(savedTrack.getName());
+        duplicateTrackData.setArtist(savedTrack.getArtist());
+
+        reqDto.getTracks().add(duplicateTrackData);
+
+        String url = "/api/v1/albums/" + savedAlbum.getId();
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 실패(Update 상태의 트랙이 저장될 다른 트랙과 중복될 경우)")
+    @Test
+    public void UpdateAlbum_Fail_When_UpdateStatusTrackIsDuplicateWithOtherTrackToSave() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 3, userAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
+        UpdateTrackRequest savedTrack = reqDto.getTracks().get(0);
+
+        UpdateTrackRequest duplicateTrackData = reqDto.getTracks().get(1);
+        duplicateTrackData.setStatus(TrackStatus.UPDATE);
+        duplicateTrackData.setName(savedTrack.getName());
+        duplicateTrackData.setArtist(savedTrack.getArtist());
+
+        String url = "/api/v1/albums/" + savedAlbum.getId();
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 실패(None 상태의 트랙이 저장될 다른 트랙과 중복될 경우)")
+    @Test
+    public void UpdateAlbum_Fail_When_NoneStatusTrackIsDuplicateWithOtherTrackToSave() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 3, userAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
+        UpdateTrackRequest savedTrack = reqDto.getTracks().get(0);
+
+        UpdateTrackRequest duplicateTrackData = reqDto.getTracks().get(1);
+        duplicateTrackData.setStatus(TrackStatus.NONE);
+        duplicateTrackData.setName(savedTrack.getName());
+        duplicateTrackData.setArtist(savedTrack.getArtist());
+
+        String url = "/api/v1/albums/" + savedAlbum.getId();
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 실패(다른 사람의 앨범을 수정하려 할 경우)")
+    @Test
+    public void UpdateAlbum_Fail_When_OtherAccountAlbum() throws Exception {
+
+        // given
+        Account otherAccount = accountFactory.persistAccount("otherAccount", Role.USER);
+        Album otherAccountAlbum = albumFactory.persistAlbumWithTracks("otherAccountAlbum", 3, otherAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(otherAccountAlbum);
+        UpdateTrackRequest savedTrack = reqDto.getTracks().get(0);
+
+        UpdateTrackRequest duplicateTrackData = reqDto.getTracks().get(1);
+        duplicateTrackData.setStatus(TrackStatus.NONE);
+        duplicateTrackData.setName(savedTrack.getName());
+        duplicateTrackData.setArtist(savedTrack.getArtist());
+
+        String url = "/api/v1/albums/" + otherAccountAlbum.getId();
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isForbidden())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(FORBIDDEN_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "guestAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 실패(권한이 없을 경우 : GUEST 계정)")
+    @Test
+    public void UpdateAlbum_Fail_When_NotAuthority() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 3, userAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
+
+        // when
+        mockMvc.perform(put("/api/v1/albums/" + savedAlbum.getId())
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isForbidden());
+    }
+
+    @WithUserDetails(value = "guestAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 실패(로그인을 하지 않은 경우)")
+    @Test
+    public void UpdateAlbum_Fail_When_NotAuthenticated() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 3, userAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
+
+        // when
+        mockMvc.perform(put("/api/v1/albums/" + savedAlbum.getId())
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isForbidden());
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 수정 - 성공")
+    @Test
+    public void UpdateAlbum_Success() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 3, userAccount.getId());
+
+        UpdateAlbumRequest reqDto = transformToUpdateAlbumRequest(savedAlbum);
+
+        UpdateTrackRequest insertTrack = new UpdateTrackRequest();
+        insertTrack.setStatus(TrackStatus.INSERT);
+        insertTrack.setName("newTrackName");
+        insertTrack.setArtist("newTrackArtist");
+        reqDto.getTracks().add(insertTrack);
+
+        UpdateTrackRequest updateTrack = reqDto.getTracks().get(0);
+        updateTrack.setStatus(TrackStatus.UPDATE);
+        updateTrack.setName("updateTrackName");
+        updateTrack.setArtist("updateTrackArtist");
+
+        UpdateTrackRequest removeTrack = reqDto.getTracks().get(1);
+        removeTrack.setStatus(TrackStatus.REMOVE);
+
+        int expectedTotalTrackCount = 3;
+        Long updateTrackId = updateTrack.getId();
+        Long removeTrackId = removeTrack.getId();
+
+        String url = "/api/v1/albums/" + savedAlbum.getId();
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(reqDto)))
+                .andExpect(status().isOk());
+
+        assertThat(trackRepository.count()).isEqualTo(expectedTotalTrackCount);
+
+        Track updateResult = trackRepository.findById(updateTrackId).get();
+        assertThat(updateResult.getName()).isEqualTo(updateTrack.getName());
+        assertThat(updateResult.getArtist()).isEqualTo(updateTrack.getArtist());
+        assertThat(updateResult.getAlbum().getId()).isEqualTo(savedAlbum.getId());
+
+        boolean notExistsRemovedTrack = !trackRepository.existsTrackByIdAndAlbumId(removeTrackId, savedAlbum.getId());
+        assertThat(notExistsRemovedTrack).isTrue();
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 삭제 - 실패(해당 앨범이 존재하지 않는 경우)")
+    @Test
+    public void DeleteAlbum_Fail_When_NotFoundAlbum() throws Exception {
+
+        // given
+        Long notExistsAlbumId = 9999L;
+        boolean notExistsAlbum = !albumRepository.existsById(notExistsAlbumId);
+
+        assertThat(notExistsAlbum).isTrue();
+
+        String url = "/api/v1/albums/" + notExistsAlbumId;
+
+        // when
+        mockMvc.perform(delete(url)
+                        .with(csrf())
+                        .characterEncoding("UTF-8"))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 삭제 - 실패(내 앨범이 아닌 경우)")
+    @Test
+    public void DeleteAlbum_Fail_When_NotAuthority() throws Exception {
+
+        // given
+        Account otherAccount = accountFactory.persistAccount("otherAccount", Role.USER);
+
+        Album otherAccountAlbum = albumFactory.persistAlbumWithTracks("otherAccountAlbum", 5, otherAccount.getId());
+
+        String url = "/api/v1/albums/" + otherAccountAlbum.getId();
+
+        // when
+        mockMvc.perform(delete(url)
+                        .with(csrf())
+                        .characterEncoding("UTF-8"))
+                .andExpect(status().isForbidden())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = TestUtil.getExceptionResult(result);
+
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(FORBIDDEN_EXCEPTION.getCode());
+                });
+    }
+
+    @DisplayName("앨범 삭제 - 실패(로그인하지 않은 경우)")
+    @Test
+    public void DeleteAlbum_Fail_When_NotAuthenticated() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 5, userAccount.getId());
+
+        String url = "/api/v1/albums/" + savedAlbum.getId();
+
+        // when
+        mockMvc.perform(delete(url)
+                        .with(csrf())
+                        .characterEncoding("UTF-8"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("앨범 삭제 - 성공")
+    @Test
+    public void DeleteAlbum_Success() throws Exception {
+
+        // given
+        Album savedAlbum = albumFactory.persistAlbumWithTracks("savedAlbum", 5, userAccount.getId());
+
+        List<Long> savedTrackIdList = savedAlbum.getTracks().stream()
+                .map(Track::getId)
+                .collect(Collectors.toList());
+
+        List<Long> savedCommentIdList =
+                commentFactory.persistComments("comment", userAccount.getId(), savedAlbum.getId(), 5).stream()
+                .map(Comment::getId)
+                .collect(Collectors.toList());
+
+        String url = "/api/v1/albums/" + savedAlbum.getId();
+
+        // when
+        mockMvc.perform(delete(url)
+                        .with(csrf())
+                        .characterEncoding("UTF-8"))
+                .andExpect(status().isOk());
+
+        // then
+        boolean notExists = !albumRepository.existsById(savedAlbum.getId());
+        assertThat(notExists).isTrue();
+
+        for (Long trackId : savedTrackIdList) {
+            boolean notExistsTrack = !trackRepository.existsById(trackId);
+            assertThat(notExistsTrack).isTrue();
+        }
+
+        for (Long commentId : savedCommentIdList) {
+            boolean notExistsComment = !commentRepository.existsById(commentId);
+            assertThat(notExistsComment).isTrue();
+        }
+    }
 
     private List<CreateTrackRequest> getCreateTrackRequestList(CreateAlbumRequest reqDto, int trackCount) {
         List<CreateTrackRequest> tracks = new ArrayList<>();
@@ -750,9 +1177,9 @@ class AlbumApiControllerTest {
     }
 
     private UpdateAlbumRequest transformToUpdateAlbumRequest(Album savedAlbum) {
-        List<UpdateAlbumRequest.UpdateTrackRequest> tracks = savedAlbum.getTracks().stream()
+        List<UpdateTrackRequest> tracks = savedAlbum.getTracks().stream()
                 .map(t -> {
-                    UpdateAlbumRequest.UpdateTrackRequest result = new UpdateAlbumRequest.UpdateTrackRequest();
+                    UpdateTrackRequest result = new UpdateTrackRequest();
                     result.setId(t.getId());
                     result.setName(t.getName());
                     result.setArtist(t.getArtist());

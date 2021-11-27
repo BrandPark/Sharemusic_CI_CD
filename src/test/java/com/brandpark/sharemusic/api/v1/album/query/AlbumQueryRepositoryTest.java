@@ -11,7 +11,6 @@ import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
-import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.testUtils.AlbumFactory;
@@ -28,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.brandpark.sharemusic.testUtils.AssertUtil.assertDtoIsNotEmpty;
-import static com.brandpark.sharemusic.testUtils.AssertUtil.assertPage;
+import static com.brandpark.sharemusic.testUtils.AssertUtil.assertPageResult;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
@@ -60,7 +59,7 @@ class AlbumQueryRepositoryTest {
 
     @DisplayName("앨범정보 모두 조회")
     @Test
-    public void FindAllAlbumInfoResponse() throws Exception {
+    public void FindAllAlbumsInfoResponse() throws Exception {
 
         // given
         Account accountHasAlbum = accountFactory.persistAccount("accountHasAlbum");
@@ -77,7 +76,7 @@ class AlbumQueryRepositoryTest {
         PageResult<AlbumInfoResponse> resultPage = albumQueryRepository.findAllAlbumsInfo(request);
 
         // then
-        assertPage(0, pageSize, albumCount, resultPage);
+        assertPageResult(0, pageSize, albumCount, resultPage);
 
         List<AlbumInfoResponse> resultAlbums = resultPage.getContent();
         AlbumInfoResponse albumOne = resultAlbums.get(0);
@@ -141,21 +140,5 @@ class AlbumQueryRepositoryTest {
         assertThat(tracks.get(0).getId()).isEqualTo(firstAlbum.getTracks().get(0).getId());
         assertThat(tracks.get(0).getName()).isEqualTo(firstAlbum.getTracks().get(0).getName());
         assertThat(tracks.get(0).getArtist()).isEqualTo(firstAlbum.getTracks().get(0).getArtist());
-    }
-
-    private void createAndAddAlbums(List<Album> albums) {
-        for (int i = 0; i < 30; i++) {
-            Album album = albumFactory.createAlbumWithTracks("또다른 앨범" + i, 5, account.getId());
-            albumRepository.save(album);
-
-            albums.add(album);
-        }
-    }
-
-    private void createComments() {
-        for (int i = 0; i < 9; i++) {
-            Comment comment = albumFactory.createComment(firstAlbum.getId(), account.getId(), firstAlbum.getTitle() + ".댓글_" + i);
-            commentRepository.save(comment);
-        }
     }
 }

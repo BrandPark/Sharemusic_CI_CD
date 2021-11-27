@@ -35,9 +35,6 @@ public class Album extends BaseTimeEntity {
     @Column(nullable = false)
     private int trackCount;
 
-    @Column(nullable = false)
-    private int commentCount;
-
     @Builder.Default
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Track> tracks = new ArrayList<>();

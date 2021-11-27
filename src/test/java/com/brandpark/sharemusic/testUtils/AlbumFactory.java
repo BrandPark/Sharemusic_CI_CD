@@ -1,15 +1,11 @@
 package com.brandpark.sharemusic.testUtils;
 
 import com.brandpark.sharemusic.api.v1.album.dto.CreateAlbumRequest;
-import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.CreateTrackRequest;
-import com.brandpark.sharemusic.api.v1.album.dto.TrackUpdateRequest;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.album.domain.Track;
-import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +18,6 @@ import java.util.List;
 @Component
 public class AlbumFactory {
 
-    private final ModelMapper modelMapper;
     private final AlbumRepository albumRepository;
     private final EntityManager entityManager;
 
@@ -48,7 +43,7 @@ public class AlbumFactory {
         List<Album> result = new ArrayList<>();
 
         for (int i = 0; i < albumCount; i++) {
-            Album albumWithTracks = createAlbumWithTracks("title" + i, trackCount, accountId);
+            Album albumWithTracks = createAlbumWithTracks(title + i, trackCount, accountId);
             result.add(albumWithTracks);
         }
 
@@ -96,15 +91,6 @@ public class AlbumFactory {
                 .build();
     }
 
-    public List<CreateTrackRequest> createTrackSaveDtos(int trackCount) {
-        List<CreateTrackRequest> tracks = new ArrayList<>();
-        for (int i = 0; i < trackCount; i++) {
-            CreateTrackRequest trackDto = createTrackSaveDto("이름" + i, "아티스트" + i);
-            tracks.add(trackDto);
-        }
-        return tracks;
-    }
-
     public CreateTrackRequest createTrackSaveDto(String name, String artist) {
         CreateTrackRequest trackDto = new CreateTrackRequest();
         trackDto.setName(name);
@@ -119,26 +105,6 @@ public class AlbumFactory {
         albumDto.setDescription("앨범 소개");
         albumDto.setAlbumImage("앨범 이미지");
         return albumDto;
-    }
-
-    public AlbumUpdateRequest createAlbumUpdateDtoByEntity(Album album) {
-        return modelMapper.map(album, AlbumUpdateRequest.class);
-    }
-
-    public TrackUpdateRequest createTrackUpdateDto(String name, String artist) {
-        TrackUpdateRequest trackDto = new TrackUpdateRequest();
-        trackDto.setName(name);
-        trackDto.setArtist(artist);
-
-        return trackDto;
-    }
-
-    public Comment createComment(Long albumId, Long accountId, String content) {
-        return Comment.builder()
-                .albumId(albumId)
-                .accountId(accountId)
-                .content(content)
-                .build();
     }
 
 }

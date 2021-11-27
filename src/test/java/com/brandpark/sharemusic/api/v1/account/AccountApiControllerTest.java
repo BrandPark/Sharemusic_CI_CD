@@ -86,7 +86,7 @@ class AccountApiControllerTest {
                     });
 
                     // then
-                    AssertUtil.assertPage(pageNum, pageSize, totalElementCount, resultPage);
+                    AssertUtil.assertPageResult(pageNum, pageSize, totalElementCount, resultPage);
 
                     List<AccountInfoResponse> result = resultPage.getContent();
 
@@ -124,7 +124,7 @@ class AccountApiControllerTest {
                     });
 
                     // then
-                    AssertUtil.assertPage(pageNum, pageSize, totalElementCount, resultPage);
+                    AssertUtil.assertPageResult(pageNum, pageSize, totalElementCount, resultPage);
 
                     List<AccountInfoResponse> result = resultPage.getContent();
 

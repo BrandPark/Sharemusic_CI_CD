@@ -7,16 +7,11 @@ import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.dto.TrackInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
-import com.brandpark.sharemusic.api.v1.album.query.dto.CommentDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
-import com.brandpark.sharemusic.api.v1.search.dto.AlbumSearchResult;
 import com.brandpark.sharemusic.api.v1.search.dto.TrackSearchResult;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.album.domain.QTrack;
-import com.brandpark.sharemusic.modules.comment.domain.QComment;
-import com.brandpark.sharemusic.modules.util.page.PagingDtoFactory;
-import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -42,7 +37,6 @@ public class AlbumQueryRepository {
     QAlbum album = QAlbum.album;
     QAccount account = QAccount.account;
     QTrack track = QTrack.track;
-    QComment comment = QComment.comment;
 
     public PageResult<AlbumInfoResponse> findAllAlbumsInfo(Pageable pageable) {
 
@@ -57,7 +51,6 @@ public class AlbumQueryRepository {
         List<Long> albumIdList = queryResults.getResults().stream()
                 .map(AlbumInfoResponse::getAlbumId)
                 .collect(Collectors.toList());
-
 
         Map<Long, List<TrackInfoResponse>> trackMap = queryFactory.from(track)
                 .where(track.album.id.in(albumIdList))
@@ -149,121 +142,6 @@ public class AlbumQueryRepository {
         albumDetailDto.setTracks(trackDetailDtos);
 
         return albumDetailDto;
-    }
-
-    public PagingDto<CommentDetailDto> findAllCommentDetailDtoByAlbumId(Long albumId, Pageable pageable) {
-
-        QueryResults<CommentDetailDto> queryResults = queryFactory.select(Projections.bean(CommentDetailDto.class,
-                        comment.id,
-                        account.nickname.as("writer"),
-                        comment.content,
-                        comment.createdDate,
-                        comment.modifiedDate,
-                        account.profileImage.as("writerProfileImage")
-                ))
-                .from(comment)
-                .innerJoin(account).on(account.id.eq(comment.accountId))
-                .where(comment.albumId.eq(albumId))
-                .orderBy(comment.createdDate.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetchResults();
-
-        return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
-    }
-
-    public PagingDto<AlbumSearchResult> findAllAlbumsByAlbumName(String albumName, Pageable pageable) {
-        QueryResults<AlbumSearchResult> queryResults = queryFactory.select(Projections.fields(AlbumSearchResult.class,
-                        album.id.as("albumId"),
-                        album.title,
-                        album.description,
-                        album.trackCount,
-                        account.nickname.as("creatorNickname"),
-                        account.profileImage.as("creatorProfileImage"),
-                        album.createdDate
-                ))
-                .from(album)
-                .innerJoin(account).on(album.accountId.eq(account.id))
-                .where(
-                        album.title.containsIgnoreCase(albumName)
-                )
-                .orderBy(album.createdDate.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetchResults();
-
-        PagingDto<AlbumSearchResult> page = PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
-        for (AlbumSearchResult albumInfo : page.getContents()) {
-            albumInfo.setTracks(findAllTracksByAlbumId(albumInfo.getAlbumId()));
-        }
-
-        return page;
-    }
-
-    public PagingDto<AlbumSearchResult> findAllAlbumsByTrackName(String trackName, Pageable pageable) {
-        List<Long> albumIds = queryFactory.selectDistinct(
-                        track.album.id
-                )
-                .from(track)
-                .where(track.name.containsIgnoreCase(trackName))
-                .fetch();
-
-        QueryResults<AlbumSearchResult> queryResults = queryFactory.select(Projections.fields(AlbumSearchResult.class,
-                        album.id.as("albumId"),
-                        album.title,
-                        album.description,
-                        album.trackCount,
-                        account.nickname.as("creatorNickname"),
-                        account.profileImage.as("creatorProfileImage"),
-                        album.createdDate
-                ))
-                .from(album)
-                .innerJoin(account).on(album.accountId.eq(account.id))
-                .where(album.id.in(albumIds))
-                .orderBy(album.createdDate.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetchResults();
-
-        PagingDto<AlbumSearchResult> page = PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
-        for (AlbumSearchResult albumInfo : page.getContents()) {
-            albumInfo.setTracks(findAllTracksByAlbumId(albumInfo.getAlbumId()));
-        }
-
-        return page;
-    }
-
-    public PagingDto<AlbumSearchResult> findAllAlbumsByTrackArtist(String trackArtist, Pageable pageable) {
-        List<Long> albumIds = queryFactory.selectDistinct(
-                        track.album.id
-                )
-                .from(track)
-                .where(track.artist.containsIgnoreCase(trackArtist))
-                .fetch();
-
-        QueryResults<AlbumSearchResult> queryResults = queryFactory.select(Projections.fields(AlbumSearchResult.class,
-                        album.id.as("albumId"),
-                        album.title,
-                        album.description,
-                        album.trackCount,
-                        account.nickname.as("creatorNickname"),
-                        account.profileImage.as("creatorProfileImage"),
-                        album.createdDate
-                ))
-                .from(album)
-                .innerJoin(account).on(album.accountId.eq(account.id))
-                .where(album.id.in(albumIds))
-                .orderBy(album.createdDate.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetchResults();
-
-        PagingDto<AlbumSearchResult> page = PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
-        for (AlbumSearchResult albumInfo : page.getContents()) {
-            albumInfo.setTracks(findAllTracksByAlbumId(albumInfo.getAlbumId()));
-        }
-
-        return page;
     }
 
     private List<TrackSearchResult> findAllTracksByAlbumId(Long albumId) {

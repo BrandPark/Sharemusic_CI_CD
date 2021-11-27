@@ -15,9 +15,6 @@ spring:
           content:
             enabled: true
             paths: /**
-logging:
-  level:
-    org.hibernate.SQL: debug
 
 server:
   tomcat:

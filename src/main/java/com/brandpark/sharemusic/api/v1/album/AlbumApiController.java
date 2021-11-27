@@ -45,12 +45,19 @@ public class AlbumApiController {
     public Long updateAlbum(@LoginAccount SessionAccount loginAccount, @RequestBody @Valid UpdateAlbumRequest reqDto
             , @PathVariable Long albumId) {
 
-//        oldApiValidator.validateAlbumUpdateDto(reqDto, loginAccount.getId(), album.getId());
         validator.validateUpdateAlbum(loginAccount, reqDto, albumId);
 
         albumService.updateAlbum(reqDto.toModuleDto(), albumId);
-//        albumService.updateAlbum(reqDto, album);
 
+        return albumId;
+    }
+
+    @DeleteMapping("/albums/{albumId}")
+    public Long deleteAlbum(@LoginAccount SessionAccount loginAccount, @PathVariable Long albumId) {
+
+        validator.validateDeleteAlbum(loginAccount, albumId);
+
+        albumService.deleteAlbum(albumId);
         return albumId;
     }
 }

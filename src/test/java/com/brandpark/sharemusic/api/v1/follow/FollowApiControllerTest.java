@@ -104,7 +104,7 @@ class FollowApiControllerTest {
                     PageResult<FollowerInfoResponse> resultPage = objectMapper.readValue(json, new TypeReference<>() {
                     });
 
-                    AssertUtil.assertPage(fullPageNum, pageSize, totalFollowerCounts, resultPage);
+                    AssertUtil.assertPageResult(fullPageNum, pageSize, totalFollowerCounts, resultPage);
 
                     List<FollowerInfoResponse> result = resultPage.getContent();
                     assertThat(result.size()).isEqualTo(expectedFindResultCount);
@@ -141,7 +141,7 @@ class FollowApiControllerTest {
                     PageResult<FollowerInfoResponse> resultPage = objectMapper.readValue(json, new TypeReference<>() {
                     });
 
-                    AssertUtil.assertPage(lessLastPageNum, pageSize, totalFollowerCounts, resultPage);
+                    AssertUtil.assertPageResult(lessLastPageNum, pageSize, totalFollowerCounts, resultPage);
 
                     List<FollowerInfoResponse> result = resultPage.getContent();
                     assertThat(result.size()).isEqualTo(expectedFindResultCount);
@@ -204,7 +204,7 @@ class FollowApiControllerTest {
                     String json = rt.getResponse().getContentAsString(StandardCharsets.UTF_8);
                     PageResult<FollowingInfoResponse> resultPage = objectMapper.readValue(json, new TypeReference<>() {});
 
-                    AssertUtil.assertPage(pageNum, pageSize, totalFollowingCount, resultPage);
+                    AssertUtil.assertPageResult(pageNum, pageSize, totalFollowingCount, resultPage);
 
                     List<FollowingInfoResponse> result = resultPage.getContent();
                     assertThat(result.size()).isEqualTo(expectedFindResultCount);
@@ -240,7 +240,7 @@ class FollowApiControllerTest {
                     String json = rt.getResponse().getContentAsString(StandardCharsets.UTF_8);
                     PageResult<FollowingInfoResponse> resultPage = objectMapper.readValue(json, new TypeReference<>() {});
 
-                    AssertUtil.assertPage(pageNum, pageSize, totalFollowingCount, resultPage);
+                    AssertUtil.assertPageResult(pageNum, pageSize, totalFollowingCount, resultPage);
 
                     List<FollowingInfoResponse> result = resultPage.getContent();
                     assertThat(result.size()).isEqualTo(expectedFindResultCount);

@@ -17,6 +17,7 @@ public class UpdateAlbumDto {
 
     private List<UpdateTrackDto> tracks;
 
+    @AllArgsConstructor
     @Data
     public static class UpdateTrackDto {
         private Long id;

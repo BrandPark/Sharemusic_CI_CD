@@ -2,6 +2,7 @@ package com.brandpark.sharemusic.modules;
 
 import com.brandpark.sharemusic.api.v1.album.dto.CreateAlbumRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.UpdateAlbumRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.UpdateAlbumRequest.UpdateTrackRequest;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
@@ -11,7 +12,10 @@ import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordDto;
+import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
+import com.brandpark.sharemusic.modules.album.domain.TrackRepository;
+import com.brandpark.sharemusic.modules.album.domain.TrackStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -19,6 +23,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.brandpark.sharemusic.api.v1.exception.Error.*;
 
@@ -29,6 +34,7 @@ public class Validator {
     private final AccountRepository accountRepository;
     private final FollowRepository followRepository;
     private final AlbumRepository albumRepository;
+    private final TrackRepository trackRepository;
     private final PasswordEncoder encoder;
 
 
@@ -117,15 +123,96 @@ public class Validator {
     public void validateCreateAlbum(SessionAccount loginAccount, CreateAlbumRequest reqDto) {
         checkDuplicatedAlbumTitle(loginAccount.getId(), reqDto.getTitle(), null);
 
-        distinctTrackList(reqDto.getTracks());
+        checkDuplicateTrack(reqDto.getTracks());
     }
 
     public void validateUpdateAlbum(SessionAccount loginAccount, UpdateAlbumRequest reqDto, Long albumId) {
         checkExistAlbumById(albumId);
 
+        checkAuthorityToUpdateAlbum(loginAccount, albumId);
+
         checkDuplicatedAlbumTitle(loginAccount.getId(), reqDto.getTitle(), albumId);
 
-        // TODO : REMOVE 상태를 제외한 track들의 수, 중복 track 체크 & update, remove 상태의 트랙이 현재 앨범에 있는 트랙인지 확인
+        checkTrackCountConsiderTrackStatus(reqDto);
+
+        checkTrackStatus(reqDto, albumId);
+
+        exceptDuplicateTrackConsiderTrackStatus(reqDto);
+    }
+
+    public void validateDeleteAlbum(SessionAccount loginAccount, Long albumId) {
+        checkExistAlbumById(albumId);
+
+        checkAuthorityToUpdateAlbum(loginAccount, albumId);
+    }
+
+    public void validateFindAllComments(Long albumId) {
+        checkExistAlbumById(albumId);
+    }
+
+    private void checkAuthorityToUpdateAlbum(SessionAccount loginAccount, Long albumId) {
+        Album album = albumRepository.findById(albumId).get();
+        checkAuthorityToModify(loginAccount, album.getAccountId());
+    }
+
+    private void exceptDuplicateTrackConsiderTrackStatus(UpdateAlbumRequest reqDto) {
+        List<UpdateTrackRequest> notRemoveTracks = reqDto.getTracks().stream()
+                .filter(t -> t.getStatus() != TrackStatus.REMOVE)
+                .collect(Collectors.toList());
+
+        List<UpdateTrackRequest> removeTracks = reqDto.getTracks().stream()
+                .filter(t -> t.getStatus() == TrackStatus.REMOVE)
+                .collect(Collectors.toList());
+
+        checkDuplicateTrack(notRemoveTracks);
+
+        List<UpdateTrackRequest> exceptDuplicateResult = Stream.concat(notRemoveTracks.stream(), removeTracks.stream())
+                .collect(Collectors.toList());
+
+        reqDto.setTracks(exceptDuplicateResult);
+    }
+
+    private void checkTrackStatus(UpdateAlbumRequest reqDto, Long albumId) {
+        for (UpdateTrackRequest track : reqDto.getTracks()) {
+
+            Long trackId = track.getId();
+
+            switch (track.getStatus()) {
+                case INSERT:
+                    if (trackId != null) {
+                        throw new ApiException(ILLEGAL_ACCESS_EXCEPTION, "INSERT 상태의 TRACK 은 ID가 없어야 합니다.");
+                    }
+                    break;
+                case UPDATE:
+                case REMOVE:
+                    if (trackId == null) {
+                        throw new ApiException(ILLEGAL_ACCESS_EXCEPTION, track.getStatus().name() + " 상태의 TRACK 은 ID가 있어야 합니다.");
+                    } else {
+                        boolean existsTrack = trackRepository.existsTrackByIdAndAlbumId(trackId, albumId);
+                        if (!existsTrack) {
+                            throw new ApiException(ILLEGAL_ACCESS_EXCEPTION, track.getStatus().name() + " 는 앨범에 트랙이 존재해야만 합니다.");
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+
+    private void checkTrackCountConsiderTrackStatus(UpdateAlbumRequest reqDto) {
+
+        int trackCount = reqDto.getTracks().size();
+
+        for (UpdateTrackRequest trackDto : reqDto.getTracks()) {
+            if (trackDto.getStatus() == TrackStatus.REMOVE) {
+                trackCount--;
+            }
+        }
+
+        if (trackCount == 0) {
+            throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "트랙을 한 개 이상 넣어주세요.");
+        } else if (trackCount > 5) {
+            throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "트랙의 수는 최대 5개입니다.");
+        }
     }
 
     private void checkExistAlbumById(Long albumId) {
@@ -134,12 +221,11 @@ public class Validator {
         }
     }
 
-    private <T> void distinctTrackList(List<T> tracks) {
+    private <T> void checkDuplicateTrack(List<T> tracks) {
         List<T> distinctTrackList = tracks.stream().distinct().collect(Collectors.toList());
 
         if (tracks.size() > distinctTrackList.size()) {
-            tracks.clear();
-            tracks.addAll(distinctTrackList);
+            throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "저장될 트랙 중 중복된 트랙이 존재합니다.");
         }
     }
 

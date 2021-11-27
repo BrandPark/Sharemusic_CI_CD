@@ -24,7 +24,7 @@ public class Track extends BaseTimeEntity {
     @Column(nullable = false, length = 50)
     private String artist;
 
-    @JoinColumn(name = "album_id", nullable = false)
+    @JoinColumn(name = "album_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Album album;
 

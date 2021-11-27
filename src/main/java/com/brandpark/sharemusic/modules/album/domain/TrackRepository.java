@@ -11,4 +11,10 @@ public interface TrackRepository extends JpaRepository<Track, Long>, ExtendTrack
     @Transactional
     @Override
     int batchInsert(List<Track> tracks);
+
+    @Transactional
+    @Override
+    int batchUpdate(List<Track> tracks);
+
+    boolean existsTrackByIdAndAlbumId(Long trackId, Long albumId);
 }

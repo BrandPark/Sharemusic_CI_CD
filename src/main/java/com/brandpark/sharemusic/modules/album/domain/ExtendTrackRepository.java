@@ -6,4 +6,6 @@ public interface ExtendTrackRepository {
     int batchInsert(List<Track> tracks);
 
     int batchUpdate(List<Track> tracks);
+
+    int batchRemove(List<Track> tracks);
 }

@@ -13,6 +13,12 @@ spring:
         jdbc.batch_size: ${batchSize}
         format_sql: true
         use_sql_comments: true
+
+logging:
+  level:
+    org.springframework.jdbc.core: debug
+    org.hibernate.SQL: debug
+
 app:
   host: http://localhost:8080
 

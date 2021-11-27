@@ -1,13 +1,10 @@
 package com.brandpark.sharemusic.testUtils;
 
 
-import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.Role;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
-import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
-import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -35,11 +32,6 @@ public class AccountFactory {
 
     public Account persistAccount(String name) {
         return accountRepository.save(createAccount(name));
-    }
-
-    public SessionAccount createSessionAccount(String name) {
-        Account account = createAccount(name);
-        return modelMapper.map(account, SessionAccount.class);
     }
 
     public Account createAccount(String name) {
@@ -87,26 +79,6 @@ public class AccountFactory {
         form.setNickname(name);
         form.setPassword(password);
         form.setConfirmPassword(password);
-
-        return form;
-    }
-
-    public UpdateBasicInfoForm createUpdateBasicInfoForm(String name) {
-        UpdateBasicInfoForm form = new UpdateBasicInfoForm();
-        form.setName(name);
-        form.setEmail(name + "@email.com");
-        form.setNickname(name);
-        form.setBio("My name is" + name);
-        form.setProfileImage("image");
-
-        return form;
-    }
-
-    public UpdatePasswordForm createUpdatePasswordForm() {
-        UpdatePasswordForm form = new UpdatePasswordForm();
-        form.setOriginPassword(password);
-        form.setUpdatePassword("111111111");
-        form.setConfirmPassword("111111111");
 
         return form;
     }
