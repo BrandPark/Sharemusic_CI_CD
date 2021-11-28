@@ -8,7 +8,6 @@ import com.brandpark.sharemusic.api.v1.album.dto.TrackInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
-import com.brandpark.sharemusic.api.v1.search.dto.TrackSearchResult;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.album.domain.QTrack;
@@ -142,18 +141,6 @@ public class AlbumQueryRepository {
         albumDetailDto.setTracks(trackDetailDtos);
 
         return albumDetailDto;
-    }
-
-    private List<TrackSearchResult> findAllTracksByAlbumId(Long albumId) {
-        return queryFactory.select(Projections.fields(TrackSearchResult.class,
-                        track.id.as("trackId"),
-                        track.name,
-                        track.artist
-                ))
-                .from(track)
-                .where(track.album.id.eq(albumId))
-                .orderBy(track.name.asc())
-                .fetch();
     }
 
     private BooleanExpression searchCondition(SearchDto searchDto) {

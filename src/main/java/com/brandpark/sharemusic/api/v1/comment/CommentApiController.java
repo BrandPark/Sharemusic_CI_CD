@@ -2,11 +2,7 @@ package com.brandpark.sharemusic.api.v1.comment;
 
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.page.PageResultFactory;
-import com.brandpark.sharemusic.api.v1.OldApiValidator;
-import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.api.v1.comment.dto.CommentInfoResponse;
-import com.brandpark.sharemusic.api.v1.exception.ApiException;
-import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.Validator;
@@ -17,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,10 +23,8 @@ import java.util.stream.Collectors;
 @RestController
 public class CommentApiController {
 
-    private final AlbumQueryRepository albumQueryRepository;
     private final CommentService commentService;
     private final CommentRepository commentRepository;
-    private final OldApiValidator oldApiValidator;
     private final Validator validator;
 
     @GetMapping("/albums/{albumId}/comments")
@@ -55,22 +48,21 @@ public class CommentApiController {
     }
 
     @PostMapping("/albums/{albumId}/comments")
-    public Long saveComment(@LoginAccount SessionAccount account, @PathVariable Long albumId
+    public Long createComment(@LoginAccount SessionAccount loginAccount, @PathVariable Long albumId
             , @RequestParam("content") String content) {
 
-        if (!StringUtils.hasText(content)) {
-            throw new ApiException(Error.BLANK_FIELD_EXCEPTION, "댓글 내용을 입력 해주세요.");
-        }
+        validator.validateCreateComment(albumId, content);
 
-        return commentService.saveComment(albumId, account.getId(), content);
+        return commentService.saveComment(loginAccount.getId(), albumId, content);
     }
 
     @DeleteMapping("/albums/{albumId}/comments/{commentId}")
-    public void deleteComment(@LoginAccount SessionAccount account, @PathVariable("commentId") Comment comment) {
+    public void deleteComment(@LoginAccount SessionAccount loginAccount
+            ,@PathVariable Long albumId, @PathVariable Long commentId) {
 
-        oldApiValidator.validateDeleteComment(comment, account);
+        validator.validateDeleteComment(loginAccount, albumId, commentId);
 
-        commentRepository.delete(comment);
+        commentRepository.deleteById(commentId);
     }
 }
 

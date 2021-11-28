@@ -84,8 +84,10 @@ public class AlbumService {
 
     @Transactional
     public void deleteAlbum(Long albumId) {
-        commentRepository.deleteByAlbumId(albumId);
         albumRepository.deleteById(albumId);
+
+        commentRepository.deleteAllCommentsByAlbumId(albumId);
+        entityManager.clear();
     }
 }
 

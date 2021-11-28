@@ -16,6 +16,8 @@ import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.album.domain.TrackRepository;
 import com.brandpark.sharemusic.modules.album.domain.TrackStatus;
+import com.brandpark.sharemusic.modules.comment.domain.Comment;
+import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -36,11 +38,12 @@ public class Validator {
     private final AlbumRepository albumRepository;
     private final TrackRepository trackRepository;
     private final PasswordEncoder encoder;
+    private final CommentRepository commentRepository;
 
 
     public void validateUpdateAccountLogic(SessionAccount loginAccount, Long targetAccountId, UpdateAccountDto updateData) {
 
-        checkAuthorityToModify(loginAccount, targetAccountId);
+        checkAuthorityToUpdate(loginAccount, targetAccountId);
 
         final String currentNickname = loginAccount.getNickname();
         final String updateNickname = updateData.getNickname();
@@ -70,7 +73,7 @@ public class Validator {
 
     public void validateUpdatePasswordLogic(SessionAccount loginAccount, Long targetAccountId, UpdatePasswordDto updateData) {
 
-        checkAuthorityToModify(loginAccount, targetAccountId);
+        checkAuthorityToUpdate(loginAccount, targetAccountId);
 
         final String originPassword = updateData.getOriginPassword();
         final String updatePassword = updateData.getUpdatePassword();
@@ -89,7 +92,7 @@ public class Validator {
 
     public void validateVerifyEmailCheckTokenLogic(SessionAccount loginAccount, Long targetAccountId, String emailCheckToken) {
 
-        checkAuthorityToModify(loginAccount, targetAccountId);
+        checkAuthorityToUpdate(loginAccount, targetAccountId);
 
         if (loginAccount.getRole() == Role.USER) {
             throw new ApiException(ILLEGAL_ACCESS_EXCEPTION
@@ -101,21 +104,21 @@ public class Validator {
     }
 
     public void validateFindAllFollowers(Long targetAccountId) {
-        checkExistAccountById(targetAccountId);
+        checkExistsAccountById(targetAccountId);
     }
 
     public void validateFindAllFollowings(Long targetAccountId) {
-        checkExistAccountById(targetAccountId);
+        checkExistsAccountById(targetAccountId);
     }
 
     public void validateFollow(SessionAccount loginAccount, Long targetAccountId) {
-        checkExistAccountById(targetAccountId);
+        checkExistsAccountById(targetAccountId);
 
         checkEnableFollow(loginAccount.getId(), targetAccountId);
     }
 
     public void validateUnfollow(SessionAccount loginAccount, Long targetAccountId) {
-        checkExistAccountById(targetAccountId);
+        checkExistsAccountById(targetAccountId);
 
         checkEnableUnfollow(loginAccount.getId(), targetAccountId);
     }
@@ -127,7 +130,7 @@ public class Validator {
     }
 
     public void validateUpdateAlbum(SessionAccount loginAccount, UpdateAlbumRequest reqDto, Long albumId) {
-        checkExistAlbumById(albumId);
+        checkExistsAlbumById(albumId);
 
         checkAuthorityToUpdateAlbum(loginAccount, albumId);
 
@@ -141,18 +144,47 @@ public class Validator {
     }
 
     public void validateDeleteAlbum(SessionAccount loginAccount, Long albumId) {
-        checkExistAlbumById(albumId);
+        checkExistsAlbumById(albumId);
 
         checkAuthorityToUpdateAlbum(loginAccount, albumId);
     }
 
     public void validateFindAllComments(Long albumId) {
-        checkExistAlbumById(albumId);
+        checkExistsAlbumById(albumId);
+    }
+
+    public void validateCreateComment(Long albumId, String content) {
+        checkExistsAlbumById(albumId);
+
+        if (!StringUtils.hasText(content)) {
+            throw new ApiException(Error.BLANK_FIELD_EXCEPTION, "댓글 내용을 입력 해주세요.");
+        }
+    }
+
+    public void validateDeleteComment(SessionAccount loginAccount, Long albumId, Long commentId) {
+        checkExistsAlbumById(albumId);
+
+        checkCommentInAlbum(albumId, commentId);
+
+        checkAuthorityToUpdateComment(loginAccount, commentId);
+    }
+
+    private void checkAuthorityToUpdateComment(SessionAccount loginAccount, Long commentId) {
+        Comment comment = commentRepository.findById(commentId).get();
+
+        checkAuthorityToUpdate(loginAccount, comment.getAccountId());
+    }
+
+    private void checkCommentInAlbum(Long albumId, Long commentId) {
+        boolean existsInAlbum = commentRepository.existsByIdAndAlbumId(commentId, albumId);
+        if (!existsInAlbum) {
+            throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "앨범에 해당 댓글이 존재하지 않습니다.");
+        }
     }
 
     private void checkAuthorityToUpdateAlbum(SessionAccount loginAccount, Long albumId) {
         Album album = albumRepository.findById(albumId).get();
-        checkAuthorityToModify(loginAccount, album.getAccountId());
+        checkAuthorityToUpdate(loginAccount, album.getAccountId());
     }
 
     private void exceptDuplicateTrackConsiderTrackStatus(UpdateAlbumRequest reqDto) {
@@ -215,7 +247,7 @@ public class Validator {
         }
     }
 
-    private void checkExistAlbumById(Long albumId) {
+    private void checkExistsAlbumById(Long albumId) {
         if (!albumRepository.existsById(albumId)) {
             throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "존재하지 않는 앨범입니다.");
         }
@@ -263,7 +295,7 @@ public class Validator {
         }
     }
 
-    private void checkExistAccountById(Long targetAccountId) {
+    private void checkExistsAccountById(Long targetAccountId) {
         if (!accountRepository.existsById(targetAccountId)) {
             throw new ApiException(NOT_FOUND_ACCOUNT_EXCEPTION);
         }
@@ -281,7 +313,7 @@ public class Validator {
         }
     }
 
-    private void checkAuthorityToModify(SessionAccount loginAccount, Long targetAccountId) {
+    private void checkAuthorityToUpdate(SessionAccount loginAccount, Long targetAccountId) {
         if (!loginAccount.getId().equals(targetAccountId)) {
             throw new ApiException(FORBIDDEN_EXCEPTION);
         }

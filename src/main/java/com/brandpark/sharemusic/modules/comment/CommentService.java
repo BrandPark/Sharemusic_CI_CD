@@ -3,7 +3,6 @@ package com.brandpark.sharemusic.modules.comment;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
 import com.brandpark.sharemusic.modules.event.CommentEvent;
-import com.brandpark.sharemusic.modules.util.MyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -18,13 +17,9 @@ public class CommentService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public Long saveComment(Long albumId, Long accountId, String content) {
+    public Long saveComment(Long accountId, Long albumId, String content) {
 
-        Comment saveComment = commentRepository.save(Comment.builder()
-                .albumId(albumId)
-                .accountId(accountId)
-                .content(MyUtil.toBrTag(content))
-                .build());
+        Comment saveComment = commentRepository.save(Comment.createComment(accountId, albumId, content));
 
         eventPublisher.publishEvent(CommentEvent.builder()
                 .writerId(accountId)
