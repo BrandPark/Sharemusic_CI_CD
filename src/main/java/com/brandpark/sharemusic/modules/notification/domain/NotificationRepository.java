@@ -12,7 +12,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    List<Notification> findAllFirst10ByAccountIdOrderByCheckedAscCreatedDateDesc(Long accountId);
+    List<Notification> findFirst10ByAccountIdOrderByCheckedAscCreatedDateDesc(Long accountId);
 
     int countByAccountIdAndCheckedIsFalse(Long accountId);
 

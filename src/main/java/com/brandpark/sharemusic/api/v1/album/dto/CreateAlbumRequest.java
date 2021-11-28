@@ -1,8 +1,8 @@
 package com.brandpark.sharemusic.api.v1.album.dto;
 
 import com.brandpark.sharemusic.modules.album.dto.CreateAlbumDto;
-import com.brandpark.sharemusic.modules.album.dto.CreateTrackDto;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -28,18 +28,27 @@ public class CreateAlbumRequest {
     private List<CreateTrackRequest> tracks;
 
     public CreateAlbumDto toModuleDto() {
-        List<CreateTrackDto> tracks = this.tracks.stream()
-                .map(track -> new CreateTrackDto(
-                        track.getName(),
-                        track.getArtist()
-                ))
-                .collect(toList());
-
         return new CreateAlbumDto(
                 title,
                 description,
                 albumImage,
-                tracks
+                tracks.stream()
+                        .map(t -> new CreateAlbumDto.CreateTrackDto(
+                                t.getName(),
+                                t.getArtist()
+                        ))
+                        .collect(toList())
         );
+    }
+
+    @EqualsAndHashCode(of = {"name", "artist"})
+    @Data
+    public static class CreateTrackRequest {
+
+        @NotBlank(message = "트랙 이름을 입력해 주세요.")
+        private String name;
+
+        @NotBlank(message = "트랙 아티스트를 입력해 주세요.")
+        private String artist;
     }
 }

@@ -1,7 +1,11 @@
 package com.brandpark.sharemusic.api.v1.album;
 
 import com.brandpark.sharemusic.api.page.PageResult;
-import com.brandpark.sharemusic.api.v1.album.dto.*;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse.TrackInfoResponse;
+import com.brandpark.sharemusic.api.v1.album.dto.CreateAlbumRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.CreateAlbumRequest.CreateTrackRequest;
+import com.brandpark.sharemusic.api.v1.album.dto.UpdateAlbumRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.UpdateAlbumRequest.UpdateTrackRequest;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
@@ -468,14 +472,17 @@ class AlbumApiControllerTest {
     public void SaveAlbum_Fail_When_GuestAccount() throws Exception {
 
         // given
-        CreateAlbumRequest albumDto = albumFactory.createAlbumSaveDto();
+        CreateAlbumRequest reqDto = new CreateAlbumRequest();
+        reqDto.setTitle("title");
+        reqDto.setDescription("description");
+        reqDto.setAlbumImage("albumImage");
 
         // when
         mockMvc.perform(post("/api/v1/albums")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
-                        .content(objectMapper.writeValueAsString(albumDto)))
+                        .content(objectMapper.writeValueAsString(reqDto)))
 
                 // then
                 .andExpect(status().isForbidden());

@@ -3,7 +3,7 @@ package com.brandpark.sharemusic.api.v1.album.query;
 import com.brandpark.sharemusic.api.SearchDto;
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
-import com.brandpark.sharemusic.api.v1.album.dto.TrackInfoResponse;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse.TrackInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;

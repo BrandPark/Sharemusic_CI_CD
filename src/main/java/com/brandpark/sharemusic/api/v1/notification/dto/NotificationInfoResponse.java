@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.api.v1.notification.query.dto;
+package com.brandpark.sharemusic.api.v1.notification.dto;
 
 import com.brandpark.sharemusic.modules.notification.NotificationType;
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class NotificationInfo {
+public class NotificationInfoResponse {
     private Long id;
     private String senderProfileImage;
     private String senderNickname;

@@ -14,7 +14,9 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
 
     @Transactional
-    public void checkNotification(Notification notification) {
+    public void checkNotification(Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId).get();
+
         notification.check();
     }
 

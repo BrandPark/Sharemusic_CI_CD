@@ -1,7 +1,5 @@
 package com.brandpark.sharemusic.testUtils;
 
-import com.brandpark.sharemusic.api.v1.album.dto.CreateAlbumRequest;
-import com.brandpark.sharemusic.api.v1.album.dto.CreateTrackRequest;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.album.domain.Track;
@@ -90,21 +88,4 @@ public class AlbumFactory {
                 .album(album)
                 .build();
     }
-
-    public CreateTrackRequest createTrackSaveDto(String name, String artist) {
-        CreateTrackRequest trackDto = new CreateTrackRequest();
-        trackDto.setName(name);
-        trackDto.setArtist(artist);
-
-        return trackDto;
-    }
-
-    public CreateAlbumRequest createAlbumSaveDto() {
-        CreateAlbumRequest albumDto = new CreateAlbumRequest();
-        albumDto.setTitle("앨범 제목");
-        albumDto.setDescription("앨범 소개");
-        albumDto.setAlbumImage("앨범 이미지");
-        return albumDto;
-    }
-
 }

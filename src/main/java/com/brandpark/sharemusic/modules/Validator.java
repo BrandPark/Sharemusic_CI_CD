@@ -18,6 +18,8 @@ import com.brandpark.sharemusic.modules.album.domain.TrackRepository;
 import com.brandpark.sharemusic.modules.album.domain.TrackStatus;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
+import com.brandpark.sharemusic.modules.notification.domain.Notification;
+import com.brandpark.sharemusic.modules.notification.domain.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -39,7 +41,7 @@ public class Validator {
     private final TrackRepository trackRepository;
     private final PasswordEncoder encoder;
     private final CommentRepository commentRepository;
-
+    private final NotificationRepository notificationRepository;
 
     public void validateUpdateAccountLogic(SessionAccount loginAccount, Long targetAccountId, UpdateAccountDto updateData) {
 
@@ -167,6 +169,24 @@ public class Validator {
         checkCommentInAlbum(albumId, commentId);
 
         checkAuthorityToUpdateComment(loginAccount, commentId);
+    }
+
+    public void validateReadCheckNotification(SessionAccount account, Long notificationId) {
+        checkExistsNotification(notificationId);
+
+        checkAuthorityToReadCheckNotification(account, notificationId);
+    }
+
+    private void checkAuthorityToReadCheckNotification(SessionAccount account, Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId).get();
+        checkAuthorityToUpdate(account, notification.getAccount().getId());
+    }
+
+    private void checkExistsNotification(Long notificationId) {
+        boolean exists = notificationRepository.existsById(notificationId);
+        if (!exists) {
+            throw new ApiException(ILLEGAL_ARGUMENT_EXCEPTION, "해당 알림이 존재하지 않습니다.");
+        }
     }
 
     private void checkAuthorityToUpdateComment(SessionAccount loginAccount, Long commentId) {

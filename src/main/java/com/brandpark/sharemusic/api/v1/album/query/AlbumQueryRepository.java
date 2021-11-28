@@ -4,7 +4,7 @@ import com.brandpark.sharemusic.api.SearchDto;
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.page.PageResultFactory;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
-import com.brandpark.sharemusic.api.v1.album.dto.TrackInfoResponse;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse.TrackInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
@@ -76,12 +76,11 @@ public class AlbumQueryRepository {
                                 album.albumImage,
                                 album.description,
                                 album.trackCount,
-                                account.id.as("accountId"),
+                                album.accountId,
                                 album.createdDate,
                                 album.modifiedDate
                         ))
                 .from(album)
-                .innerJoin(account).on(album.accountId.eq(account.id))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();

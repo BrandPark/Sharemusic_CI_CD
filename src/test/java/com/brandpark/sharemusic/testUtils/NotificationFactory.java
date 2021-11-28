@@ -21,18 +21,18 @@ public class NotificationFactory {
     private final NotificationRepository notificationRepository;
 
     public Notification persistNotification(Account sender, Account receiver, NotificationType type) {
-        return notificationRepository.save(createNotification(sender, receiver, type));
+        return notificationRepository.save(createNotReadNotification(sender, receiver, type));
     }
 
-    public List<Notification> persistNotificationListMultiType(Account sender, Account receiver, NotificationType... types) {
-        return notificationRepository.saveAll(createNotificationListMultiType(sender, receiver, types));
+    public List<Notification> persistNotReadNotificationListMultiType(Account sender, Account receiver, NotificationType... types) {
+        return notificationRepository.saveAll(createNotReadNotificationListMultiType(sender, receiver, types));
     }
 
-    public List<Notification> persistNotificationList(Account sender, Account receiver, NotificationType type, int count) {
+    public List<Notification> persistNotReadNotificationList(Account sender, Account receiver, NotificationType type, int count) {
         return notificationRepository.saveAll(createNotificationList(sender, receiver, type, count));
     }
 
-    private Notification createNotification(Account sender, Account receiver, NotificationType type) {
+    private Notification createNotReadNotification(Account sender, Account receiver, NotificationType type) {
         return Notification.builder()
                 .link("link")
                 .notificationType(type)
@@ -43,10 +43,10 @@ public class NotificationFactory {
                 .build();
     }
 
-    private List<Notification> createNotificationListMultiType(Account sender, Account receiver, NotificationType...types) {
+    private List<Notification> createNotReadNotificationListMultiType(Account sender, Account receiver, NotificationType...types) {
 
         return Arrays.stream(types)
-                .map(type -> createNotification(sender, receiver, type))
+                .map(type -> createNotReadNotification(sender, receiver, type))
                 .collect(Collectors.toList());
     }
 
@@ -55,7 +55,7 @@ public class NotificationFactory {
         List<Notification> result = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
-            result.add(createNotification(sender, receiver, type));
+            result.add(createNotReadNotification(sender, receiver, type));
         }
 
         return result;

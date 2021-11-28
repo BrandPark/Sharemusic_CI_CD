@@ -34,4 +34,11 @@ public class CreateAlbumDto {
 
         return album;
     }
+
+    @AllArgsConstructor
+    @Data
+    public static class CreateTrackDto {
+        private String name;
+        private String artist;
+    }
 }

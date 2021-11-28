@@ -2,9 +2,11 @@ package com.brandpark.sharemusic.testUtils;
 
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
-import com.brandpark.sharemusic.api.v1.album.dto.TrackInfoResponse;
+import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse.TrackInfoResponse;
+import com.brandpark.sharemusic.api.v1.notification.dto.NotificationInfoResponse;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
+import com.brandpark.sharemusic.modules.notification.domain.Notification;
 import org.springframework.data.domain.Page;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,5 +65,26 @@ public abstract class AssertUtil {
         assertThat(comment.getContent()).isNotNull();
         assertThat(comment.getCreatedDate()).isNotNull();
         assertThat(comment.getModifiedDate()).isNotNull();
+    }
+
+    public static void assertDtoIsNotEmpty(NotificationInfoResponse dto) {
+        assertThat( dto.getId()).isNotNull();
+        assertThat( dto.getLink()).isNotNull();
+        assertThat( dto.getMessage()).isNotNull();
+        assertThat( dto.getSenderProfileImage()).isNotNull();
+        assertThat( dto.getSenderNickname()).isNotNull();
+        assertThat( dto.getNotificationType()).isNotNull();
+        assertThat( dto.getCreatedDate()).isNotNull();
+    }
+
+    public static void assertEntityIsNotEmpty(Notification notification) {
+        assertThat(notification.getId()).isNotNull();
+        assertThat(notification.getLink()).isNotNull();
+        assertThat(notification.getMessage()).isNotNull();
+        assertThat(notification.getSender()).isNotNull();
+        assertThat(notification.getNotificationType()).isNotNull();
+        assertThat(notification.getAccount()).isNotNull();
+        assertThat(notification.getCreatedDate()).isNotNull();
+        assertThat(notification.getModifiedDate()).isNotNull();
     }
 }

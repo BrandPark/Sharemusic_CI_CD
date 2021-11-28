@@ -1,16 +1,13 @@
 package com.brandpark.sharemusic.api.v1.notification;
 
-import com.brandpark.sharemusic.api.v1.OldApiValidator;
-import com.brandpark.sharemusic.api.v1.exception.ApiException;
-import com.brandpark.sharemusic.api.v1.exception.Error;
+import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.v1.notification.query.NotificationQueryRepository;
-import com.brandpark.sharemusic.api.v1.notification.query.dto.NotificationInfo;
-import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
+import com.brandpark.sharemusic.api.v1.notification.dto.NotificationInfoResponse;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.Validator;
 import com.brandpark.sharemusic.modules.notification.NotificationService;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
-import com.brandpark.sharemusic.modules.notification.domain.Notification;
 import com.brandpark.sharemusic.modules.notification.domain.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -25,24 +22,11 @@ public class NotificationApiController {
     private final NotificationRepository notificationRepository;
     private final NotificationQueryRepository notificationQueryRepository;
     private final NotificationService notificationService;
-    private final OldApiValidator validator;
-
-    @PutMapping("/notifications/{notificationId}")
-    public Long checkNotification(@LoginAccount SessionAccount account, @PathVariable Long notificationId) {
-
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new ApiException(Error.ILLEGAL_ARGUMENT_EXCEPTION));
-
-        validator.validateNotification(account.getId(), notification.getAccount().getId());
-
-        notificationService.checkNotification(notification);
-
-        return notificationId;
-    }
+    private final Validator validator;
 
     @GetMapping("/notifications")
-    public PagingDto<NotificationInfo> getNotificationListPage(@LoginAccount SessionAccount account
-            , @PageableDefault(size = 10) Pageable pageable
+    public PageResult<NotificationInfoResponse> getNotificationListPage(@LoginAccount SessionAccount account
+            , @PageableDefault Pageable pageable
             , @RequestParam(name = "type", defaultValue = "") String type) {
 
         NotificationType notificationType = NotificationType.getTypeByName(type);
@@ -50,8 +34,18 @@ public class NotificationApiController {
         return notificationQueryRepository.findAllNotifications(pageable, notificationType, account.getId());
     }
 
+    @PutMapping("/notifications/{notificationId}")
+    public Long readCheckNotification(@LoginAccount SessionAccount account, @PathVariable Long notificationId) {
+
+        validator.validateReadCheckNotification(account, notificationId);
+
+        notificationService.checkNotification(notificationId);
+
+        return notificationId;
+    }
+
     @PutMapping("/notifications")
-    public int checkAllNotifications(@LoginAccount SessionAccount account
+    public int readCheckAllNotifications(@LoginAccount SessionAccount account
             ,@RequestParam("type") String type) {
 
         NotificationType notificationType = NotificationType.getTypeByName(type);
@@ -62,5 +56,4 @@ public class NotificationApiController {
 
         return notificationRepository.checkAllNotification(account.getId(), notificationType);
     }
-
 }

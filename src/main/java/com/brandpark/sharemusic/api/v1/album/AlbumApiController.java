@@ -1,7 +1,6 @@
 package com.brandpark.sharemusic.api.v1.album;
 
 import com.brandpark.sharemusic.api.page.PageResult;
-import com.brandpark.sharemusic.api.v1.OldApiValidator;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.dto.CreateAlbumRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.UpdateAlbumRequest;
@@ -24,7 +23,6 @@ import javax.validation.Valid;
 public class AlbumApiController {
 
     private final AlbumService albumService;
-    private final OldApiValidator oldApiValidator;
     private final Validator validator;
     private final AlbumQueryRepository albumQueryRepository;
 

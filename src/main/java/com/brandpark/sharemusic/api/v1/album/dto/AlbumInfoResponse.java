@@ -16,4 +16,11 @@ public class AlbumInfoResponse {
     private Long accountId;
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
+
+    @Data
+    public static class TrackInfoResponse {
+        private Long trackId;
+        private String name;
+        private String artist;
+    }
 }
