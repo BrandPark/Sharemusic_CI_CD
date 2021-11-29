@@ -1,11 +1,9 @@
 package com.brandpark.sharemusic.api.v1.album.query;
 
-import com.brandpark.sharemusic.api.SearchDto;
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse.TrackInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
-import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
@@ -90,32 +88,6 @@ class AlbumQueryRepositoryTest {
         assertDtoIsNotEmpty(trackOne);
     }
 
-    @DisplayName("한 페이지 앨범의 간략한 정보 DB 생성날짜 내림차순 조회 - 성공")
-    @Test
-    public void RetrieveAlbumShortDto() throws Exception {
-
-        // given
-        PageRequest pageRequest = PageRequest.of(0, 10);
-
-        // when
-        PageResult<AlbumShortDto> responseDto = albumQueryRepository.findAllAlbumsByAccountIdList(pageRequest,  new SearchDto());
-
-        List<AlbumShortDto> pageContent = responseDto.getContent();
-        AlbumShortDto resultFirst = pageContent.get(0);
-
-        // then
-        Album lastCreateAlbum = savedAlbums.get(savedAlbums.size() - 1);
-
-        assertThat(responseDto.getTotalElements()).isEqualTo(savedAlbums.size());
-        assertThat(pageContent.size()).isEqualTo(10);
-        assertThat(resultFirst.getAlbumId()).isEqualTo(lastCreateAlbum.getId());
-        assertThat(resultFirst.getTitle()).isEqualTo(lastCreateAlbum.getTitle());
-        assertThat(resultFirst.getAlbumImage()).isEqualTo(lastCreateAlbum.getAlbumImage());
-        assertThat(resultFirst.getDescription()).isEqualTo(lastCreateAlbum.getDescription());
-        assertThat(resultFirst.getTrackCount()).isEqualTo(lastCreateAlbum.getTrackCount());
-        assertThat(resultFirst.getCreatorNickname()).isEqualTo(account.getNickname());
-        assertThat(resultFirst.getCreatorProfileImage()).isEqualTo(account.getProfileImage());
-    }
 
     @DisplayName("앨범의 디테일 정보 DB 조회")
     @Test

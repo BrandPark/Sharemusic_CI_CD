@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum SearchType {
     ALBUM_NAME("앨범 이름"),
-    USER_NAME("사용자 이름"),
-    TRACK_NAME("음원 이름"),
-    TRACK_ARTIST("음원 아티스트");
+    USER_NAME("사용자 이름");
 
     private final String name;
 }

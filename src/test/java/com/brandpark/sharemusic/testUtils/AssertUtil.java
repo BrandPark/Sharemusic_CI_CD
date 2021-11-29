@@ -4,6 +4,8 @@ import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse.TrackInfoResponse;
 import com.brandpark.sharemusic.api.v1.notification.dto.NotificationInfoResponse;
+import com.brandpark.sharemusic.api.v1.search.dto.AccountSearchResult;
+import com.brandpark.sharemusic.api.v1.search.dto.AlbumSearchResult;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import com.brandpark.sharemusic.modules.notification.domain.Notification;
@@ -17,8 +19,8 @@ public abstract class AssertUtil {
         assertThat(page.getPageNumber()).isEqualTo(pageNum);
         assertThat(page.getPageSize()).isEqualTo(pageSize);
         assertThat(page.getOffset()).isEqualTo(pageSize * pageNum);
-        assertThat(page.getTotalPages()).isGreaterThan(0);
-        assertThat(page.getNumberOfElements()).isGreaterThan(0);
+        assertThat(page.getTotalPages()).isGreaterThanOrEqualTo(0);
+        assertThat(page.getNumberOfElements()).isGreaterThanOrEqualTo(0);
         assertThat(page.getTotalElements()).isEqualTo(totalElementCount);
     }
 
@@ -86,5 +88,27 @@ public abstract class AssertUtil {
         assertThat(notification.getAccount()).isNotNull();
         assertThat(notification.getCreatedDate()).isNotNull();
         assertThat(notification.getModifiedDate()).isNotNull();
+    }
+
+    public static void assertDtoIsNotEmpty(AccountSearchResult dto) {
+        assertThat(dto.getEmail()).isNotNull();
+        assertThat(dto.getName()).isNotNull();
+        assertThat(dto.getNickname()).isNotNull();
+        assertThat(dto.getBio()).isNotNull();
+        assertThat(dto.getProfileImage()).isNotNull();
+        assertThat(dto.getAccountId()).isNotNull();
+        assertThat(dto.getRole()).isNotNull();
+        assertThat(dto.getCreatedDate()).isNotNull();
+    }
+
+    public static void assertDtoIsNotEmpty(AlbumSearchResult dto) {
+        assertThat(dto.getAlbumId()).isNotNull();
+        assertThat(dto.getTitle()).isNotNull();
+        assertThat(dto.getDescription()).isNotNull();
+        assertThat(dto.getAlbumImage()).isNotNull();
+        assertThat(dto.getAccountId()).isNotNull();
+        assertThat(dto.getTrackCount()).isGreaterThanOrEqualTo(0);
+        assertThat(dto.getCreatedDate()).isNotNull();
+        assertThat(dto.getModifiedDate()).isNotNull();
     }
 }

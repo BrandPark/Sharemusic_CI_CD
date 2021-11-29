@@ -46,6 +46,7 @@ public class AlbumController {
     @GetMapping("/albums/{albumId}")
     public String detailAlbumView(@LoginAccount SessionAccount account, Model model, @PathVariable Long albumId) {
 
+
         AlbumDetailDto albumDetail = albumQueryRepository.findAlbumDetailDtoById(albumId);
 
         model.addAttribute("account", account);

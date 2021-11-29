@@ -1,19 +1,16 @@
 package com.brandpark.sharemusic.api.v1.album.query;
 
-import com.brandpark.sharemusic.api.SearchDto;
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.page.PageResultFactory;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse.TrackInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
-import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumShortDto;
 import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.album.domain.QTrack;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -39,11 +36,31 @@ public class AlbumQueryRepository {
 
     public PageResult<AlbumInfoResponse> findAllAlbumsInfo(Pageable pageable) {
 
-        QueryResults<AlbumInfoResponse> queryResults = getAllAlbumsInfoWithoutTrack(pageable);
+        QueryResults<AlbumInfoResponse> queryResults = getAllAlbumsInfo(pageable);
+
+        return PageResultFactory.createPageResult(queryResults.getResults(), pageable, queryResults.getTotal());
+    }
+
+    private QueryResults<AlbumInfoResponse> getAllAlbumsInfo(Pageable pageable) {
+        QueryResults<AlbumInfoResponse> queryResults = queryFactory.select(
+                        Projections.bean(AlbumInfoResponse.class,
+                                album.id.as("albumId"),
+                                album.title,
+                                album.albumImage,
+                                album.description,
+                                album.trackCount,
+                                album.accountId,
+                                album.createdDate,
+                                album.modifiedDate
+                        ))
+                .from(album)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
 
         setTrackInfo(queryResults);
 
-        return PageResultFactory.createPageResult(queryResults.getResults(), pageable, queryResults.getTotal());
+        return queryResults;
     }
 
     private void setTrackInfo(QueryResults<AlbumInfoResponse> queryResults) {
@@ -66,49 +83,6 @@ public class AlbumQueryRepository {
                 .forEach(album -> {
                     album.setTracks(trackMap.get(album.getAlbumId()));
                 });
-    }
-
-    private QueryResults<AlbumInfoResponse> getAllAlbumsInfoWithoutTrack(Pageable pageable) {
-        return queryFactory.select(
-                        Projections.bean(AlbumInfoResponse.class,
-                                album.id.as("albumId"),
-                                album.title,
-                                album.albumImage,
-                                album.description,
-                                album.trackCount,
-                                album.accountId,
-                                album.createdDate,
-                                album.modifiedDate
-                        ))
-                .from(album)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetchResults();
-    }
-
-    public PageResult<AlbumShortDto> findAllAlbumsByAccountIdList(Pageable pageable, SearchDto searchDto) {
-
-        QueryResults<AlbumShortDto> queryResults = queryFactory.select(
-                        Projections.bean(AlbumShortDto.class,
-                                album.id.as("albumId"),
-                                album.title,
-                                album.albumImage,
-                                album.description,
-                                album.trackCount,
-                                account.nickname.as("creatorNickname"),
-                                account.profileImage.as("creatorProfileImage"),
-                                album.createdDate,
-                                album.modifiedDate
-                        ))
-                .from(album)
-                .innerJoin(account).on(album.accountId.eq(account.id))
-                .where(searchCondition(searchDto))
-                .orderBy(album.createdDate.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetchResults();
-
-        return PageResultFactory.createPageResult(queryResults.getResults(), pageable, queryResults.getTotal());
     }
 
     public AlbumDetailDto findAlbumDetailDtoById(Long albumId) {
@@ -140,13 +114,5 @@ public class AlbumQueryRepository {
         albumDetailDto.setTracks(trackDetailDtos);
 
         return albumDetailDto;
-    }
-
-    private BooleanExpression searchCondition(SearchDto searchDto) {
-        if (searchDto.getQ() == null) {
-            return null;
-        }
-
-        return account.nickname.eq(searchDto.getQ());
     }
 }

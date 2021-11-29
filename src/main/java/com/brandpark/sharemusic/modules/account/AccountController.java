@@ -1,6 +1,5 @@
 package com.brandpark.sharemusic.modules.account;
 
-import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
 import com.brandpark.sharemusic.modules.account.form.FriendshipDataForm;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
@@ -31,7 +30,6 @@ public class AccountController {
     private final VerifyMailService verifyMailService;
     private final AccountRepository accountRepository;
     private final FollowRepository followRepository;
-    private final AccountQueryRepository accountQueryRepository;
     private final FormValidator formValidator;
 
     @GetMapping("/signup")

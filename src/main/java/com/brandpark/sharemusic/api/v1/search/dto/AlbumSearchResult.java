@@ -12,8 +12,15 @@ public class AlbumSearchResult {
     private String description;
     private String albumImage;
     private int trackCount;
-    private String creatorNickname;
-    private String creatorProfileImage;
     private List<TrackSearchResult> tracks;
+    private Long accountId;
     private LocalDateTime createdDate;
+    private LocalDateTime modifiedDate;
+
+    @Data
+    public static class TrackSearchResult {
+        private Long trackId;
+        private String name;
+        private String artist;
+    }
 }

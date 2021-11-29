@@ -46,12 +46,6 @@ public class SearchPartialHtmlController {
             case ALBUM_NAME:
                 page = albumPartialRepository.findAllAlbumsByAlbumName(pageable, searchRequestForm.getQ());
                 viewPath = "partial/search-albumname-result"; break;
-            case TRACK_NAME:
-                page = albumPartialRepository.findAllAlbumsByTrackName(pageable, searchRequestForm.getQ());
-                viewPath = "partial/search-trackname-result"; break;
-            case TRACK_ARTIST:
-                page = albumPartialRepository.findAllAlbumsByTrackArtist(pageable, searchRequestForm.getQ());
-                viewPath = "partial/search-trackartist-result"; break;
         }
 
         context.setVariable("searchWord", searchRequestForm.getQ());

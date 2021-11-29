@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class SearchRequest {
-    private String q;
+
+    private String query;
     private SearchType type;
 }
