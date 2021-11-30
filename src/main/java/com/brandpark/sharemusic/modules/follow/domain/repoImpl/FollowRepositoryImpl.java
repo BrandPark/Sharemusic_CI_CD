@@ -1,8 +1,8 @@
-package com.brandpark.sharemusic.modules.account.domain.extendRepoImpl;
+package com.brandpark.sharemusic.modules.follow.domain.repoImpl;
 
-import com.brandpark.sharemusic.modules.account.domain.ExtendFollowRepository;
-import com.brandpark.sharemusic.modules.account.domain.Follow;
-import com.brandpark.sharemusic.modules.account.domain.QFollow;
+import com.brandpark.sharemusic.modules.follow.domain.ExtendFollowRepository;
+import com.brandpark.sharemusic.modules.follow.domain.Follow;
+import com.brandpark.sharemusic.modules.follow.domain.QFollow;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 

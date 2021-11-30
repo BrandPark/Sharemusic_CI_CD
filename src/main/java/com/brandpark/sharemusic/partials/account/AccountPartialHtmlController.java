@@ -34,11 +34,18 @@ public class AccountPartialHtmlController {
 
         WebContext context = new WebContext(request, response, request.getServletContext());
 
-        PagingDto<FollowerInfoForm> page = accountPartialRepository.findAllFollowersByAccountId(pageable, targetId, loginAccount.getId());
-        for (FollowerInfoForm form : page.getContents()) {
-            if (form.getFollowerId().equals(loginAccount.getId())) {
-                form.setFollowingState(null);
+        PagingDto<FollowerInfoForm> page = null;
+
+        if (loginAccount != null) {
+            page = accountPartialRepository.findAllFollowersWithStateByAccountId(pageable, targetId, loginAccount.getId());
+
+            for (FollowerInfoForm form : page.getContents()) {
+                if (form.getFollowerId().equals(loginAccount.getId())) {
+                    form.setFollowingState(null);
+                }
             }
+        } else {
+            page = accountPartialRepository.findAllFollowersByAccountId(pageable, targetId);
         }
 
         return htmlCreator.getPageHtmlResult(context, page, "followers", "partial/followers");
@@ -51,11 +58,18 @@ public class AccountPartialHtmlController {
 
         WebContext context = new WebContext(request, response, request.getServletContext());
 
-        PagingDto<FollowingInfoForm> page = accountPartialRepository.findAllFollowingsByAccountId(pageable, targetId, loginAccount.getId());
-        for (FollowingInfoForm form : page.getContents()) {
-            if (form.getFollowingId().equals(loginAccount.getId())) {
-                form.setFollowingState(null);
+        PagingDto<FollowingInfoForm> page = null;
+
+        if (loginAccount != null) {
+            page = accountPartialRepository.findAllFollowingsWithStateByAccountId(pageable, targetId, loginAccount.getId());
+
+            for (FollowingInfoForm form : page.getContents()) {
+                if (form.getFollowingId().equals(loginAccount.getId())) {
+                    form.setFollowingState(null);
+                }
             }
+        } else {
+            page = accountPartialRepository.findAllFollowingsByAccountId(pageable, targetId);
         }
 
         return htmlCreator.getPageHtmlResult(context, page, "followings", "partial/followings");

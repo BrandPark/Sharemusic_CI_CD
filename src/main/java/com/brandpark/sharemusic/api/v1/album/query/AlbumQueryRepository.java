@@ -4,9 +4,6 @@ import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.page.PageResultFactory;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse.TrackInfoResponse;
-import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
-import com.brandpark.sharemusic.api.v1.album.query.dto.TrackDetailDto;
-import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.album.domain.QTrack;
 import com.querydsl.core.QueryResults;
@@ -31,7 +28,6 @@ public class AlbumQueryRepository {
 
     private final JPAQueryFactory queryFactory;
     QAlbum album = QAlbum.album;
-    QAccount account = QAccount.account;
     QTrack track = QTrack.track;
 
     public PageResult<AlbumInfoResponse> findAllAlbumsInfo(Pageable pageable) {
@@ -83,36 +79,5 @@ public class AlbumQueryRepository {
                 .forEach(album -> {
                     album.setTracks(trackMap.get(album.getAlbumId()));
                 });
-    }
-
-    public AlbumDetailDto findAlbumDetailDtoById(Long albumId) {
-
-        AlbumDetailDto albumDetailDto = queryFactory.select(
-                        Projections.bean(AlbumDetailDto.class,
-                                album.id,
-                                album.title,
-                                album.albumImage,
-                                album.description,
-                                album.createdDate,
-                                album.modifiedDate,
-                                account.nickname.as("creator"),
-                                account.profileImage.as("creatorProfileImage")
-                        )
-                ).from(album)
-                .innerJoin(account).on(album.accountId.eq(account.id))
-                .where(album.id.eq(albumId))
-                .fetchOne();
-
-        List<TrackDetailDto> trackDetailDtos = queryFactory.select(Projections.bean(TrackDetailDto.class,
-                        track.id,
-                        track.name,
-                        track.artist))
-                .from(track)
-                .where(track.album.id.eq(albumId))
-                .fetch();
-
-        albumDetailDto.setTracks(trackDetailDtos);
-
-        return albumDetailDto;
     }
 }

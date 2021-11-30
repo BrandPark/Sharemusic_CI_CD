@@ -8,7 +8,7 @@ import com.brandpark.sharemusic.api.v1.account.dto.UpdateAccountRequest;
 import com.brandpark.sharemusic.api.v1.account.dto.UpdatePasswordRequest;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.Validator;
+import com.brandpark.sharemusic.api.v1.Validator;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;

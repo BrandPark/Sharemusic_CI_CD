@@ -1,14 +1,16 @@
 package com.brandpark.sharemusic.modules.album.service;
 
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.album.domain.*;
 import com.brandpark.sharemusic.modules.album.dto.CreateAlbumDto;
 import com.brandpark.sharemusic.modules.album.dto.UpdateAlbumDto;
+import com.brandpark.sharemusic.modules.album.form.AlbumDetailInfoForm;
 import com.brandpark.sharemusic.modules.album.form.AlbumUpdateForm;
 import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
 import com.brandpark.sharemusic.modules.event.CreateAlbumEvent;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,16 +30,12 @@ import static com.brandpark.sharemusic.modules.album.domain.TrackStatus.*;
 @Service
 public class AlbumService {
 
-    private final ModelMapper modelMapper;
     private final AlbumRepository albumRepository;
     private final TrackRepository trackRepository;
     private final EntityManager entityManager;
     private final ApplicationEventPublisher eventPublisher;
     private final CommentRepository commentRepository;
-
-    public AlbumUpdateForm entityToForm(Album album) {
-        return modelMapper.map(album, AlbumUpdateForm.class);
-    }
+    private final AccountRepository accountRepository;
 
     public Long createAlbum(CreateAlbumDto data, SessionAccount loginAccount) {
         Long albumId = albumRepository.save(data.toEntity(loginAccount.getId())).getId();
@@ -88,6 +86,20 @@ public class AlbumService {
         entityManager.clear();
 
         albumRepository.deleteById(albumId);
+    }
+
+    public AlbumDetailInfoForm getAlbumDetailForm(Long albumId) {
+
+        Album album = albumRepository.findById(albumId).get();
+        Account account = accountRepository.findById(album.getAccountId()).get();
+
+        return new AlbumDetailInfoForm(album, account);
+    }
+
+    public AlbumUpdateForm getAlbumUpdateForm(Long albumId) {
+        Album album = albumRepository.findById(albumId).get();
+
+        return new AlbumUpdateForm(album);
     }
 }
 

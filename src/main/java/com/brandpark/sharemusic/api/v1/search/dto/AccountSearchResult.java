@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.api.v1.search.dto;
 
-import com.brandpark.sharemusic.modules.account.domain.Role;
+import com.brandpark.sharemusic.infra.config.auth.Role;
 import lombok.Data;
 
 import java.time.LocalDateTime;

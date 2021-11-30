@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules.account.domain;
+package com.brandpark.sharemusic.modules.follow.domain;
 
 public interface ExtendFollowRepository {
     boolean isFollowing(Long followerId, Long targetId);

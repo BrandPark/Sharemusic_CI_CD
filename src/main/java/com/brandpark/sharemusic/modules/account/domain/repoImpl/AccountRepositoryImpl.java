@@ -1,10 +1,10 @@
-package com.brandpark.sharemusic.modules.account.domain.extendRepoImpl;
+package com.brandpark.sharemusic.modules.account.domain.repoImpl;
 
-import com.brandpark.sharemusic.modules.account.form.FriendshipDataForm;
 import com.brandpark.sharemusic.modules.account.domain.ExtendAccountRepository;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
-import com.brandpark.sharemusic.modules.account.domain.QFollow;
+import com.brandpark.sharemusic.modules.account.form.FriendshipDataForm;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
+import com.brandpark.sharemusic.modules.follow.domain.QFollow;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;

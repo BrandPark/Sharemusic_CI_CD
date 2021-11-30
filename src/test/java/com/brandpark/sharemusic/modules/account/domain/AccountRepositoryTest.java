@@ -3,6 +3,8 @@ package com.brandpark.sharemusic.modules.account.domain;
 import com.brandpark.sharemusic.modules.account.form.FriendshipDataForm;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
+import com.brandpark.sharemusic.modules.follow.domain.Follow;
+import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.testUtils.AlbumFactory;
 import com.brandpark.sharemusic.testUtils.FollowFactory;

@@ -1,5 +1,6 @@
 package com.brandpark.sharemusic.modules.account.domain;
 
+import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.modules.BaseTimeEntity;
 import lombok.*;
 

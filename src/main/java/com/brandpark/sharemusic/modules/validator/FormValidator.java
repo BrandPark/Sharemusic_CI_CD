@@ -1,12 +1,14 @@
-package com.brandpark.sharemusic.modules;
+package com.brandpark.sharemusic.modules.validator;
 
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.account.domain.Role;
+import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
+import com.brandpark.sharemusic.modules.album.domain.Album;
+import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.exception.ForbiddenAccessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +21,7 @@ import org.springframework.validation.BindingResult;
 public class FormValidator {
 
     private final AccountRepository accountRepository;
+    private final AlbumRepository albumRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -64,9 +67,19 @@ public class FormValidator {
         }
     }
 
-    public void validateViewUpdateAlbumForm(Long loginId, Long albumHostId) {
-        if (!loginId.equals(albumHostId)) {
+    public void validateViewUpdateAlbumForm(SessionAccount loginAccount, Long albumId) {
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 앨범입니다."));
+
+        if (!loginAccount.getId().equals(album.getAccountId())) {
             throw new ForbiddenAccessException("올바르지 않은 접근입니다. ");
+        }
+    }
+
+    public void validateViewDetailAlbumForm(Long albumId) {
+        boolean existsAlbum = albumRepository.existsById(albumId);
+        if (!existsAlbum) {
+            throw new IllegalArgumentException("존재하지 않는 앨범입니다.");
         }
     }
 

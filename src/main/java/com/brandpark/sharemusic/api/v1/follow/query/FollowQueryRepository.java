@@ -4,7 +4,7 @@ import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.page.PageResultFactory;
 import com.brandpark.sharemusic.api.v1.follow.dto.FollowerInfoResponse;
 import com.brandpark.sharemusic.api.v1.follow.dto.FollowingInfoResponse;
-import com.brandpark.sharemusic.modules.account.domain.QFollow;
+import com.brandpark.sharemusic.modules.follow.domain.QFollow;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;

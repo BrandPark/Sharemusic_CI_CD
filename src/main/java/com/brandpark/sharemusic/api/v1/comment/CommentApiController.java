@@ -5,7 +5,7 @@ import com.brandpark.sharemusic.api.page.PageResultFactory;
 import com.brandpark.sharemusic.api.v1.comment.dto.CommentInfoResponse;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.Validator;
+import com.brandpark.sharemusic.api.v1.Validator;
 import com.brandpark.sharemusic.modules.comment.CommentService;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;

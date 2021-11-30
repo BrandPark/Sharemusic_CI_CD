@@ -1,13 +1,11 @@
 package com.brandpark.sharemusic.partials.album;
 
-import com.brandpark.sharemusic.api.v1.exception.ApiException;
-import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.partials.PageHtmlResult;
 import com.brandpark.sharemusic.partials.PagingHtmlCreator;
 import com.brandpark.sharemusic.partials.album.form.AlbumCardForm;
-import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,12 +46,8 @@ public class AlbumPartialHtmlController {
     }
 
     @GetMapping("/profile/{targetId}/albums")
-    public PageHtmlResult profileViewAlbumsHtml(@LoginAccount SessionAccount account, Pageable pageable
-            , @PathVariable Long targetId, HttpServletRequest request, HttpServletResponse response) {
-
-        if (account == null) {
-            throw new ApiException(Error.ILLEGAL_ACCESS_EXCEPTION);
-        }
+    public PageHtmlResult profileViewAlbumsHtml(Pageable pageable, @PathVariable Long targetId
+            , HttpServletRequest request, HttpServletResponse response) {
 
         PagingDto<AlbumCardForm> page = albumPartialRepository.findAllProfileAlbumCardsInfo(pageable, targetId);
 

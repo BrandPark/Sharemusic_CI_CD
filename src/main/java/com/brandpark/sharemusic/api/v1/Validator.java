@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules;
+package com.brandpark.sharemusic.api.v1;
 
 import com.brandpark.sharemusic.api.v1.album.dto.CreateAlbumRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.UpdateAlbumRequest;
@@ -7,8 +7,8 @@ import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.account.domain.FollowRepository;
-import com.brandpark.sharemusic.modules.account.domain.Role;
+import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
+import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordDto;

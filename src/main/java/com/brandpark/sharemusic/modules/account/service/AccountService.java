@@ -1,10 +1,13 @@
 package com.brandpark.sharemusic.modules.account.service;
 
-import com.brandpark.sharemusic.api.v1.exception.ApiException;
-import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.infra.config.auth.CustomUserDetails;
+import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.account.domain.*;
+import com.brandpark.sharemusic.infra.config.session.dto.AccountDto;
+import com.brandpark.sharemusic.modules.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
+import com.brandpark.sharemusic.modules.follow.domain.Follow;
+import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordDto;
@@ -37,11 +40,13 @@ public class AccountService implements UserDetailsService {
     @Transactional
     public SessionAccount signUp(CreateAccountDto data) {
 
-        SessionAccount newAccount = new SessionAccount(createAccount(data));
+        Account newAccount = createAccount(data);
 
-        login(newAccount);
+        SessionAccount newSessionAccount = createSessionAccount(newAccount);
 
-        return newAccount;
+        login(newSessionAccount);
+
+        return newSessionAccount;
     }
 
     @Transactional
@@ -62,7 +67,7 @@ public class AccountService implements UserDetailsService {
     public void succeedVerifyEmailCheckToken(SessionAccount account) {
         Account verifiedAccount = assignUserRole(account.getId());
 
-        login(new SessionAccount(verifiedAccount));
+        login(createSessionAccount(verifiedAccount));
     }
 
     @Transactional
@@ -118,8 +123,7 @@ public class AccountService implements UserDetailsService {
     @Transactional
     public Long doUnfollow(Long followerId, Long targetAccountId) {
 
-        Follow follow = followRepository.findByFollowerIdAndTargetId(followerId, targetAccountId)
-                .orElseThrow(() -> new ApiException(Error.ILLEGAL_ACCESS_EXCEPTION));
+        Follow follow = followRepository.findByFollowerIdAndTargetId(followerId, targetAccountId).get();
 
         followRepository.delete(follow);
 
@@ -132,7 +136,7 @@ public class AccountService implements UserDetailsService {
         Account account = accountRepository.findByEmailOrNickname(emailOrNickname)
                 .orElseThrow(() -> new UsernameNotFoundException(emailOrNickname));
 
-        SessionAccount sessionAccount = new SessionAccount(account);
+        SessionAccount sessionAccount = createSessionAccount(account);
 
         return new CustomUserDetails(sessionAccount);
     }
@@ -146,5 +150,21 @@ public class AccountService implements UserDetailsService {
 
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(authenticationToken);
+    }
+
+    private SessionAccount createSessionAccount(Account account) {
+        SessionAccount newAccount = new SessionAccount(new AccountDto(
+                account.getId(),
+                account.getName(),
+                account.getNickname(),
+                account.getEmail(),
+                account.getPassword(),
+                account.getBio(),
+                account.getProfileImage(),
+                account.getRole(),
+                account.getEmailCheckToken()
+        ));
+
+        return newAccount;
     }
 }

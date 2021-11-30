@@ -1,6 +1,7 @@
-package com.brandpark.sharemusic.modules.account.domain;
+package com.brandpark.sharemusic.modules.follow.domain;
 
 import com.brandpark.sharemusic.modules.BaseTimeEntity;
+import com.brandpark.sharemusic.modules.account.domain.Account;
 import lombok.*;
 
 import javax.persistence.*;

@@ -6,7 +6,7 @@ import com.brandpark.sharemusic.api.v1.follow.dto.FollowingInfoResponse;
 import com.brandpark.sharemusic.api.v1.follow.query.FollowQueryRepository;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.Validator;
+import com.brandpark.sharemusic.api.v1.Validator;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

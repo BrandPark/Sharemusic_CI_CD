@@ -7,7 +7,7 @@ import com.brandpark.sharemusic.api.v1.album.dto.UpdateAlbumRequest;
 import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.Validator;
+import com.brandpark.sharemusic.api.v1.Validator;
 import com.brandpark.sharemusic.modules.album.service.AlbumService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

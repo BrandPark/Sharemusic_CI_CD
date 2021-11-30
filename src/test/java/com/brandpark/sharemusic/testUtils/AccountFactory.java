@@ -3,7 +3,7 @@ package com.brandpark.sharemusic.testUtils;
 
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.account.domain.Role;
+import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

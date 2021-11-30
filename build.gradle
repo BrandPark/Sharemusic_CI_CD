@@ -59,6 +59,7 @@ dependencies {
         exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'com.tngtech.archunit:archunit-junit5:0.21.0'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor('org.projectlombok:lombok')
 }

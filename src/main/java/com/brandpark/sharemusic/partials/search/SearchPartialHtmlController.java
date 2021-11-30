@@ -33,6 +33,7 @@ public class SearchPartialHtmlController {
             , HttpServletRequest request, HttpServletResponse response) {
 
         SearchType type = searchRequestForm.getType();
+        String query = searchRequestForm.getQ().trim();
 
         WebContext context = new WebContext(request, response, request.getServletContext());
 
@@ -41,10 +42,10 @@ public class SearchPartialHtmlController {
 
         switch (type) {
             case USER_NAME:
-                page = accountPartialRepository.findAllAccountByUserName(pageable, searchRequestForm.getQ());
+                page = accountPartialRepository.findAllAccountByUserName(pageable, query);
                 viewPath = "partial/search-username-result"; break;
             case ALBUM_NAME:
-                page = albumPartialRepository.findAllAlbumsByAlbumName(pageable, searchRequestForm.getQ());
+                page = albumPartialRepository.findAllAlbumsByAlbumName(pageable, query);
                 viewPath = "partial/search-albumname-result"; break;
         }
 
