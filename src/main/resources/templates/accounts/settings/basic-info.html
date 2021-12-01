@@ -95,7 +95,19 @@
     <div th:replace="fragments.html::footer"></div>
     <div th:replace="fragments.html::filepond-js"></div>
     <script>
-        var basicInfo = {
+        $(function () {
+            $('#update-form').on('submit', function (e) {
+                let bio = $('#bio').val();
+                let toBrTagBio = bio.replace(/\n/gm, "<br>");
+                $('#bio').val(toBrTagBio);
+            });
+
+            let bio = $('#bio').val();
+            bio = bio.replace(/<br>/gm, "\n");
+            $('#bio').val(bio);
+        });
+
+        let basicInfo = {
             popProfileModal: function () {
                 $('#profile-modal').modal();
             },

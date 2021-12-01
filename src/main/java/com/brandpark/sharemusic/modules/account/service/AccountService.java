@@ -52,8 +52,6 @@ public class AccountService implements UserDetailsService {
     @Transactional
     public void updateBasicInfo(UpdateAccountDto data, SessionAccount account) {
         updateAccountInfo(data, account.getId());
-
-        login(account);
     }
 
     @Transactional
@@ -86,6 +84,8 @@ public class AccountService implements UserDetailsService {
                 data.getBio(),
                 data.getProfileImage()
         );
+
+        login(createSessionAccount(targetAccount));
     }
 
     @Transactional

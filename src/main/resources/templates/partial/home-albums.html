@@ -5,6 +5,9 @@
     <div th:if="${isLogin && followingCount > 0 && #lists.isEmpty(albumList)}">
         <h3 class="text-center">업로드된 앨범이 없습니다.</h3>
     </div>
+    <div th:if="${!isLogin && #lists.isEmpty(albumList)}">
+        <h3 class="text-center">업로드된 앨범이 없습니다.</h3>
+    </div>
     <div class="row">
         <div id="album-card" class="col-md-3" th:each="albumInfo : ${albumList}">
             <a th:href="@{'/albums/' + ${albumInfo.albumId}}" class="card-description-panel container shadow fade">
