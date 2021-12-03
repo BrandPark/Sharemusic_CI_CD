@@ -4,6 +4,7 @@ $(function () {
             $(this).height(1).height($(this).prop('scrollHeight') + 12);
         }
     });
+
     viewController.btnInit();
 
     search.init();
@@ -12,9 +13,25 @@ $(function () {
     dateConverter.formRelativeTime();
 });
 
+const util = {
+    toBrTag: function (selector) {
+        let $selector = $(selector);
+        let val = $selector.val();
+        val = val.replace(/\n/gm, "<br>");
+        $selector.val(val);
+    },
+    toNewLine: function (selector) {
+        let $selector = $(selector);
+        let val = $selector.val();
+        val = val.replace(/<br>/gm, "\n");
+        $selector.val(val);
+    }
+}
+
 const viewController = {
     btnInit: function () {
         this._followBtnInit();
+        $('[data-toggle="tooltip"]').tooltip();
     },
     _followBtnInit: function () {
         let _this = this;

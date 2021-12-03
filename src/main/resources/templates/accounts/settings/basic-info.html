@@ -96,19 +96,18 @@
     <div th:replace="fragments.html::filepond-js"></div>
     <script>
         $(function () {
-            $('#update-form').on('submit', function (e) {
-                let bio = $('#bio').val();
-                let toBrTagBio = bio.replace(/\n/gm, "<br>");
-                $('#bio').val(toBrTagBio);
-            });
-
-            let bio = $('#bio').val();
-            bio = bio.replace(/<br>/gm, "\n");
-            $('#bio').val(bio);
+            basicInfo.init();
         });
 
         let basicInfo = {
-            popProfileModal: function () {
+            init: function () {
+                $('#update-form').on('submit', function (e) {
+                    util.toBrTag('#bio');
+                });
+
+                util.toNewLine('#bio');
+            },
+             popProfileModal: function () {
                 $('#profile-modal').modal();
             },
             deleteCurrentImage: function () {
