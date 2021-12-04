@@ -31,7 +31,6 @@ const util = {
 const viewController = {
     btnInit: function () {
         this._followBtnInit();
-        $('[data-toggle="tooltip"]').tooltip();
     },
     _followBtnInit: function () {
         let _this = this;
@@ -110,7 +109,7 @@ const search = {
         });
         $('#search-box .dropdown-item').on('click', function () {
             const selectType = $(this).attr('value');
-            const selectTypeName = $(this).text();
+            const selectTypeName = $(this).text() + ' 검색';
             $('#search-input').attr('placeholder', selectTypeName);
             $('#search-input').attr('search-type', selectType);
         });

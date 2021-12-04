@@ -45,10 +45,10 @@ public class CreateAlbumRequest {
     @Data
     public static class CreateTrackRequest {
 
-        @NotBlank(message = "트랙 이름을 입력해 주세요.")
+        @NotBlank(message = "이름을 입력하지 않은 트랙이 있습니다.")
         private String name;
 
-        @NotBlank(message = "트랙 아티스트를 입력해 주세요.")
+        @NotBlank(message = "아티스트를 입력하지 않은 트랙이 있습니다.")
         private String artist;
     }
 }

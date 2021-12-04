@@ -142,7 +142,7 @@
             </div>
             <div class="card-body">
                 <h5 class="card-title font-weight-bold" th:text="${albumInfo.title}">title</h5>
-                <span style="font-size:0.7em;" class="card-text line-2-hidden" th:text="${albumInfo.description}">Short description</span>
+                <div style="font-size:0.7em; height:30px" class="card-text line-2-hidden" th:utext="${albumInfo.description}">Short description</div>
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <small class="text-muted">
@@ -153,7 +153,7 @@
                     <div>
                         <small>
                             <i th:if="${#strings.isEmpty(albumInfo.creatorProfileImage)}" class="fa fa-user-circle"></i>
-                            <img width="23" height="23" th:if="${!#strings.isEmpty(albumInfo.creatorProfileImage)}" th:src="${albumPreview.creatorProfileImage}">
+                            <img width="23" height="23" th:if="${!#strings.isEmpty(albumInfo.creatorProfileImage)}" th:src="${albumInfo.creatorProfileImage}">
                             <span class="font-weight-bold" th:text="${albumInfo.creatorNickname}"></span>
                         </small>
                     </div>

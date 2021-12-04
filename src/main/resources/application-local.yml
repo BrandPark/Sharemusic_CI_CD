@@ -1,4 +1,8 @@
 spring:
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: always
   datasource:
     url: jdbc:h2:~/sharemusic;AUTO_SERVER=TRUE
     username: sa

@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.api.v1.exception;
+package com.brandpark.sharemusic.infra.config.auth;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
@@ -16,8 +16,10 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+        log.error("Api Exception : {}", authException.getMessage());
+
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        log.error("Api Exception : {}", authException.getMessage());
+        response.sendRedirect("/login");
     }
 }

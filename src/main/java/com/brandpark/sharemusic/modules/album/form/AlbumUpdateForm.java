@@ -2,6 +2,7 @@ package com.brandpark.sharemusic.modules.album.form;
 
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.Track;
+import com.brandpark.sharemusic.modules.album.domain.TrackStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -39,11 +40,13 @@ public class AlbumUpdateForm {
         private Long id;
         private String name;
         private String artist;
+        private TrackStatus status;
 
         public TrackUpdateForm(Track track) {
             id = track.getId();
             name = track.getName();
             artist = track.getArtist();
+            status = TrackStatus.NONE;
         }
     }
 }

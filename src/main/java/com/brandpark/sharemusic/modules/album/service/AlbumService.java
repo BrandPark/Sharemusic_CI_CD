@@ -37,7 +37,9 @@ public class AlbumService {
     private final CommentRepository commentRepository;
     private final AccountRepository accountRepository;
 
+    @Transactional
     public Long createAlbum(CreateAlbumDto data, SessionAccount loginAccount) {
+
         Long albumId = albumRepository.save(data.toEntity(loginAccount.getId())).getId();
 
         eventPublisher.publishEvent(CreateAlbumEvent.builder()

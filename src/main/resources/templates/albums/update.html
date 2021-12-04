@@ -8,7 +8,7 @@
     <div class="container my-5">
         <div class="row">
             <div class="col-3">
-                <div class="list-group" id="list-tab" role="tablist">
+                <div class="list-group list-group-flush" id="list-tab" role="tablist">
                     <a class="list-group-item list-group-item-action active" id="list_album_info" data-toggle="list" href="#album_info" role="tab" aria-controls="album">앨범 정보</a>
                     <a class="list-group-item list-group-item-action" id="list_track_info" data-toggle="list" href="#tracks_info" role="tab" aria-controls="tracks">음원 리스트 정보</a>
                 </div>
@@ -19,30 +19,28 @@
                         <h2>앨범 정보</h2>
                         <br>
                         <div class="form-group">
-                            <label class="col-form-label" for="album-title">앨범 이미지</label>
+                            <label class="col-form-label text-muted" for="album-title">앨범 이미지</label>
                             <input th:if="${!#strings.isEmpty(album.albumImage)}" type="text" class="filepond-origin form-control" th:value="*{albumImage}" hidden/>
                             <input type="file" id="album-image" class="filepond filepond-input filepond-albumImage" name="filepond" aria-describedby="imageHelp" accept="image/png, image/jpeg"/>
-                            <small id="imageHelp" class="form-text text-muted">We'll never share your album with anyone else.</small>
                         </div>
                         <div class="form-group">
-                            <label class="col-form-label" for="album-title">앨범 제목</label>
+                            <label class="col-form-label text-muted" for="album-title">앨범 제목</label>
                             <input type="text" name="title" class="form-control" id="album-title" aria-describedby="albumHelp" th:field="*{title}">
-                            <small id="titleHelp" class="form-text text-muted">We'll never share your album with anyone else.</small>
                         </div>
                         <div class="form-group">
-                            <label class="col-form-label" for="album-title">앨범 소개</label>
+                            <label class="col-form-label text-muted" for="album-title">앨범 소개</label>
                             <textarea name="description" id="album-description" class="form-control" th:field="*{description}" rows="3" ></textarea>
-                            <small id="bioHelp" class="form-text text-muted">We'll never share your album with anyone else.</small>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="tracks_info" role="tabpanel" aria-labelledby="list_track_info">
                         <h2>음원 리스트 정보</h2>
                         <br>
                         <button id="btn-add" class="btn btn-primary mb-2">추가하기</button>
-                        <table id="tracks_table" class="table table-hover w-100">
+                        <table id="tracks_table" class="table w-100">
                             <thead>
                                 <tr>
-                                    <th scope="col" hidden>ID</th>
+                                    <th scope="col"hidden>ID</th>
+                                    <th scope="col" style="width:80px">상태</th>
                                     <th scope="col">음원 명</th>
                                     <th scope="col">아티스트</th>
                                     <th scope="col" class="w-10"></th>
@@ -51,13 +49,16 @@
                             <tbody>
                                 <tr th:each="track : ${tracks}">
                                     <td hidden>
-                                        <input type="text" class="form-control" th:value="${track.id}">
+                                        <input type="text" class="form-control track-id" th:value="${track.id}">
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" th:value="${track.name}">
+                                        <input type="text" class="form-control track-status text-muted" th:stat="${track.status}" th:value="${track.status.getName()}" disabled>
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" th:value="${track.artist}">
+                                        <input type="text" class="form-control track-name" th:value="${track.name}">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control track-artist" th:value="${track.artist}">
                                     </td>
                                     <td class="text-center">
                                         <button class="btn btn-danger btn-remove">
@@ -79,34 +80,51 @@
     <script th:replace="fragments.html::ajax-csrf-header"></script>
     <div th:replace="fragments.html::filepond-js"></div>
     <script>
-        $(function(){
-            var $tracksTable = $("#tracks_table");
-            $("#btn-add").on('click', function(){
-                $('tbody').closest
-                var rowTag =
-                    `<tr>
-                        <td hidden>
-                            <input type="text" class="form-control">
-                        </td>
-                        <td>
-                            <input type="text" class="form-control">
-                        </td>
-                        <td>
-                            <input type="text" class="form-control">
-                        </td>
-                        <td class="text-center">
-                            <button class="btn btn-danger btn-remove">
-                                <i class="fa fa-minus" aria-hidden="true"></i>
-                            </button>
-                        </td>
-                    </tr>`;
+        $(function () {
+            util.toNewLine("#album-description");
 
-                $('tbody').prepend(rowTag);
-            });
+            updateAlbum.init();
 
-            $('#btn-update').on('click', function () {
+        });
 
-                var tracks = [];
+        let updateAlbum = {
+            init: function () {
+                let _this = this;
+
+                $("#btn-add").on('click', function(){
+                    _this._addRow();
+                });
+                $('tbody').on('click', '.btn-remove', function () {
+                    let $tr = $(this).closest('tr');
+
+                    $tr.addClass("removed");
+                    $tr.find("input").each(function () {
+                        $(this).attr("disabled", "disabled");
+                        if ($(this).hasClass("track-status")) {
+                            $(this).attr("stat", "REMOVE");
+                            $(this).val("삭제");
+                        }
+                    });
+                    $tr.find('i.fa-minus').addClass("fa-refresh").removeClass("fa-minus");
+                    $tr.find('.btn-remove').addClass("btn-refresh").removeClass("btn-remove");
+                    $tr.find('.btn-danger').addClass('btn-success').removeClass('btn-danger');
+                });
+                $('tr').on('keydown', function () {
+                    let $statusTag = $(this).find(".track-status");
+
+                    let curStatus = $statusTag.attr("stat");
+
+                    if (curStatus === "NONE") {
+                        $statusTag.attr("stat", "UPDATE");
+                        $statusTag.val("수정");
+                    }
+                });
+                $('#btn-update').on('click', function () {
+                    _this._update();
+                });
+            },
+            _update: function () {
+                let tracks = [];
 
                 $('tbody > tr').each(function () {
                     tracks.push({
@@ -116,9 +134,9 @@
                     });
                 });
 
-                var data = {
+                let data = {
                     title: $('#album-title').val(),
-                    description: $('#album-description').val(),
+                    description: $('#album-description').val().replace(/\n/gm, "<br>"),
                     albumImage: document.querySelector('.filepond-input canvas')?.toDataURL(),
                     tracks: tracks
                 };
@@ -130,17 +148,37 @@
                     dataType: 'json',
                     data: JSON.stringify(data)
                 }).done(function () {
-                    window.location.href=''
+                    window.location.href = '';
                     alert("앨범이 수정되었습니다.");
                 }).fail(function (error) {
-                    alert(JSON.stringify(error));
+                    alert(error.responseJSON.errorMessage);
                 });
-            });
+            },
+            _addRow: function () {
+                let rowTag =
+                    `<tr>
+                        <td hidden>
+                            <input type="text" class="form-control track-id">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control track-status text-muted" stat="INSERT" value="삽입" disabled>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control track-name">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control track-artist">
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-danger btn-remove">
+                                <i class="fa fa-minus" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                    </tr>`;
 
-            $('tbody').on('click', '.btn-remove', function () {
-                $(this).closest('tr').remove();
-            });
-        })
+                $('tbody').prepend(rowTag);
+            }
+        }
     </script>
     <script>
         pond.on('init', function () {
