@@ -11,7 +11,7 @@ public class AlbumCardForm {
     private String title;
     private String description;
     private String albumImage;
-    private int trackCount;
+    private Long trackCount;
     private String creatorNickname;
     private String creatorProfileImage;
     private List<TrackInfoForm> tracks;

@@ -54,7 +54,6 @@ public abstract class AssertUtil {
         assertThat(album.getTitle()).isNotNull();
         assertThat(album.getDescription()).isNotNull();
         assertThat(album.getAlbumImage()).isNotNull();
-        assertThat(album.getTrackCount()).isGreaterThan(0);
         assertThat(album.getCreatedDate()).isNotNull();
         assertThat(album.getModifiedDate()).isNotNull();
         assertThat(album.getAccountId()).isNotNull();

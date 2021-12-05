@@ -32,6 +32,8 @@ class TrackRepositoryTest {
     public void TrackBatchInsert() throws Exception {
 
         // given
+        Account account = accountFactory.persistAccount("account");
+        Long albumId = albumFactory.persistAlbumWithTracks("title", 1, account.getId()).getId();
         int trackCount = 10;
 
         List<Track> tracks = new ArrayList<>();
@@ -41,7 +43,7 @@ class TrackRepositoryTest {
 
         // when
         System.out.println("===============시작================");
-        int insertCount = trackRepository.batchInsert(tracks);
+        int insertCount = trackRepository.batchInsert(tracks, albumId);
         System.out.println("===============끝================");
 
         // then

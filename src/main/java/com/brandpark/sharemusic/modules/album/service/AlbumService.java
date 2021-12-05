@@ -75,7 +75,7 @@ public class AlbumService {
                     tracksGroupByStatus.get(tData.getStatus()).add(track);
                 });
 
-        trackRepository.batchInsert(tracksGroupByStatus.get(INSERT));
+        trackRepository.batchInsert(tracksGroupByStatus.get(INSERT), albumId);
         trackRepository.batchUpdate(tracksGroupByStatus.get(UPDATE));
         trackRepository.batchRemove(tracksGroupByStatus.get(REMOVE));
 

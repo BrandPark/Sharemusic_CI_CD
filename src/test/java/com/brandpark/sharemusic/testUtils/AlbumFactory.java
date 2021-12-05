@@ -51,7 +51,6 @@ public class AlbumFactory {
     public Album createAlbumWithTracks(String title, int trackCount, Long accountId) {
         Album album = Album.builder()
                 .title(title)
-                .trackCount(trackCount)
                 .accountId(accountId)
                 .description(title + ".description")
                 .albumImage(title + ".image")

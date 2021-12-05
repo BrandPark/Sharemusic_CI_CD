@@ -11,8 +11,10 @@ import com.brandpark.sharemusic.partials.album.form.AlbumCardForm;
 import com.brandpark.sharemusic.partials.album.form.CommentInfoForm;
 import com.brandpark.sharemusic.partials.album.form.TrackInfoForm;
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.querydsl.core.types.ExpressionUtils.count;
 
 
 @RequiredArgsConstructor
@@ -77,22 +81,6 @@ public class AlbumPartialRepository {
         return PagingDtoFactory.createPagingDto(findAlbumsQueryResults.getResults(), pageable, findAlbumsQueryResults.getTotal(), 10);
     }
 
-    public PagingDto<AlbumCardForm> findAllAlbumsByTrackName(Pageable pageable, String trackName) {
-        List<Long> albumIds = getDistinctAlbumIdList(track.name.containsIgnoreCase(trackName));
-
-        QueryResults<AlbumCardForm> findAlbumsQueryResults = getAllAlbumCardsInfo(pageable, album.id.in(albumIds));
-
-        return PagingDtoFactory.createPagingDto(findAlbumsQueryResults.getResults(), pageable, findAlbumsQueryResults.getTotal(), 10);
-    }
-
-    public PagingDto<AlbumCardForm> findAllAlbumsByTrackArtist(Pageable pageable, String trackArtist) {
-        List<Long> albumIds = getDistinctAlbumIdList(track.artist.containsIgnoreCase(trackArtist));
-
-        QueryResults<AlbumCardForm> findAlbumsQueryResults = getAllAlbumCardsInfo(pageable, album.id.in(albumIds));
-
-        return PagingDtoFactory.createPagingDto(findAlbumsQueryResults.getResults(), pageable, findAlbumsQueryResults.getTotal(), 10);
-    }
-
     public PagingDto<CommentInfoForm> findAllComments(Pageable pageable, Long albumId) {
         QueryResults<CommentInfoForm> queryResults = queryFactory.select(Projections.bean(CommentInfoForm.class,
                         comment.id,
@@ -119,7 +107,12 @@ public class AlbumPartialRepository {
                         album.title,
                         album.description,
                         album.albumImage,
-                        album.trackCount,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(count(track.id))
+                                        .from(track)
+                                        .where(track.album.id.eq(album.id))
+                                , "trackCount"
+                        ),
                         account.nickname.as("creatorNickname"),
                         account.profileImage.as("creatorProfileImage"),
                         album.createdDate

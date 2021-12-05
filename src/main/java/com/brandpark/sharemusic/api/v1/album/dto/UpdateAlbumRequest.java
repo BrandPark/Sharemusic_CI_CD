@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,6 +52,7 @@ public class UpdateAlbumRequest {
         @NotBlank(message = "트랙의 아티스트를 입력해 주세요.")
         private String artist;
 
-        private TrackStatus status = TrackStatus.NONE;
+        @NotNull(message = "트랙의 상태를 입력해 주세요.")
+        private TrackStatus status;
     }
 }

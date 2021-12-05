@@ -22,7 +22,7 @@ public class TrackRepositoryImpl implements ExtendTrackRepository {
     private int batchSize;
 
     @Override
-    public int batchInsert(List<Track> tracks) {
+    public int batchInsert(List<Track> tracks, Long albumId) {
 
         int insertCount = 0;
 
@@ -30,11 +30,11 @@ public class TrackRepositoryImpl implements ExtendTrackRepository {
         for (int i = 0; i < tracks.size(); i++) {
             subTracks.add(tracks.get(i));
             if ((i + 1) % batchSize == 0) {
-                insertCount += batchInsertImpl(subTracks);
+                insertCount += batchInsertImpl(subTracks, albumId);
             }
         }
         if (!subTracks.isEmpty()) {
-            insertCount += batchInsertImpl(subTracks);
+            insertCount += batchInsertImpl(subTracks, albumId);
         }
 
         return insertCount;
@@ -120,11 +120,11 @@ public class TrackRepositoryImpl implements ExtendTrackRepository {
         return batchedSize;
     }
 
-    private int batchInsertImpl(List<Track> subTracks) {
+    private int batchInsertImpl(List<Track> subTracks, Long albumId) {
 
         int batchedSize = subTracks.size();
 
-        jdbcTemplate.batchUpdate("INSERT INTO TRACK(TRACK_NAME, ARTIST, CREATED_DATE, MODIFIED_DATE) VALUES(?, ?, ?, ?)"
+        jdbcTemplate.batchUpdate("INSERT INTO TRACK(TRACK_NAME, ARTIST, ALBUM_ID, CREATED_DATE, MODIFIED_DATE) VALUES(?, ?, ?, ?, ?)"
                 , new BatchPreparedStatementSetter() {
 
                     LocalDateTime now = LocalDateTime.now();
@@ -133,8 +133,9 @@ public class TrackRepositoryImpl implements ExtendTrackRepository {
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
                         ps.setString(1, subTracks.get(i).getName());
                         ps.setString(2, subTracks.get(i).getArtist());
-                        ps.setString(3, now.toString());
+                        ps.setLong(3, albumId);
                         ps.setString(4, now.toString());
+                        ps.setString(5, now.toString());
                     }
 
                     @Override

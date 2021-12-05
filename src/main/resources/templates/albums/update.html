@@ -40,7 +40,7 @@
                             <thead>
                                 <tr>
                                     <th scope="col"hidden>ID</th>
-                                    <th scope="col" style="width:80px">상태</th>
+                                    <th scope="col" style="width:90px">상태</th>
                                     <th scope="col">음원 명</th>
                                     <th scope="col">아티스트</th>
                                     <th scope="col" class="w-10"></th>
@@ -52,7 +52,7 @@
                                         <input type="text" class="form-control track-id" th:value="${track.id}">
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control track-status text-muted" th:stat="${track.status}" th:value="${track.status.getName()}" disabled>
+                                        <span class="form-control text-center track-status text-muted" th:stat="${track.status}" th:text="${track.status.getName()}"></span>
                                     </td>
                                     <td>
                                         <input type="text" class="form-control track-name" th:value="${track.name}">
@@ -84,7 +84,6 @@
             util.toNewLine("#album-description");
 
             updateAlbum.init();
-
         });
 
         let updateAlbum = {
@@ -95,20 +94,15 @@
                     _this._addRow();
                 });
                 $('tbody').on('click', '.btn-remove', function () {
-                    let $tr = $(this).closest('tr');
-
-                    $tr.addClass("removed");
-                    $tr.find("input").each(function () {
-                        $(this).attr("disabled", "disabled");
-                        if ($(this).hasClass("track-status")) {
-                            $(this).attr("stat", "REMOVE");
-                            $(this).val("삭제");
-                        }
-                    });
-                    $tr.find('i.fa-minus').addClass("fa-refresh").removeClass("fa-minus");
-                    $tr.find('.btn-remove').addClass("btn-refresh").removeClass("btn-remove");
-                    $tr.find('.btn-danger').addClass('btn-success').removeClass('btn-danger');
+                    let $row = $(this).closest('tr');
+                    _this._removeRow($row);
                 });
+
+                $('tbody').on('click', '.btn-refresh', function () {
+                    let $row = $(this).closest('tr');
+                    _this._refreshRow($row);
+                });
+
                 $('tr').on('keydown', function () {
                     let $statusTag = $(this).find(".track-status");
 
@@ -116,21 +110,61 @@
 
                     if (curStatus === "NONE") {
                         $statusTag.attr("stat", "UPDATE");
-                        $statusTag.val("수정");
+                        $statusTag.text("수정");
                     }
                 });
                 $('#btn-update').on('click', function () {
                     _this._update();
                 });
             },
+            _refreshRow: function ($row) {
+                $row.removeClass ("removed");
+                $row.find("input").each(function () {
+                    $(this).removeAttr("disabled");
+                });
+                $row.find(".track-status").attr("stat", "UPDATE").text("수정");
+                $row.find('.fa-refresh').addClass("fa-minus").removeClass("fa-refresh");
+                $row.find('.btn-refresh').addClass("btn-remove").removeClass("btn-refresh");
+                $row.find('.btn-success').addClass('btn-danger').removeClass('btn-success');
+            },
+            _removeRow: function ($row) {
+                let saveTrackCount = 0;
+                $('tbody').find("tr").each(function () {
+                    let status = $(this).find('.track-status').attr("stat");
+                    if (status !== "REMOVE") {
+                        saveTrackCount++;
+                    }
+                });
+                if (saveTrackCount <= 1) {
+                    alert("트랙의 수는 최소 1개입니다.");
+                    return;
+                }
+                let curStatus = $row.find('.track-status').attr("stat");
+
+                if (curStatus === "INSERT") {
+                    $row.remove();
+                    return;
+                }
+                $row.addClass("removed");
+                $row.find('.track-status').attr("stat", "REMOVE").text("삭제");
+                $row.find('i.fa-minus').addClass("fa-refresh").removeClass("fa-minus");
+                $row.find('.btn-remove').addClass("btn-refresh").removeClass("btn-remove");
+                $row.find('.btn-danger').addClass('btn-success').removeClass('btn-danger');
+                $row.find("input").each(function () {
+                    $(this).attr("disabled", "disabled");
+                });
+            },
             _update: function () {
                 let tracks = [];
 
                 $('tbody > tr').each(function () {
+                    let $row = $(this);
+
                     tracks.push({
-                        id: $(this).find("input:eq(0)").val(),
-                        name: $(this).find("input:eq(1)").val(),
-                        artist: $(this).find("input:eq(2)").val()
+                        id: $row.find(".track-id").val(),
+                        name: $row.find(".track-name").val(),
+                        artist: $row.find(".track-artist").val(),
+                        status: $row.find(".track-status").attr("stat"),
                     });
                 });
 
@@ -148,20 +182,31 @@
                     dataType: 'json',
                     data: JSON.stringify(data)
                 }).done(function () {
-                    window.location.href = '';
+                    window.location.href = '/albums/[[${album.getId()}]]';
                     alert("앨범이 수정되었습니다.");
                 }).fail(function (error) {
                     alert(error.responseJSON.errorMessage);
                 });
             },
             _addRow: function () {
+                let saveTrackCount = 0;
+                $('tbody').find("tr").each(function () {
+                    let status = $(this).find('.track-status').attr("stat");
+                    if (status !== "REMOVE") {
+                        saveTrackCount++;
+                    }
+                });
+                if (saveTrackCount >= 5) {
+                    alert("트랙의 수는 최대 5개입니다.");
+                    return;
+                }
                 let rowTag =
                     `<tr>
                         <td hidden>
                             <input type="text" class="form-control track-id">
                         </td>
                         <td>
-                            <input type="text" class="form-control track-status text-muted" stat="INSERT" value="삽입" disabled>
+                            <span class="form-control text-center track-status text-muted" stat="INSERT">삽입</span>
                         </td>
                         <td>
                             <input type="text" class="form-control track-name">

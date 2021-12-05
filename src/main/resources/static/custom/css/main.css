@@ -187,3 +187,9 @@ tr.removed {
 tr.removed input{
     color: #6c757d;
 }
+.table-header {
+    background-color: #f1cbc8;
+}
+.table-row {
+    background-color: #f1dfdd;
+}

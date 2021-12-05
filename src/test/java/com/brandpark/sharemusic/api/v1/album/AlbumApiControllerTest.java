@@ -459,7 +459,7 @@ class AlbumApiControllerTest {
         Album savedAlbum = albumRepository.findAll().get(0);
 
         assertEntityIsNotEmpty(savedAlbum);
-        assertThat(savedAlbum.getTrackCount()).isEqualTo(trackCount);
+        assertThat(savedAlbum.getTracks().size()).isEqualTo(trackCount);
         assertThat(savedAlbum.getTitle()).isEqualTo(reqDto.getTitle());
         assertThat(savedAlbum.getDescription()).isEqualTo(reqDto.getDescription());
         assertThat(savedAlbum.getAlbumImage()).isEqualTo(reqDto.getAlbumImage());
