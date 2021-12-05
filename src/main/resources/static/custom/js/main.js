@@ -118,6 +118,7 @@ const search = {
 const notification = {
     init: function () {
         const _this = this;
+
         $('.notification, #notification-list').on('click', '.notification-item', function () {
             const notificationId = $(this).find('.notification-link')[0].getAttribute("data-index");
             const link = $(this).find('.notification-link')[0].getAttribute('link');
@@ -125,15 +126,14 @@ const notification = {
         });
     },
     checkNotification: function(notificationId, link) {
-        const _this = this;
-
         $.ajax({
             url: "/api/v1/notifications/" + notificationId,
-            method: 'put'
+            type: 'PUT'
         }).done(function(){
             window.location.href = link;
         }).fail(function(error){
-            alert(error);
+            console.log(error);
+            alert(error.responseJSON.errorMessage);
         });
     }
 }
