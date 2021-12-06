@@ -1,12 +1,11 @@
 package com.brandpark.sharemusic.modules.account;
 
-import com.brandpark.sharemusic.api.v1.account.query.AccountQueryRepository;
-import com.brandpark.sharemusic.api.v1.account.query.dto.ActivityDataResponse;
+import com.brandpark.sharemusic.modules.account.form.FriendshipDataForm;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
-import com.brandpark.sharemusic.modules.Validator;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.validator.FormValidator;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import com.brandpark.sharemusic.modules.account.service.VerifyMailService;
@@ -31,8 +30,7 @@ public class AccountController {
     private final VerifyMailService verifyMailService;
     private final AccountRepository accountRepository;
     private final FollowRepository followRepository;
-    private final AccountQueryRepository accountQueryRepository;
-    private final Validator formValidator;
+    private final FormValidator formValidator;
 
     @GetMapping("/signup")
     public String signUpForm(Model model) {
@@ -49,26 +47,22 @@ public class AccountController {
             return "accounts/signup";
         }
 
-        Account newAccount = accountService.signUp(form);
+        SessionAccount newAccount = accountService.signUp(form.toModuleDto());
 
-        SessionAccount sessionAccount = accountService.mapToSessionAccount(newAccount);
-        verifyMailService.sendSignUpConfirmMail(sessionAccount);
+        verifyMailService.sendSignUpConfirmMail(newAccount);
 
         return "redirect:/send-mail-info";
     }
 
     @GetMapping("/{nickname}")
-    public String profileView(@LoginAccount SessionAccount account, @PathVariable String nickname, Model model) {
+    public String viewProfile(@LoginAccount SessionAccount account, @PathVariable String nickname, Model model) {
 
+        formValidator.validateViewProfile(nickname);
         if (account != null) {
             model.addAttribute("account", account);
         }
 
         Account profileAccount = accountRepository.findByNickname(nickname);
-        if (profileAccount == null) {
-            throw new IllegalArgumentException(nickname + "은(는) 존재하지 않는 닉네임 입니다.");
-        }
-
         model.addAttribute("targetAccount", profileAccount);
 
         boolean isOwner = account != null && nickname.equals(account.getNickname());
@@ -77,8 +71,8 @@ public class AccountController {
         boolean isFollowing = account != null && followRepository.isFollowing(account.getId(), profileAccount.getId());
         model.addAttribute("isFollowing", isFollowing);
 
-        ActivityDataResponse activityData = accountQueryRepository.findActivityData(profileAccount.getId());
-        model.addAttribute("activityData", activityData);
+        FriendshipDataForm friendshipData = accountRepository.findFriendshipData(profileAccount.getId());
+        model.addAttribute("friendshipData", friendshipData);
 
         return "accounts/profile";
     }

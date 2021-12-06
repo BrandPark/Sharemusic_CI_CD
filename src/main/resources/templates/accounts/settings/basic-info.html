@@ -95,8 +95,19 @@
     <div th:replace="fragments.html::footer"></div>
     <div th:replace="fragments.html::filepond-js"></div>
     <script>
-        var basicInfo = {
-            popProfileModal: function () {
+        $(function () {
+            basicInfo.init();
+        });
+
+        let basicInfo = {
+            init: function () {
+                $('#update-form').on('submit', function (e) {
+                    util.toBrTag('#bio');
+                });
+
+                util.toNewLine('#bio');
+            },
+             popProfileModal: function () {
                 $('#profile-modal').modal();
             },
             deleteCurrentImage: function () {

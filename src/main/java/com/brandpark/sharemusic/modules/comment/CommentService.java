@@ -1,6 +1,7 @@
 package com.brandpark.sharemusic.modules.comment;
 
-import com.brandpark.sharemusic.modules.MyUtil;
+import com.brandpark.sharemusic.modules.album.domain.Album;
+import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;
 import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
 import com.brandpark.sharemusic.modules.event.CommentEvent;
@@ -16,22 +17,23 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final AlbumRepository albumRepository;
 
     @Transactional
-    public Long saveComment(Long albumId, Long accountId, String content) {
+    public Long saveComment(Long accountId, Long albumId, String content) {
 
-        Comment saveComment = commentRepository.save(Comment.builder()
-                .albumId(albumId)
-                .accountId(accountId)
-                .content(MyUtil.toBrTag(content))
-                .build());
+        Comment comment = commentRepository.save(Comment.createComment(accountId, albumId, content));
 
-        eventPublisher.publishEvent(CommentEvent.builder()
-                .writerId(accountId)
-                .commentTargetAlbumId(albumId)
-                .commentId(saveComment.getId())
-                .build());
+        Album album = albumRepository.findById(albumId).get();
 
-        return saveComment.getId();
+        if (!album.getAccountId().equals(accountId)) {
+            eventPublisher.publishEvent(CommentEvent.builder()
+                    .writerId(accountId)
+                    .commentTargetAlbumId(albumId)
+                    .commentId(comment.getId())
+                    .build());
+        }
+
+        return comment.getId();
     }
 }

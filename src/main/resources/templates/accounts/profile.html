@@ -18,58 +18,39 @@
                             <a th:href="@{/accounts/edit/basicinfo}" class="btn btn-outline-primary" role="btn">프로필 편집</a>
                         </div>
                         <div id="follow-button-box" th:if="${account != null && !isOwner}" class="ml-4">
-                            <button id="btn-follow" th:if="${!isFollowing}" type="button" class="btn btn-primary btn-follow">팔로우</button>
-                            <button id="btn-unfollow" th:if="${isFollowing}" type="button" class="btn btn-danger btn-unfollow">언 팔로우</button>
+                            <button type="button" class="btn btn-profile"
+                                    th:data-index="${targetAccount.id}"
+                                    th:text="${isFollowing} ? '언 팔로우' : '팔로우'"
+                                    th:classappend="${isFollowing} ? 'btn-unfollow' : 'btn-follow'">팔로우</button>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-2 p-0">
-                            앨범 <span class="font-weight-bold" th:text="${activityData.getAlbumCount()}">0</span>
+                            앨범 <span class="font-weight-bold" th:text="${friendshipData.getAlbumCount()}">0</span>
                         </div>
                         <div class="col-md-2 p-0">
                             <a class="text-dark" href="javascript:profile.popFollowerList()">
-                                팔로워 <span id="follower" class="font-weight-bold" th:text="${activityData.getFollowerCount()}">0</span>
+                                팔로워 <span id="follower" class="font-weight-bold" th:text="${friendshipData.getFollowerCount()}">0</span>
                             </a>
                         </div>
                         <div class="col-md-2 p-0">
                             <a class="text-dark" href="javascript:profile.popFollowingList()">
-                                팔로잉 <span id="following" class="font-weight-bold" th:text="${activityData.getFollowingCount()}">0</span>
+                                팔로잉 <span id="following" class="font-weight-bold" th:text="${friendshipData.getFollowingCount()}">0</span>
                             </a>
                         </div>
                     </div>
-                    <div class="row">
-                        <p>
-                            <strong th:text="${targetAccount.name}">이름</strong>
-                            <br>
-                            <span th:utext="${targetAccount.bio}">
-                                자기소개
-                            </span>
-                        </p>
+                    <div class="row flex-column">
+                        <strong class="d-block" th:text="${targetAccount.name}">이름</strong>
+                        <span class="line-2-hidden" th:utext="${targetAccount.bio}">
+                            자기소개
+                        </span>
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-center nav-tabs-wrapper-up mb-5">
-                <ul class="nav nav-tabs" id="myTab" role="tablist" style="z-index:1000">
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link active font-weight-bold text-secondary" id="albums-tab" data-toggle="tab"
-                           href="#albums-box" role="tab" aria-controls="albums" aria-selected="true">앨범</a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link font-weight-bold text-secondary" id="profile-tab" data-toggle="tab"
-                           href="#likes" role="tab" aria-controls="likes" aria-selected="false">좋아요</a>
-                    </li>
-                </ul>
-            </div>
-            <div class="row">
-                <div class="tab-content" id="myTabContent">
-                    <div id='albums-box' class="tab-pane fade show active" role="tabpanel" aria-labelledby="albums-tab">
-                        <div id="album-list" class="row"></div>
-                        <div id="album-pagination-box" class="d-flex justify-content-center"></div>
-                    </div>
-                    <div class="tab-pane fade" id="likes" role="tabpanel" aria-labelledby="likes-tab">
-                    </div>
-                </div>
-            </div>
+        </div>
+        <div id="profile-albums" class="container" style="z-index:3">
+            <div id="album-list" class="row"></div>
+            <div id="pagination" class="row justify-content-center"></div>
         </div>
         <!-- Modal -->
         <div th:replace="fragments.html::paging-modal(title='팔로우', id='follower-modal')"></div>
@@ -80,120 +61,28 @@
         <script>
             $(function () {
                 profile.init();
-                profile.loadAlbums(0);
             });
 
             let profile = {
                 init: function () {
-                    var _this = this;
+                    let _this = this;
+                    let requestAlbumObj = {
+                        size: 8
+                    }
+                    _this.loadAlbums(requestAlbumObj, 0);
 
-                    $('#follow-button-box').on('click', ".btn-follow, .btn-unfollow", function (event) {
-                        var accountId = "[[${targetAccount.getId()}]]";
-                        if ($(event.target).hasClass("btn-follow")) {
-                            _this.follow(accountId, function(){
-                                $('#btn-follow').addClass('btn-danger');
-                                $('#btn-follow').addClass('btn-unfollow');
-                                $('#btn-follow').removeClass('btn-primary');
-                                $('#btn-follow').removeClass('btn-follow');
-                                $('#btn-follow').text("언 팔로우");
-                                $('#btn-follow').attr('id', 'btn-unfollow');
-
-                                var followerCount = parseInt($('#follower').text());
-                                if (!isNaN(followerCount)) {
-                                    $('#follower').text(followerCount + 1);
-                                }
-                            });
-                        } else {
-                            _this.unfollow(accountId, function () {
-                                $('#btn-unfollow').addClass('btn-primary');
-                                $('#btn-unfollow').addClass('btn-follow');
-                                $('#btn-unfollow').removeClass('btn-danger');
-                                $('#btn-unfollow').removeClass('btn-unfollow');
-                                $('#btn-unfollow').text("팔로우");
-                                $('#btn-unfollow').attr('id', 'btn-follow');
-
-                                var followerCount = parseInt($('#follower').text());
-                                if (!isNaN(followerCount)) {
-                                    $('#follower').text(followerCount - 1);
-                                }
-                            });
-                        }
+                    $('#pagination').on('click', '.page-link', function () {
+                        let page = $(this).attr('data-index');
+                        _this.loadAlbums(requestAlbumObj, page);
                     });
 
                     $('#follower-modal #modal-pagination').on('click', '.btn-page', function () {
-                        var gotoPage = $(this).attr('data-index');
+                        let gotoPage = $(this).attr('data-index');
                         _this.loadFollowers(gotoPage);
                     });
                     $('#following-modal #modal-pagination').on('click', '.btn-page', function () {
-                        var gotoPage = $(this).attr('data-index');
+                        let gotoPage = $(this).attr('data-index');
                         _this.loadFollowings(gotoPage);
-                    });
-                    $('#album-pagination-box').on('click', '.btn-page', function () {
-                        var gotoPage = $(this).attr('data-index');
-                        _this.loadAlbums(gotoPage);
-                    });
-                    $('#album-list').on('mouseover mouseout', '.description-panel', function (event){
-                        if (event.type === 'mouseover') {
-                            $(this).addClass('show');
-                            $(this).removeClass('fade');
-                        } else {
-                            $(this).addClass('fade');
-                            $(this).removeClass('show');
-                        }
-                    });
-                    $('#album-list').on('click', '.description-panel, img', function () {
-                        var albumId = $(this).closest('div[id^="album_"]').attr('id').replace('album_', '');
-                        window.location.href='/albums/' + albumId;
-                    });
-                    $('#follower-modal, #following-modal').on('click', '.btn-follow, .btn-unfollow', function (event) {
-                        var btn = $(this)[0];
-                        var targetId = btn.getAttribute('data-index');
-
-                        if ($(event.target).hasClass('btn-follow')) {
-                            _this.follow(targetId, function () {
-                                $(btn).addClass('btn-danger');
-                                $(btn).addClass('btn-unfollow');
-                                $(btn).removeClass('btn-primary');
-                                $(btn).removeClass('btn-follow');
-                                $(btn).text("언 팔로우");
-                            });
-                        } else {
-                            _this.unfollow(targetId, function () {
-                                $(btn).addClass('btn-primary');
-                                $(btn).addClass('btn-follow');
-                                $(btn).removeClass('btn-danger');
-                                $(btn).removeClass('btn-unfollow');
-                                $(btn).text("팔로우");
-                            });
-                        }
-                    });
-                },
-                follow: function (targetId, callback) {
-                    var _callback = callback;
-
-                    $.ajax({
-                        url: "/api/v1/accounts/" + targetId + "/follow",
-                        method: 'post',
-                    }).done(function (data) {
-                        if (data) {
-                            _callback();
-                        }
-                    }).fail(function () {
-                        alert("팔로우를 실패하였습니다.");
-                    });
-                },
-                unfollow: function (targetId, callback) {
-                    var _callback = callback;
-
-                    $.ajax({
-                        url: "/api/v1/accounts/" + targetId + "/unfollow",
-                        method: 'post',
-                    }).done(function (data) {
-                        if (data) {
-                            _callback();
-                        }
-                    }).fail(function () {
-                        alert("언팔로우를 실패하였습니다.");
                     });
                 },
                 popFollowerList: function () {
@@ -207,10 +96,10 @@
                     $('#following-modal').modal();
                 },
                 loadFollowers: function (page) {
-                    var _this = this;
+                    let _this = this;
 
                     $.ajax({
-                        url: '/api/v2/accounts/[[${targetAccount.getId()}]]/followers?page=' + page,
+                        url: '/partial/accounts/[[${targetAccount.getId()}]]/followers?page=' + page,
                         method: 'get',
                     }).done(function (data) {
                         _this._clearFollowers();
@@ -220,10 +109,10 @@
                     });
                 },
                 loadFollowings: function (page) {
-                    var _this = this;
+                    let _this = this;
 
                     $.ajax({
-                        url: '/api/v2/accounts/[[${targetAccount.getId()}]]/followings?page=' + page,
+                        url: '/partial/accounts/[[${targetAccount.getId()}]]/followings?page=' + page,
                         method: 'get',
                     }).done(function (data) {
                         _this._clearFollowings();
@@ -232,12 +121,14 @@
                         alert("팔로잉들을 로드하는데 실패했습니다.");
                     });
                 },
-                loadAlbums: function (page) {
-                    var _this = this;
+                loadAlbums: function (requestObj, page) {
+                    requestObj.page = page;
+                    let _this = this;
 
                     $.ajax({
-                        url: '/api/v2/short-albums?page=' + page + '&q=[[${targetAccount.getNickname()}]]',
+                        url: '/partial/profile/[[${targetAccount.getId()}]]/albums',
                         method: 'GET',
+                        data: requestObj
                     }).done(function (data) {
                         _this._clearAlbums();
                         _this._appendAlbums(data);
@@ -250,7 +141,7 @@
                     $('#follower-modal .modal-footer').empty();
                 },
                 _appendFollowers: function (data) {
-                    $('#follower-modal .modal-body').append(data['followersHtml']);
+                    $('#follower-modal .modal-body').append(data['listHtml']);
                     $('#follower-modal .modal-footer').append(data['paginationHtml']);
                 },
                 _clearFollowings: function () {
@@ -258,16 +149,16 @@
                     $('#following-modal .modal-footer').empty();
                 },
                 _appendFollowings: function (data) {
-                    $('#following-modal .modal-body').append(data['followingsHtml']);
+                    $('#following-modal .modal-body').append(data['listHtml']);
                     $('#following-modal .modal-footer').append(data['paginationHtml']);
                 },
                 _clearAlbums: function () {
                     $('#album-list').empty();
-                    $('#album-pagination-box').empty();
+                    $('#pagination').empty();
                 },
                 _appendAlbums: function (data) {
-                    $('#album-list').append(data['albumsHtml']);
-                    $('#album-pagination-box').append(data['paginationHtml']);
+                    $('#album-list').append(data['listHtml']);
+                    $('#pagination').append(data['paginationHtml']);
                 },
             }
         </script>

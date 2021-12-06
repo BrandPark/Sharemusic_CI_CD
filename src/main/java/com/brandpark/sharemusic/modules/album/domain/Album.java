@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Builder @Getter @Setter(AccessLevel.PRIVATE)
+@Builder @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
@@ -32,12 +32,6 @@ public class Album extends BaseTimeEntity {
     @Column(name = "account_id", nullable = false)
     private Long accountId;
 
-    @Column(nullable = false)
-    private int trackCount;
-
-    @Column(nullable = false)
-    private int commentCount;
-
     @Builder.Default
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Track> tracks = new ArrayList<>();
@@ -52,21 +46,21 @@ public class Album extends BaseTimeEntity {
         if (tracks != null) {
             track.initAlbum(this);
             tracks.add(track);
-            trackCount++;
-        }
-    }
-
-    public void removeTrack(Track track) {
-        if (track != null) {
-            boolean isRemoved = tracks.remove(track);
-            if (isRemoved) {
-                trackCount--;
-            }
         }
     }
 
     public void addAllTrack(List<Track> trackEntities) {
         tracks.addAll(trackEntities);
-        trackCount += trackEntities.size();
+    }
+
+    public static Album createAlbum(String title, String description, String albumImage, Long accountId) {
+        Album album = new Album();
+
+        album.title = title;
+        album.description = description;
+        album.albumImage = albumImage;
+        album.accountId = accountId;
+
+        return album;
     }
 }

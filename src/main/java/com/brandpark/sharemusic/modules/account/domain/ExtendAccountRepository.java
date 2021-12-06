@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.modules.account.domain;
 
-import java.util.Optional;
+import com.brandpark.sharemusic.modules.account.form.FriendshipDataForm;
 
 public interface ExtendAccountRepository {
-    Optional<Account> findByAlbumId(Long albumId);
+    FriendshipDataForm findFriendshipData(Long accountId);
 }

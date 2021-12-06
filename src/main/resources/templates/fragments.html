@@ -19,9 +19,23 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav m-auto">
                     <li class="nav-item">
-                        <form class="form-inline" method="get">
-                            <input class="form-control mr-sm-2" name="keyword" type="search" placeholder="검색" aria-label="Search" />
-                        </form>
+                            <div id="search-box">
+                                <label for="search-input">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </label>
+                                <input id="search-input" class="form-control input-lg"
+                                       th:placeholder="${#strings.isEmpty(typeName) ? '앨범 이름 검색' : typeName}"
+                                       th:search-type="${#strings.isEmpty(type) ? 'ALBUM_NAME' : type}"
+                                      autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1">
+                                <div class="dropdown text-center" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="dropdown-toggle"></span>
+                                </div>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="searchDropdown" >
+                                    <span class="dropdown-item" th:each="searchType: ${searchTypes}"
+                                          th:text="${searchType.getName()}" th:value="${searchType.name()}">Condition1
+                                    </span>
+                                </div>
+                            </div>
                     </li>
                 </ul>
 
@@ -38,7 +52,8 @@
                 </ul>
                 <ul sec:authorize="isAuthenticated()" class="navbar-nav">
                     <li class="nav-item pr-2">
-                        <a class="btn btn-outline-info" th:href="@{/albums}">
+                        <a class="btn" th:href="@{/albums}"
+                           th:classappend="${account.getRole().name().equals('USER')} ? 'btn-primary' : 'btn-secondary disabled'">
                             <i class="fa fa-plus" aria-hidden="true"></i> 앨범 만들기
                         </a>
                     </li>
@@ -57,8 +72,8 @@
                             <div th:if="${!hasNotification}" class="row justify-content-center align-items-center m-0 mb-4" style="height:300px">
                                 <h5 class="font-weight-bold">알림이 없습니다!</h5>
                             </div>
-                            <div th:if="${hasNotification}" class="notification overflow-y m-0 mb-4" style="height:300px">
-                                <div class="row pb-3 notification-item m-0" th:each="notification: ${notifications}" th:classappend="${notification.checked == true} ? checked">
+                            <div th:if="${hasNotification}" class="notification y-scroll m-0 mb-4" style="height:300px">
+                                <div class="row pb-3 notification-item m-0" th:each="notification: ${notifications}" th:classappend="${notification.checked == true} ? checked" style="cursor: pointer">
                                     <div class="col-2 d-flex justify-content-center align-items-center pr-0">
                                         <i class="fa fa-user-circle" style="font-size: 2.2em" th:if="${#strings.isEmpty(notification.senderProfileImage)}"></i>
                                         <img style="width:40px; height:40px" th:if="${!#strings.isEmpty(notification.senderProfileImage)}" th:src="${notification.senderProfileImage}">
@@ -110,12 +125,51 @@
         <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'password'} ? active" th:href="@{/accounts/edit/password}">비밀번호 변경</a>
     </div>
 
+    <div th:fragment="albumCardList(list)" id="album-card" class="col-md-3" th:each="albumInfo : ${list}">
+        <a th:href="@{'/albums/' + ${albumInfo.albumId}}" class="card-description-panel container shadow fade">
+            <div class="row" th:each="track: ${albumInfo.tracks}">
+                <div class="col-12 text-center">
+                    <span class="track-name" th:text="${track.name}">음원 이름</span>
+                    <span class="pr-2 pl-2">/</span>
+                    <small class="track-artist" th:text="${track.artist}">아티스트</small>
+                </div>
+            </div>
+        </a>
+        <div class="text-decoration-none text-dark card mb-4 shadow">
+            <div class="card-img-top d-flex justify-content-center bg-light py-2">
+                <img th:if="${#strings.isEmpty(albumInfo.albumImage)}" src="/images/album-default.jpg" class="card-img-top bg-light rounded-circle">
+                <img th:if="${!#strings.isEmpty(albumInfo.albumImage)}" th:src="${albumInfo.albumImage}" class="card-img-top bg-light rounded-circle">
+            </div>
+            <div class="card-body">
+                <h5 class="card-title font-weight-bold" th:text="${albumInfo.title}">title</h5>
+                <div style="font-size:0.7em; height:30px" class="card-text line-2-hidden" th:utext="${albumInfo.description}">Short description</div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-muted">
+                            <i class="fa fa-music pr-2" aria-hidden="true"></i>
+                            <span th:text="${albumInfo.trackCount}"></span>곡
+                        </small>
+                    </div>
+                    <div>
+                        <small>
+                            <i th:if="${#strings.isEmpty(albumInfo.creatorProfileImage)}" class="fa fa-user-circle"></i>
+                            <img width="23" height="23" th:if="${!#strings.isEmpty(albumInfo.creatorProfileImage)}" th:src="${albumInfo.creatorProfileImage}">
+                            <span class="font-weight-bold" th:text="${albumInfo.creatorNickname}"></span>
+                        </small>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div th:fragment="footer">
         <script src="/node_modules/jquery/dist/jquery.min.js"></script>
         <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <script src='https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.3.0/simplex-noise.min.js'></script>
         <script src='https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.5/dat.gui.min.js'></script>
         <script src="/node_modules/moment/min/moment-with-locales.min.js"></script>
+        <script src="/node_modules/mark.js/dist/jquery.mark.min.js"></script>
         <script src="/custom/js/main.js"></script>
     </div>
 
@@ -194,6 +248,31 @@
                 });
             }, false);
         })();
+    </script>
+
+    <script th:fragment="mark(keyword, context)">
+        $("[[${context}]]").unmark({
+            done: function () {
+                $("[[${context}]]").mark("[[${keyword}]]", {
+                    "each": function (element) {
+                        setTimeout(function () {
+                            $(element).addClass("animate");
+                        }, 1000);
+                    }
+                });
+            }
+        });
+    </script>
+    <script th:fragment="mouseoverShow(className)">
+        $("[[${className}]]").on('mouseover mouseout', function (event){
+            if (event.type === 'mouseover') {
+                $(this).addClass('show');
+                $(this).removeClass('fade');
+            } else {
+                $(this).addClass('fade');
+                $(this).removeClass('show');
+            }
+        });
     </script>
 </body>
 </html>

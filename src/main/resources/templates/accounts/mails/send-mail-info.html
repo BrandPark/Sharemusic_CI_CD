@@ -16,9 +16,10 @@
             <small class="text-muted">
                 <form th:action="@{/resend-verify-mail}" class="pt-1" id="resendMailForm" method="post">
                     인증 메일이 오지 않았나요?
-                    <a class="text-decoration-none text-info font-weight-bold" href="javascript:$('#resendMailForm').submit()">인증 메일 다시 보내기</a>
+                    <a class="text-decoration-none text-info font-weight-bold" href="javascript:$('#resendMailForm').submit(); alert('메일이 전송되었습니다.')">인증 메일 다시 보내기</a>
                 </form>
             </small>
+            <a th:href="@{/}" class="btn  btn-primary mt-2">홈으로</a>
         </div>
     </div>
     <div class="row justify-content-center py-3">

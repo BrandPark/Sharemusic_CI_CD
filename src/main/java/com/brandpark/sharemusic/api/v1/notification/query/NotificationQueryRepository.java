@@ -1,8 +1,8 @@
 package com.brandpark.sharemusic.api.v1.notification.query;
 
-import com.brandpark.sharemusic.api.PagingDtoFactory;
-import com.brandpark.sharemusic.api.v1.notification.query.dto.NotificationInfo;
-import com.brandpark.sharemusic.api.v2.dto.PagingDto;
+import com.brandpark.sharemusic.api.page.PageResult;
+import com.brandpark.sharemusic.api.page.PageResultFactory;
+import com.brandpark.sharemusic.api.v1.notification.dto.NotificationInfoResponse;
 import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
 import com.brandpark.sharemusic.modules.notification.domain.QNotification;
@@ -21,13 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class NotificationQueryRepository {
 
     private final JPAQueryFactory queryFactory;
-    QAccount account = QAccount.account;
-    QNotification notification = QNotification.notification;
+    private QAccount account = QAccount.account;
+    private QNotification notification = QNotification.notification;
 
-    public PagingDto<NotificationInfo> findAllNotifications(Pageable pageable, NotificationType type, Long accountId) {
+    public PageResult<NotificationInfoResponse> findAllNotifications(Pageable pageable, NotificationType type, Long accountId) {
 
-        QueryResults<NotificationInfo> queryResults = queryFactory.select(
-                        Projections.fields(NotificationInfo.class,
+        QueryResults<NotificationInfoResponse> queryResults = queryFactory.select(
+                        Projections.fields(NotificationInfoResponse.class,
                                 notification.id,
                                 notification.sender.profileImage.as("senderProfileImage"),
                                 notification.sender.nickname.as("senderNickname"),
@@ -48,7 +48,7 @@ public class NotificationQueryRepository {
                 .limit(pageable.getPageSize())
                 .fetchResults();
 
-        return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
+        return PageResultFactory.createPageResult(queryResults.getResults(), pageable, queryResults.getTotal());
     }
 
     private BooleanExpression whatType(NotificationType type) {

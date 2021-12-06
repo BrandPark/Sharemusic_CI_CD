@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.infra.config.auth;
 
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import lombok.Getter;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

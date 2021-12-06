@@ -1,5 +1,6 @@
 package com.brandpark.sharemusic.modules.account.domain;
 
+import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.modules.BaseTimeEntity;
 import lombok.*;
 
@@ -8,11 +9,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Getter @Setter(AccessLevel.PRIVATE)
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "id", callSuper = false)
 public class Account extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,5 +54,30 @@ public class Account extends BaseTimeEntity {
     public void assignRole(Role role) {
         if(this.role != role)
             this.role = role;
+    }
+
+    public void updateInfo(String name, String nickName, String bio, String profileImage) {
+        this.name = name;
+        this.nickname = nickName;
+        this.bio = bio;
+        this.profileImage = profileImage;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public static Account createAccount(String email, String name, String nickname, String password) {
+        Account newAccount = new Account();
+
+        newAccount.email = email;
+        newAccount.name = name;
+        newAccount.nickname = nickname;
+        newAccount.password = password;
+
+        newAccount.assignRole(Role.GUEST);
+        newAccount.generateEmailCheckToken();
+
+        return newAccount;
     }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Transactional(readOnly = true)
-public interface AccountRepository extends JpaRepository<Account, Long> {
+public interface AccountRepository extends JpaRepository<Account, Long>, ExtendAccountRepository {
 
     boolean existsByEmail(String email);
 

@@ -6,7 +6,7 @@ import com.brandpark.sharemusic.infra.mail.MailService;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.account.domain.Role;
+import com.brandpark.sharemusic.infra.config.auth.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

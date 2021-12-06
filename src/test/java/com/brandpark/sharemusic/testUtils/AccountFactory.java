@@ -1,32 +1,37 @@
 package com.brandpark.sharemusic.testUtils;
 
 
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
 import com.brandpark.sharemusic.modules.account.domain.Account;
-import com.brandpark.sharemusic.modules.account.domain.Role;
+import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
+import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
-import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
-import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
+@ActiveProfiles("test")
 @Component
 public class AccountFactory {
 
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final AccountRepository accountRepository;
+    private String password = "000000000";
 
-    public SessionAccount createSessionAccount(String name) {
-        Account account = createAccount(name);
-        return modelMapper.map(account, SessionAccount.class);
+    public List<Account> persistAccountList(String name, int size) {
+        return accountRepository.saveAll(createAccountList(name, size));
+    }
+
+    public Account persistAccount(String name) {
+        return accountRepository.save(createAccount(name));
     }
 
     public Account createAccount(String name) {
@@ -72,28 +77,8 @@ public class AccountFactory {
         form.setEmail(name + "@email.com");
         form.setName(name);
         form.setNickname(name);
-        form.setPassword("000000000");
-        form.setConfirmPassword("000000000");
-
-        return form;
-    }
-
-    public UpdateBasicInfoForm createUpdateBasicInfoForm(String name) {
-        UpdateBasicInfoForm form = new UpdateBasicInfoForm();
-        form.setName(name);
-        form.setEmail(name + "@email.com");
-        form.setNickname(name);
-        form.setBio("My name is" + name);
-        form.setProfileImage("image");
-
-        return form;
-    }
-
-    public UpdatePasswordForm createUpdatePasswordForm() {
-        UpdatePasswordForm form = new UpdatePasswordForm();
-        form.setCurrentPassword("000000000");
-        form.setPassword("111111111");
-        form.setConfirmPassword("111111111");
+        form.setPassword(password);
+        form.setConfirmPassword(password);
 
         return form;
     }
@@ -106,5 +91,9 @@ public class AccountFactory {
         }
 
         return result;
+    }
+
+    public Account persistAccount(String name, Role role) {
+        return accountRepository.save(createAccount(name, role));
     }
 }

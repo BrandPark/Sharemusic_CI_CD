@@ -1,12 +1,9 @@
 package com.brandpark.sharemusic.modules.album;
 
-import com.brandpark.sharemusic.api.v1.album.query.dto.AlbumDetailDto;
-import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
-import com.brandpark.sharemusic.modules.Validator;
-import com.brandpark.sharemusic.modules.MyUtil;
-import com.brandpark.sharemusic.modules.album.domain.Album;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.validator.FormValidator;
+import com.brandpark.sharemusic.modules.album.form.AlbumDetailInfoForm;
 import com.brandpark.sharemusic.modules.album.form.AlbumUpdateForm;
 import com.brandpark.sharemusic.modules.album.service.AlbumService;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class AlbumController {
 
     private final AlbumService albumService;
-    private final AlbumQueryRepository albumQueryRepository;
-    private final Validator validator;
+    private final FormValidator validator;
 
     @GetMapping("/albums")
     public String createAlbumForm(@LoginAccount SessionAccount account, Model model) {
@@ -30,15 +26,13 @@ public class AlbumController {
     }
 
     @GetMapping("/albums/{albumId}/update")
-    public String updateAlbumForm(@LoginAccount SessionAccount account, Model model, @PathVariable("albumId") Album album) {
+    public String viewUpdateAlbumForm(@LoginAccount SessionAccount account, Model model, @PathVariable Long albumId) {
 
-        validator.validateAlbumHost(account.getId(), album.getAccountId());
+        validator.validateViewUpdateAlbumForm(account, albumId);
+
+        AlbumUpdateForm form = albumService.getAlbumUpdateForm(albumId);
 
         model.addAttribute("account", account);
-
-        AlbumUpdateForm form = albumService.entityToForm(album);
-        form.setDescription(MyUtil.toEscape(form.getDescription()));
-
         model.addAttribute("album", form);
         model.addAttribute("tracks", form.getTracks());
 
@@ -48,7 +42,9 @@ public class AlbumController {
     @GetMapping("/albums/{albumId}")
     public String detailAlbumView(@LoginAccount SessionAccount account, Model model, @PathVariable Long albumId) {
 
-        AlbumDetailDto albumDetail = albumQueryRepository.findAlbumDetailDtoById(albumId);
+        validator.validateViewDetailAlbumForm(albumId);
+
+        AlbumDetailInfoForm albumDetail = albumService.getAlbumDetailForm(albumId);
 
         model.addAttribute("account", account);
         model.addAttribute("albumDetailView", albumDetail);

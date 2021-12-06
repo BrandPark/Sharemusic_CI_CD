@@ -1,9 +1,8 @@
 package com.brandpark.sharemusic.modules.account;
 
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
-import com.brandpark.sharemusic.modules.Validator;
-import com.brandpark.sharemusic.modules.MyUtil;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.validator.FormValidator;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
@@ -24,15 +23,14 @@ import javax.validation.Valid;
 public class SettingsController {
 
     private final AccountService accountService;
-    private final Validator formValidator;
+    private final FormValidator formValidator;
 
     @GetMapping("/basicinfo")
     public String basicInfoForm(@LoginAccount SessionAccount account, Model model) {
 
-        UpdateBasicInfoForm form = accountService.mapToForm(account);
-        form.setBio(MyUtil.toEscape(form.getBio()));
+        UpdateBasicInfoForm form = new UpdateBasicInfoForm(account);
 
-        model.addAttribute("account", account);;
+        model.addAttribute("account", account);
         model.addAttribute(form);
 
         return "accounts/settings/basic-info";
@@ -49,7 +47,7 @@ public class SettingsController {
             return "accounts/settings/basic-info";
         }
 
-        accountService.updateBasicInfo(form, account);
+        accountService.updateBasicInfo(form.toModuleDto(), account);
 
         attributes.addFlashAttribute("updateMessage", "프로필이 수정되었습니다.");
         return "redirect:/accounts/edit/basicinfo";
@@ -75,7 +73,7 @@ public class SettingsController {
             return "accounts/settings/password";
         }
 
-        accountService.updatePassword(form, account);
+        accountService.updatePasswordInfo(form.toModuleDto(), account);
 
         attributes.addFlashAttribute("updateMessage", "프로필이 수정되었습니다.");
         return "redirect:/accounts/edit/password";

@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html :: head"></head>
+<body class="background">
+    <div style="position: absolute; top:10em;" class="text-center w-100">
+        <h1 class="align-items-center pb-3" th:if="${message != null}" th:text="${message}">message</h1>
+        <a class="btn btn-primary" role="button" th:href="@{/}">홈으로 가기</a>
+    </div>
+    <div th:replace="fragments.html::footer"></div>
+</body>
+</html>
