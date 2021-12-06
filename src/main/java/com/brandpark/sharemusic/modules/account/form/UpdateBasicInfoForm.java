@@ -1,11 +1,15 @@
 package com.brandpark.sharemusic.modules.account.form;
 
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
+@NoArgsConstructor
 @Data
 public class UpdateBasicInfoForm {
 
@@ -25,4 +29,23 @@ public class UpdateBasicInfoForm {
     private String bio;
 
     private String profileImage;
+
+    public UpdateBasicInfoForm(SessionAccount account) {
+        email = account.getEmail();
+        name = account.getName();
+        nickname = account.getNickname();
+        bio = account.getBio();
+        profileImage = account.getProfileImage();
+    }
+
+    public UpdateAccountDto toModuleDto() {
+        return new UpdateAccountDto(
+                name,
+                nickname,
+                bio,
+                profileImage
+        );
+    }
+
+
 }

@@ -17,27 +17,33 @@
                     <div class="col-7 pr-5">
                         <div class="row justify-content-start pb-3">
                             <h3><span th:text="${albumDetailView.getTitle()}" class="pr-3">제목</span></h3>
-                            <a th:if="${#authentication.name.equals(albumDetailView.getCreator())}" th:href="@{'/albums/' + ${albumDetailView.getId()} + '/update'}" class="text-decoration-none btn btn-outline-info" role="button">
+                            <a th:if="${#authentication.name.equals(albumDetailView.getCreator())}" th:href="@{'/albums/' + ${albumDetailView.getId()} + '/update'}" class="text-decoration-none btn btn-info mr-2" role="button">
                                 <h5 class="m-0">수정 <i class="fa fa-cog pl-1"></i></h5>
                             </a>
+                            <button th:if="${#authentication.name.equals(albumDetailView.getCreator())}" class="text-decoration-none btn btn-outline-danger"
+                                    data-toggle="modal" data-target="#delete-album-modal">
+                                <h5 class="m-0">삭제 <i class="fa fa-trash-o pl-1"></i></h5>
+                            </button>
                         </div>
-                        <div class="row text-muted" style="overflow:scroll; height: 100px; overflow-x:hidden"><span th:utext="${albumDetailView.description}">앨범 소개</span></div>
-                        <div class="row justify-content-end pb-4"><small class="row text-muted" th:text="${albumDetailView.getCreatedDate}">앨범 생성 날짜</small></div>
+                        <div class="divider"></div>
+                        <div class="row text-muted y-scroll" style="height: 100px;"><span th:utext="${albumDetailView.description}">앨범 소개</span></div>
+                        <div class="row justify-content-end pb-4 pt-2"><small class="row text-muted relative-time" th:text="${albumDetailView.getCreatedDate}">앨범 생성 날짜</small></div>
                     </div>
                 </div>
+                <div class="divider"></div>
                 <div class="row">
-                    <table id="tracks_table" class="table table-hover w-100 table-dark m-0">
+                    <table id="tracks_table" class="table table-bordered border-primary w-100 m-0">
                         <thead>
-                        <tr>
-                            <th scope="col">음원 명</th>
-                            <th scope="col">아티스트</th>
-                        </tr>
+                            <tr class="table-header">
+                                <th scope="col">음원 명</th>
+                                <th scope="col">아티스트</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="track: ${trackList}">
-                            <td th:text="${track.getName()}"></td>
-                            <td th:text="${track.getArtist()}"></td>
-                        </tr>
+                            <tr class="table-row" th:each="track: ${trackList}">
+                                <td th:text="${track.getName()}"></td>
+                                <td th:text="${track.getArtist()}"></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -58,10 +64,10 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="divider"></div>
                 <!-- 댓글들 -->
-                <div id="comments" class="mb-3" style="overflow:scroll; height: 300px; overflow-x:hidden"></div>
-
+                <div id="comments" class="y-scroll" style="height: 380px;"></div>
+                <div class="divider"></div>
                 <!-- 댓글 입력 창 -->
                 <div class="row justify-content-center">
                     <div th:if="${account == null}" class="w-100 pb-2">
@@ -73,7 +79,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="row w-100 pl-4 pb-2" th:if="${account != null}">
+                    <div class="row w-100 pb-2" th:if="${account != null}">
                         <div  class="col-10">
                             <textarea id="input-comment" class="form-control auto-size" placeholder="댓글 달기..." style="height: 40px; resize:none"></textarea>
                         </div>
@@ -85,7 +91,33 @@
                 </div>
             </div>
         </div>
+    </div>
 
+    <div class="modal fade" id="delete-album-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> 앨범 삭제</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>앨범을 삭제하시려면 아래의 문자를 입력해주세요.</p>
+                    <p id="delete-hint" class="text-danger text-center font-weight-bold">
+                        Delete <span th:text="${albumDetailView.title}"></span>
+                    </p>
+                    <input id="delete-hint-input" type="text" class="form-control" th:placeholder="'Delete ' + ${albumDetailView.title}">
+                    <p>
+                        <small class="text-danger"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> 삭제된 앨범은 복구할 수 없습니다.</small>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button id="btn-delete" type="button" class="btn btn-danger" disabled>Delete</button>
+                </div>
+            </div>
+        </div>
     </div>
     <div th:replace="fragments.html::footer"></div>
     <div th:replace="fragments.html::ajax-csrf-header"></div>
@@ -94,10 +126,10 @@
             detail.loadComments(0);
             detail.init();
         });
-        var albumId = "[[${albumDetailView.id}]]";
-        var detail = {
+        let albumId = "[[${albumDetailView.id}]]";
+        let detail = {
             init: function () {
-                var _this = this;
+                const _this = this;
                 $('#pagination').on('click', '.btn-page', function () {
                     var gotoPage = $(this).attr('data-index');
                     _this.loadComments(gotoPage);
@@ -108,12 +140,34 @@
                     _this.submitComment(content);
                     $('#input-comment').val("");
                 });
+                $('#delete-hint-input').on('keyup', function (e) {
+                    let val = $(this).val();
+                    let deleteHint = $('#delete-hint').text().trim();
+                    console.log(val);
+                    console.log(deleteHint);
+                    if (val === deleteHint) {
+                        $('#btn-delete').removeAttr("disabled");
+                    } else {
+                        $('#btn-delete').attr("disabled", "disabled");
+                    }
+                });
+                $('#btn-delete').on('click', function () {
+                    $.ajax({
+                        url: '/api/v1/albums/' + albumId,
+                        method: 'delete'
+                    }).done(function () {
+                        alert("앨범이 삭제되었습니다.");
+                        window.location.href = "/";
+                    }).fail(function (e) {
+                        alert(e.responseJSON.errorMessage);
+                    });
+                });
             },
             loadComments: function (page) {
                 var _this = this;
 
                 $.ajax({
-                    url: '/api/v2/albums/' + albumId + '/comments?page=' + page,
+                    url: '/partial/albums/' + albumId + '/comments?page=' + page,
                     method: 'GET',
                 }).done(function (data) {
                     _this._clearComments();
@@ -130,7 +184,7 @@
                     return;
                 }
                 const data = {
-                    content: content
+                    content: content.replace(/\n/gm, "<br>")
                 }
                 $.ajax({
                     url: "/api/v1/albums/" + albumId + "/comments",
@@ -166,7 +220,7 @@
                 $('#pagination').empty();
             },
             _appendComments: function (data) {
-                $('#comments').append(data['commentsHtml']);
+                $('#comments').append(data['listHtml']);
                 $('#pagination').append(data['paginationHtml']);
             }
         }

@@ -11,36 +11,36 @@
         <div class="col-sm-7 col-lg-4">
             <form th:action="@{/accounts/signup}" method="post" th:object="${signUpForm}" novalidate class="needs-validation">
                 <div class="form-group">
-                    <input type="text" th:field="*{email}" name="email" class="form-control" placeholder="이메일" required/>
-                    <small class="form-text text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
+                    <input type="text" th:field="*{email}" name="email" class="form-control" placeholder="이메일" required autocomplete="off"/>
+                    <small class="form-text text-danger font-weight-bold" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
                     <div class="invalid-feedback">
                         이메일을 입력해주세요.
                     </div>
                 </div>
                 <div class="form-group">
-                    <input type="text" th:field="*{name}" name="name" class="form-control" placeholder="이름" required minlength="2" maxlength="20"/>
-                    <small class="form-text text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
+                    <input type="text" th:field="*{name}" name="name" class="form-control" placeholder="이름" required minlength="2" maxlength="20" autocomplete="off"/>
+                    <small class="form-text text-danger font-weight-bold" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
                     <div class="invalid-feedback">
                         이름은 2자 이상 20자 이내로 입력해주세요.
                     </div>
                 </div>
                 <div class="form-group">
-                    <input type="text" th:field="*{nickname}" name="nickname" class="form-control" placeholder="닉네임" required minlength="2" maxlength="20"/>
-                    <small class="form-text text-danger" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}"></small>
+                    <input type="text" th:field="*{nickname}" name="nickname" class="form-control" placeholder="닉네임" required minlength="2" maxlength="20" autocomplete="off"/>
+                    <small class="form-text text-danger font-weight-bold" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}"></small>
                     <div class="invalid-feedback">
                         닉네임은 2자 이상 20자 이내로 입력해주세요.
                     </div>
                 </div>
                 <div class="form-group">
-                    <input type="password" name="password" class="form-control" placeholder="비밀번호" required minlength="8" maxlength="30"/>
-                    <small class="form-text text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+                    <input type="password" name="password" class="form-control" placeholder="비밀번호" required minlength="8" maxlength="30" autocomplete="off"/>
+                    <small class="form-text text-danger font-weight-bold" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
                     <div class="invalid-feedback">
                         비밀번호는 8자 이상 30자 이내로 입력해주세요.
                     </div>
                 </div>
                 <div class="form-group">
-                    <input type="password" name="confirmPassword" class="form-control" placeholder="비밀번호 확인" required minlength="8" maxlength="30"/>
-                    <small class="form-text text-danger" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></small>
+                    <input type="password" name="confirmPassword" class="form-control" placeholder="비밀번호 확인" required minlength="8" maxlength="30" autocomplete="off"/>
+                    <small class="form-text text-danger font-weight-bold" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></small>
                     <div class="invalid-feedback">
                         비밀번호는 8자 이상 30자 이내로 입력해주세요.
                     </div>

@@ -1,19 +1,18 @@
 package com.brandpark.sharemusic.modules.account.service;
 
 import com.brandpark.sharemusic.infra.config.auth.CustomUserDetails;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
-import com.brandpark.sharemusic.modules.MyUtil;
+import com.brandpark.sharemusic.infra.config.auth.Role;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.infra.config.session.dto.AccountDto;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.account.domain.Role;
-import com.brandpark.sharemusic.modules.account.form.SignUpForm;
-import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
-import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
-import com.brandpark.sharemusic.modules.event.FollowEvent;
 import com.brandpark.sharemusic.modules.follow.domain.Follow;
 import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
+import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
+import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
+import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordDto;
+import com.brandpark.sharemusic.modules.event.FollowEvent;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,69 +33,81 @@ import java.util.Collections;
 public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
-    private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final FollowRepository followRepository;
 
     @Transactional
-    public Account signUp(SignUpForm form) {
+    public SessionAccount signUp(CreateAccountDto data) {
 
-        SignUpForm encodedForm = encodingPassword(form);
+        Account newAccount = createAccount(data);
 
-        Account newAccount = createAccount(encodedForm);
+        SessionAccount newSessionAccount = createSessionAccount(newAccount);
 
-        accountRepository.save(newAccount);
+        login(newSessionAccount);
 
-        login(mapToSessionAccount(newAccount));
-        return newAccount;
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
-
-        Account account = accountRepository.findByEmailOrNickname(emailOrNickname)
-                .orElseThrow(() -> new UsernameNotFoundException(emailOrNickname));
-
-        SessionAccount sessionAccount = mapToSessionAccount(account);
-
-        return new CustomUserDetails(sessionAccount);
+        return newSessionAccount;
     }
 
     @Transactional
-    public void updateBasicInfo(UpdateBasicInfoForm form, SessionAccount account) {
-
-        form.setEmail(account.getEmail());
-        form.setBio(MyUtil.toBrTag(form.getBio()));
-
-        Account persistentAccount  = accountRepository.findByEmail(form.getEmail());
-
-        fieldMapping(form, persistentAccount);
-
-        login(mapToSessionAccount(persistentAccount));
+    public void updateBasicInfo(UpdateAccountDto data, SessionAccount account) {
+        updateAccountInfo(data, account.getId());
     }
 
     @Transactional
-    public void updatePassword(UpdatePasswordForm form, SessionAccount account) {
+    public void updatePasswordInfo(UpdatePasswordDto data, SessionAccount account) {
+        updateAccountPassword(data, account.getId());
 
-        UpdatePasswordForm encodedForm = encodingPassword(form);
-
-        Account persistentAccount = accountRepository.findById(account.getId()).get();
-        fieldMapping(encodedForm, persistentAccount);
-
-        login(mapToSessionAccount(persistentAccount));
+        login(account);
     }
 
     @Transactional
     public void succeedVerifyEmailCheckToken(SessionAccount account) {
-        Account persistAccount = accountRepository.findByEmail(account.getEmail());
-        persistAccount.assignRole(Role.USER);
+        Account verifiedAccount = assignUserRole(account.getId());
 
-        login(mapToSessionAccount(persistAccount));
+        login(createSessionAccount(verifiedAccount));
     }
 
     @Transactional
-    public Long doFollow(Account follower, Account target) {
+    public Account createAccount(CreateAccountDto data) {
+        return accountRepository.save(data.toEntity(passwordEncoder));
+    }
+
+    @Transactional
+    public void updateAccountInfo(UpdateAccountDto data, Long targetAccountId) {
+
+        Account targetAccount = accountRepository.findById(targetAccountId).get();
+
+        targetAccount.updateInfo(
+                data.getName(),
+                data.getNickname(),
+                data.getBio(),
+                data.getProfileImage()
+        );
+
+        login(createSessionAccount(targetAccount));
+    }
+
+    @Transactional
+    public void updateAccountPassword(UpdatePasswordDto data, Long targetAccountId) {
+        Account myAccount = accountRepository.findById(targetAccountId).get();
+
+        myAccount.updatePassword(passwordEncoder.encode(data.getUpdatePassword()));
+    }
+
+    @Transactional
+    public Account assignUserRole(Long accountId) {
+        Account account = accountRepository.findById(accountId).get();
+        account.assignRole(Role.USER);
+
+        return account;
+    }
+
+    @Transactional
+    public Long doFollow(Long followerId, Long targetAccountId) {
+
+        final Account follower = accountRepository.findById(followerId).get();
+        final Account target = accountRepository.findById(targetAccountId).get();
 
         eventPublisher.publishEvent(FollowEvent.builder()
                 .follower(follower)
@@ -109,44 +120,25 @@ public class AccountService implements UserDetailsService {
                 .build()).getId();
     }
 
-    public SessionAccount mapToSessionAccount(Account account) {
-        return modelMapper.map(account, SessionAccount.class);
+    @Transactional
+    public Long doUnfollow(Long followerId, Long targetAccountId) {
+
+        Follow follow = followRepository.findByFollowerIdAndTargetId(followerId, targetAccountId).get();
+
+        followRepository.delete(follow);
+
+        return follow.getId();
     }
 
-    private Account fieldMapping(UpdateBasicInfoForm form, Account account) {
-        modelMapper.map(form, account);
-        return account;
-    }
+    @Override
+    public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
 
-    private Account fieldMapping(UpdatePasswordForm form, Account account) {
-        modelMapper.map(form, account);
-        return account;
-    }
+        Account account = accountRepository.findByEmailOrNickname(emailOrNickname)
+                .orElseThrow(() -> new UsernameNotFoundException(emailOrNickname));
 
-    public UpdateBasicInfoForm mapToForm(SessionAccount account) {
-        return modelMapper.map(account, UpdateBasicInfoForm.class);
-    }
+        SessionAccount sessionAccount = createSessionAccount(account);
 
-    private Account createAccount(SignUpForm form) {
-
-        Account newAccount = form.toEntity();
-
-        newAccount.generateEmailCheckToken();
-        newAccount.assignRole(Role.GUEST);
-
-        return newAccount;
-    }
-
-    private UpdatePasswordForm encodingPassword(UpdatePasswordForm form) {
-        String encodedPassword = passwordEncoder.encode(form.getPassword());
-        form.setPassword(encodedPassword);
-
-        return form;
-    }
-
-    private SignUpForm encodingPassword(SignUpForm form) {
-        form.setPassword(passwordEncoder.encode(form.getPassword()));
-        return form;
+        return new CustomUserDetails(sessionAccount);
     }
 
     private void login(SessionAccount account) {
@@ -158,5 +150,21 @@ public class AccountService implements UserDetailsService {
 
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(authenticationToken);
+    }
+
+    private SessionAccount createSessionAccount(Account account) {
+        SessionAccount newAccount = new SessionAccount(new AccountDto(
+                account.getId(),
+                account.getName(),
+                account.getNickname(),
+                account.getEmail(),
+                account.getPassword(),
+                account.getBio(),
+                account.getProfileImage(),
+                account.getRole(),
+                account.getEmailCheckToken()
+        ));
+
+        return newAccount;
     }
 }

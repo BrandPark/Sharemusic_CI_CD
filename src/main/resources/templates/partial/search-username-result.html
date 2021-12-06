@@ -1,0 +1,44 @@
+<div id="contents" class="container" style="margin-top:10px">
+    <div class="row pb-3">
+        <h3 style="z-index: 2">
+            사용자 이름'<span id="search-word" th:text="${searchWord}">검색 단어</span>' 검색 결과
+            <span style="font-size: 1.2em" class="text-success" th:text="${resultCount}"></span> 개
+        </h3>
+    </div>
+    <div class="row">
+        <div class="col-md-3" th:each="userInfo : ${searchResultList}">
+            <a th:href="@{'/accounts/' + ${userInfo.nickname}}" class="card-description-panel container shadow fade">
+                <div class="d-flex justify-content-around" style="font-size: 1.2em">
+                    <div>
+                        <span class="pr-1">팔로워</span><span th:text="${userInfo.followerCount}"></span>
+                    </div>
+                    <div>
+                        <span class="pr-1">팔로잉</span><span th:text="${userInfo.followingCount}"></span>
+                    </div>
+                    <div>
+                        <span class="pr-1">앨범</span><span th:text="${userInfo.albumCount}"></span>
+                    </div>
+                </div>
+            </a>
+            <div class="card mb-4 shadow">
+                <div class="card-img-top d-flex justify-content-center bg-light py-2">
+                    <i th:if="${#strings.isEmpty(userInfo.profileImage)}" class="fa fa-user-circle text-white "
+                       aria-hidden="true" style="font-size:8em;"></i>
+                    <img th:if="${!#strings.isEmpty(userInfo.profileImage)}" th:src="${userInfo.profileImage}" class="card-img-top bg-light rounded-circle">
+                </div>
+                <div class="card-body">
+                    <div class="card-title pb-2">
+                        <span class="font-weight-bold" style="font-size:1.2em" th:text="${userInfo.nickname}">
+                            닉네임
+                        </span>
+                        (<small th:text="${userInfo.name}">이름</small>)
+                    </div>
+                    <span class="card-text line-2-hidden" th:text="${userInfo.bio}">자기소개</span>
+                    <span th:if="${#strings.isEmpty(userInfo.bio)}" class="text-light">소개</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:replace="fragments.html::mouseoverShow('.card-description-panel')"></script>
+<script th:replace="fragments.html::mark(${searchWord}, '#contents .card-title , #search-word')"></script>

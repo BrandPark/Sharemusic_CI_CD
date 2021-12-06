@@ -1,18 +1,20 @@
 package com.brandpark.sharemusic.modules.main;
 
-import com.brandpark.sharemusic.api.v1.album.query.AlbumQueryRepository;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpServletRequest;
+
 @RequiredArgsConstructor
 @Controller
-public class HomeController /*implements ErrorController*/ {
-
-    private final AlbumQueryRepository albumQueryRepository;
+public class HomeController implements ErrorController {
 
     @GetMapping("/")
     public String viewHome(@LoginAccount SessionAccount account, Model model) {
@@ -29,24 +31,30 @@ public class HomeController /*implements ErrorController*/ {
         return "login";
     }
 
-//    @GetMapping("/error")
-//    public String error(HttpServletRequest request, Model model) {
-//        Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
-//
-//        if (status != null) {
-//            Integer statusCode = Integer.valueOf(status.toString());
-//
-//            if (statusCode == HttpStatus.FORBIDDEN.value()) {
-//                model.addAttribute("message", "권한이 없습니다!");
-//            }
-//        }
-//
-//        return "error/error";
-//    }
+    @GetMapping("/error")
+    public String error(HttpServletRequest request, Model model) {
+        Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
 
-//    @Override
-//    public String getErrorPath() {
-//        // deprecated method
-//        return null;
-//    }
+        if (status != null) {
+            Integer statusCode = Integer.valueOf(status.toString());
+
+            if (statusCode == HttpStatus.FORBIDDEN.value()) {
+                model.addAttribute("message", "권한이 없습니다!");
+            } else if (statusCode == HttpStatus.BAD_REQUEST.value()) {
+                model.addAttribute("message", "요청이 유효하지 않습니다.");
+            } else if (statusCode == HttpStatus.UNAUTHORIZED.value()) {
+                model.addAttribute("message", "인증이 유효하지 않습니다.");
+            } else {
+                model.addAttribute("message", "서버에서 요청을 처리하는데 실패했습니다.");
+            }
+        }
+
+        return "error/error";
+    }
+
+    @Override
+    public String getErrorPath() {
+        // deprecated method
+        return null;
+    }
 }

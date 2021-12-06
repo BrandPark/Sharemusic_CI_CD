@@ -23,4 +23,14 @@ public class Comment extends BaseTimeEntity {
 
     @Column(length = 100, nullable = false)
     private String content;
+
+    public static Comment createComment(Long accountId, Long albumId, String content) {
+        Comment comment = new Comment();
+
+        comment.accountId = accountId;
+        comment.albumId = albumId;
+        comment.content = content;
+
+        return comment;
+    }
 }

@@ -1,79 +1,107 @@
 package com.brandpark.sharemusic.modules.album.service;
 
-import com.brandpark.sharemusic.api.v1.album.dto.AlbumSaveRequest;
-import com.brandpark.sharemusic.api.v1.album.dto.AlbumUpdateRequest;
-import com.brandpark.sharemusic.api.v1.album.dto.TrackUpdateRequest;
-import com.brandpark.sharemusic.modules.MyUtil;
-import com.brandpark.sharemusic.modules.album.domain.Album;
-import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
-import com.brandpark.sharemusic.modules.album.domain.Track;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
+import com.brandpark.sharemusic.modules.album.domain.*;
+import com.brandpark.sharemusic.modules.album.dto.CreateAlbumDto;
+import com.brandpark.sharemusic.modules.album.dto.UpdateAlbumDto;
+import com.brandpark.sharemusic.modules.album.form.AlbumDetailInfoForm;
 import com.brandpark.sharemusic.modules.album.form.AlbumUpdateForm;
+import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
 import com.brandpark.sharemusic.modules.event.CreateAlbumEvent;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.brandpark.sharemusic.modules.album.domain.TrackStatus.*;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class AlbumService {
 
-    private final ModelMapper modelMapper;
     private final AlbumRepository albumRepository;
+    private final TrackRepository trackRepository;
+    private final EntityManager entityManager;
     private final ApplicationEventPublisher eventPublisher;
-
-    public AlbumUpdateForm entityToForm(Album album) {
-        return modelMapper.map(album, AlbumUpdateForm.class);
-    }
+    private final CommentRepository commentRepository;
+    private final AccountRepository accountRepository;
 
     @Transactional
-    public Long saveAlbum(Long accountId, AlbumSaveRequest requestDto) {
+    public Long createAlbum(CreateAlbumDto data, SessionAccount loginAccount) {
 
-        requestDto.setDescription(MyUtil.toBrTag(requestDto.getDescription()));
-
-        Long albumId = albumRepository.save(requestDto.toEntity(accountId)).getId();
+        Long albumId = albumRepository.save(data.toEntity(loginAccount.getId())).getId();
 
         eventPublisher.publishEvent(CreateAlbumEvent.builder()
                 .albumId(albumId)
-                .creatorId(accountId)
+                .creatorId(loginAccount.getId())
                 .build());
 
         return albumId;
     }
 
     @Transactional
-    public void updateAlbum(AlbumUpdateRequest requestDto, Album album) {
-        // 앨범 정보 변경
-        requestDto.setDescription(MyUtil.toBrTag(requestDto.getDescription()));
-        album.updateAlbum(requestDto.getTitle(), requestDto.getAlbumImage(), requestDto.getDescription());
+    public void updateAlbum(UpdateAlbumDto data, Long albumId) {
+        Album album = albumRepository.findById(albumId).get();
 
-        // 트랙들 순회하며 변경
-        Map<Long, Track> lookupTracksMap = album.getTracks().stream().collect(Collectors.toMap(Track::getId, Function.identity()));
-        for (TrackUpdateRequest dto : requestDto.getTracks()) {
-            if (dto.getId() == null) {  // 신규
-                Track newTrack = modelMapper.map(dto, Track.class);
+        album.updateAlbum(data.getTitle(), data.getAlbumImage(), data.getDescription());
+        entityManager.flush();
 
-                album.addTrack(newTrack);
-                lookupTracksMap.remove(dto.getId());
-            }
-            else {    // 보존 or update
-                Track track = lookupTracksMap.get(dto.getId());
-                modelMapper.map(dto, track);
-                lookupTracksMap.remove(dto.getId());
-            }
+        Map<Long, Track> lookupTrackMap = album.getTracks().stream()
+                .collect(Collectors.toMap(Track::getId, Function.identity()));
+
+        Map<TrackStatus, List<Track>> tracksGroupByStatus = new HashMap<>();
+        for (TrackStatus status : TrackStatus.values()) {
+            tracksGroupByStatus.put(status, new ArrayList<>());
         }
 
-        if (!lookupTracksMap.isEmpty()) {   // 삭제된 것
-            for (Map.Entry<Long, Track> entry : lookupTracksMap.entrySet()) {
-                album.removeTrack(entry.getValue());
-            }
-        }
-     }
+        data.getTracks().stream()
+                .forEach(tData -> {
+                    Track track = tData.getStatus() == INSERT
+                            ? Track.createTrack(tData.getName(), tData.getArtist())
+                            : lookupTrackMap.get(tData.getId());
+
+                    track.updateTrack(tData.getName(), tData.getArtist());
+                    tracksGroupByStatus.get(tData.getStatus()).add(track);
+                });
+
+        trackRepository.batchInsert(tracksGroupByStatus.get(INSERT), albumId);
+        trackRepository.batchUpdate(tracksGroupByStatus.get(UPDATE));
+        trackRepository.batchRemove(tracksGroupByStatus.get(REMOVE));
+
+        entityManager.clear();
+    }
+
+    @Transactional
+    public void deleteAlbum(Long albumId) {
+        commentRepository.deleteAllCommentsByAlbumId(albumId);
+        entityManager.clear();
+
+        albumRepository.deleteById(albumId);
+    }
+
+    public AlbumDetailInfoForm getAlbumDetailForm(Long albumId) {
+
+        Album album = albumRepository.findById(albumId).get();
+        Account account = accountRepository.findById(album.getAccountId()).get();
+
+        return new AlbumDetailInfoForm(album, account);
+    }
+
+    public AlbumUpdateForm getAlbumUpdateForm(Long albumId) {
+        Album album = albumRepository.findById(albumId).get();
+
+        return new AlbumUpdateForm(album);
+    }
 }
 

@@ -6,40 +6,46 @@
     <nav th:replace="fragments.html:: nav"></nav>
     <div th:if="${account != null && account.role.name() != 'USER'}" class="alert alert-warning alert-dismissible fade show" role="alert">
         <i class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i>&nbsp;
-        가입을 완료하려면 <a class="alert-link" th:href="@{/send-mail-info}">이메일 계정을 인증</a>해주세요.
+        앨범을 만들고 싶다면 <a class="alert-link" th:href="@{/send-mail-info}">이메일 계정을 인증</a>해주세요.
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <div class="container" style="padding-top:5em;">
+    <div class="container" style="padding-top:30px">
         <div id="album-list" class="row"></div>
         <div id="pagination" class="row justify-content-center"></div>
     </div>
 
     <div th:replace="fragments.html::footer"></div>
+    <script th:replace="fragments.html::ajax-csrf-header"></script>
     <script>
         $(function () {
-            home.loadAlbums(0);
             home.init();
         });
-        var home = {
+        const home = {
             init: function () {
-                var _this = this;
+                const _this = this;
+                let requestObj = {
+                    size : 8
+                };
+
                 $('#pagination').on('click', '.btn-page', function () {
-                    var gotoPage = $(this).attr('data-index');
-                    _this.loadAlbums(gotoPage);
+                    let gotoPage = $(this).attr('data-index');
+                    _this.loadAlbums(requestObj, gotoPage);
                 });
+                home.loadAlbums(requestObj, 0);
             },
-            loadAlbums: function (page) {
-                var _this = this;
+            loadAlbums: function (requestObj, page) {
+                requestObj.page = page;
+                const _this = this;
 
                 $.ajax({
-                    url: '/api/v2/albums?page=' + page,
+                    url: '/partial/albums',
                     method: 'GET',
-                }).done(function (data) {
+                    data: requestObj,
+                }).done(function (pageObj) {
                     _this._clearAlbums();
-                    _this._appendAlbums(data);
-                    _this._addEventToAlbumButton();
+                    _this._appendAlbums(pageObj);
                 }).fail(function (){
                     alert("앨범들을 로드하는데 실패했습니다.");
                 });
@@ -48,16 +54,10 @@
                 $('#album-list').empty();
                 $('#pagination').empty();
             },
-            _appendAlbums: function (data) {
-                $('#album-list').append(data['albumsHtml']);
-                $('#pagination').append(data['paginationHtml']);
+            _appendAlbums: function (pageObj) {
+                $('#album-list').append(pageObj['listHtml']);
+                $('#pagination').append(pageObj['paginationHtml']);
             },
-            _addEventToAlbumButton: function () {
-                $('div[id^="album_"]').on('click', function () {
-                    var albumId = $(this).attr('id').replace('album_', '');
-                    window.location.href='/albums/' + albumId;
-                });
-            }
         }
     </script>
 </body>

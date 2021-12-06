@@ -4,14 +4,121 @@ $(function () {
             $(this).height(1).height($(this).prop('scrollHeight') + 12);
         }
     });
+
+    viewController.btnInit();
+
+    search.init();
     wave.init();
     notification.init();
     dateConverter.formRelativeTime();
 });
 
-var notification = {
+const util = {
+    toBrTag: function (selector) {
+        let $selector = $(selector);
+        let val = $selector.val();
+        val = val.replace(/\n/gm, "<br>");
+        $selector.val(val);
+    },
+    toNewLine: function (selector) {
+        let $selector = $(selector);
+        let val = $selector.val();
+        val = val.replace(/<br>/gm, "\n");
+        $selector.val(val);
+    }
+}
+
+const viewController = {
+    btnInit: function () {
+        this._followBtnInit();
+    },
+    _followBtnInit: function () {
+        let _this = this;
+        $('body').on('click', '.btn-follow, #btn-follow', function () {
+            let $this = $(this);
+            $this.removeClass("btn-follow");
+            $this.addClass("btn-unfollow");
+            $this.text("언 팔로우");
+
+            let targetId = $this.attr('data-index');
+            _this._follow(targetId, function(){
+                if ($this.hasClass('btn-profile')) {
+                    let followerCnt = parseInt($('#follower').text())
+                    if (!isNaN(followerCnt)) {
+                        $('#follower').text(followerCnt + 1);
+                    }
+                }
+            });
+        });
+        $('body').on('click', '.btn-unfollow', function () {
+            let $this = $(this);
+            $this.removeClass("btn-unfollow");
+            $this.addClass("btn-follow");
+            $this.text("팔로우");
+
+            let targetId = $this.attr('data-index');
+            _this._unfollow(targetId, function () {
+                if ($this.hasClass('btn-profile')) {
+                    let followerCnt = parseInt($('#follower').text())
+                    if (!isNaN(followerCnt)) {
+                        $('#follower').text(followerCnt - 1);
+                    }
+                }
+            });
+        });
+    },
+    _follow: function (targetId, callback) {
+        let _callback = callback;
+
+        $.ajax({
+            url: "/api/v1/accounts/" + targetId + "/follow",
+            method: 'post',
+        }).done(function (data) {
+            if (data) {
+                _callback();
+            }
+        }).fail(function () {
+            alert("팔로우를 실패하였습니다.");
+        });
+    },
+    _unfollow: function (targetId, callback) {
+        let _callback = callback;
+
+        $.ajax({
+            url: "/api/v1/accounts/" + targetId + "/unfollow",
+            method: 'post',
+        }).done(function (data) {
+            if (data) {
+                _callback();
+            }
+        }).fail(function () {
+            alert("언팔로우를 실패하였습니다.");
+        });
+    },
+}
+
+const search = {
     init: function () {
-        var _this = this;
+        $('#search-input').on('keydown', function (event) {
+            if (event.key === "Enter") {
+                const type = $(this).attr("search-type");
+                const q = $(this).val();
+
+                window.location.href = "/search?q=" + encodeURIComponent(q) + "&type=" + encodeURIComponent(type);
+            }
+        });
+        $('#search-box .dropdown-item').on('click', function () {
+            const selectType = $(this).attr('value');
+            const selectTypeName = $(this).text() + ' 검색';
+            $('#search-input').attr('placeholder', selectTypeName);
+            $('#search-input').attr('search-type', selectType);
+        });
+    }
+}
+const notification = {
+    init: function () {
+        const _this = this;
+
         $('.notification, #notification-list').on('click', '.notification-item', function () {
             const notificationId = $(this).find('.notification-link')[0].getAttribute("data-index");
             const link = $(this).find('.notification-link')[0].getAttribute('link');
@@ -19,19 +126,18 @@ var notification = {
         });
     },
     checkNotification: function(notificationId, link) {
-        const _this = this;
-
         $.ajax({
             url: "/api/v1/notifications/" + notificationId,
-            method: 'put'
+            type: 'PUT'
         }).done(function(){
             window.location.href = link;
         }).fail(function(error){
-            alert(error);
+            console.log(error);
+            alert(error.responseJSON.errorMessage);
         });
     }
 }
-var dateConverter = {
+const dateConverter = {
     formRelativeTime: function (bound) {
         moment.locale('ko');
         if (bound == null) {
@@ -45,7 +151,7 @@ var dateConverter = {
         }
     }
 }
-var wave = {
+const wave = {
     init: function () {
         $("body").prepend("<canvas style='position:absolute;'></canvas>");
 

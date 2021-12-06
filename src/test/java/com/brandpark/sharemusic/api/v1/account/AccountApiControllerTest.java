@@ -1,348 +1,1127 @@
 package com.brandpark.sharemusic.api.v1.account;
 
-import com.brandpark.sharemusic.api.v1.account.dto.FollowerInfoDto;
-import com.brandpark.sharemusic.api.v1.account.dto.FollowingInfoDto;
+import com.brandpark.sharemusic.api.page.PageResult;
+import com.brandpark.sharemusic.api.v1.account.dto.AccountInfoResponse;
+import com.brandpark.sharemusic.api.v1.account.dto.CreateAccountRequest;
+import com.brandpark.sharemusic.api.v1.account.dto.UpdateAccountRequest;
+import com.brandpark.sharemusic.api.v1.account.dto.UpdatePasswordRequest;
+import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
-import com.brandpark.sharemusic.api.v2.dto.PagingDto;
 import com.brandpark.sharemusic.infra.MockMvcTest;
-import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.follow.domain.Follow;
-import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
+import com.brandpark.sharemusic.infra.config.auth.Role;
+import com.brandpark.sharemusic.testUtils.AccountFactory;
+import com.brandpark.sharemusic.testUtils.AssertUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
+import javax.persistence.EntityManager;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @MockMvcTest
 class AccountApiControllerTest {
 
     @Autowired MockMvc mockMvc;
-    @Autowired AccountRepository accountRepository;
-    @Autowired FollowRepository followRepository;
     @Autowired AccountFactory accountFactory;
     @Autowired ObjectMapper objectMapper;
+    @Autowired EntityManager entityManager;
+    @Autowired AccountRepository accountRepository;
+    @Autowired PasswordEncoder passwordEncoder;
     Account otherAccount;
     Account myAccount;
+    Account verifiedMyAccount;
 
     @BeforeEach
     public void setUp() {
-        myAccount = accountFactory.createAccount("내 계정");
-        otherAccount = accountFactory.createAccount("다른 사람 계정");
-        accountRepository.saveAll(List.of(myAccount, otherAccount));
+        myAccount = accountFactory.persistAccount("myAccount");
+        verifiedMyAccount = accountFactory.persistAccount("verifiedMyAccount", Role.USER);
+        otherAccount = accountFactory.persistAccount("otherAccount");
     }
 
-    @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    @DisplayName("팔로우 - 실패(url의 targetId가 잘못된 경우)")
+    @DisplayName("모든 계정 페이징 조회 - 성공(꽉찬 첫번째 페이지 조회)")
     @Test
-    public void Follow_Fail_When_WrongTargetId() throws Exception {
+    public void findAllAccountByPage_Success_When_FirstPage() throws Exception {
 
         // given
-        // when, then
-        Long wrongId = 999999L;
-        String url = "/api/v1/accounts/" + wrongId + "/follow";
-        mockMvc.perform(post(url)
-                        .with(csrf()))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> {
+        accountFactory.persistAccountList("otherAccounts", 10);
 
-                    String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-                    ExceptionResult exceptionResult = objectMapper.readValue(json, ExceptionResult.class);
+        int pageNum = 0;
+        int pageSize = 10;
+        int totalElementCount = 13;
 
-                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.NOT_FOUND_ACCOUNT_EXCEPTION.getCode());
+        int expectedFindResultCount = 10;
+
+        String url = "/api/v1/accounts";
+
+        // when
+        mockMvc.perform(get(url)
+                        .param("page", String.valueOf(pageNum))
+                        .param("size", String.valueOf(pageSize)))
+                .andExpect(status().isOk())
+                .andExpect(rs -> {
+                    String resultJson = rs.getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+                    PageResult<AccountInfoResponse> resultPage = objectMapper.readValue(resultJson, new TypeReference<>() {
+                    });
+
+                    // then
+                    AssertUtil.assertPageResult(pageNum, pageSize, totalElementCount, resultPage);
+
+                    List<AccountInfoResponse> result = resultPage.getContent();
+
+                    assertThat(result.size()).isEqualTo(expectedFindResultCount);
+
+                    assertAccountInfoResponse(result.get(0));
                 });
     }
 
-    @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    @DisplayName("팔로우 - 실패(이미 팔로우 중인 경우)")
+    @DisplayName("모든 계정 페이징 조회 - 성공(덜찬 마지막 페이지 조회)")
     @Test
-    public void Follow_Fail_When_AlreadyFollowing() throws Exception {
+    public void findAllAccountByPage_Success_When_LastPage() throws Exception {
 
         // given
-        Follow follow = followRepository.save(Follow.builder()
-                .follower(myAccount)
-                .target(otherAccount)
-                .build());
+        accountFactory.persistAccountList("otherAccounts", 10);
 
-        assertThat(followRepository.isFollowing(myAccount.getId(), otherAccount.getId()));
+        int pageNum = 1;
+        int pageSize = 10;
+        int totalElementCount = 13;
 
-        // when, then
-        String url = "/api/v1/accounts/" + otherAccount.getId() + "/follow";
-        mockMvc.perform(post(url)
-                        .with(csrf()))
-                .andExpect(status().isBadRequest())
+        int expectedFindResultCount = 3;
+
+        String url = "/api/v1/accounts";
+
+        // when
+        mockMvc.perform(get(url)
+                        .param("page", String.valueOf(pageNum))
+                        .param("size", String.valueOf(pageSize)))
+                .andExpect(status().isOk())
+                .andExpect(rs -> {
+
+                    String resultJson = rs.getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+                    PageResult<AccountInfoResponse> resultPage = objectMapper.readValue(resultJson, new TypeReference<>() {
+                    });
+
+                    // then
+                    AssertUtil.assertPageResult(pageNum, pageSize, totalElementCount, resultPage);
+
+                    List<AccountInfoResponse> result = resultPage.getContent();
+
+                    assertThat(result.size()).isEqualTo(expectedFindResultCount);
+
+                    AccountInfoResponse resultOne = result.get(0);
+                    assertAccountInfoResponse(resultOne);
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 수정 - 실패(다른 사람 계정 수정 시도)")
+    @Test
+    public void UpdateAccount_Fail_When_NotMyAccount() throws Exception {
+
+        // given
+        String url = "/api/v1/accounts/" + otherAccount.getId();
+
+        UpdateAccountRequest reqData = new UpdateAccountRequest();
+        reqData.setName("수정이름");
+        reqData.setBio("수정 소개");
+        reqData.setNickname("수정닉네임");
+        reqData.setProfileImage("수정 이미지");
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isForbidden())
                 .andExpect(result -> {
 
-                    String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-                    ExceptionResult exceptionResult = objectMapper.readValue(json, ExceptionResult.class);
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
 
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.FORBIDDEN_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 수정 - 실패(Name 이 비어있는 경우)")
+    @Test
+    public void UpdateAccount_Fail_When_EmptyName() throws Exception {
+
+        // given
+        String url = "/api/v1/accounts/" + myAccount.getId();
+
+        UpdateAccountRequest reqData = new UpdateAccountRequest();
+        reqData.setName("");
+        reqData.setBio("수정 소개");
+        reqData.setNickname("수정 닉네임");
+        reqData.setProfileImage("수정 이미지");
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 수정 - 실패(Name 에 공백이 있는 경우)")
+    @Test
+    public void UpdateAccount_Fail_When_WhiteSpaceInName() throws Exception {
+
+        // given
+        String url = "/api/v1/accounts/" + myAccount.getId();
+
+        UpdateAccountRequest reqData = new UpdateAccountRequest();
+        reqData.setName("공 백");
+        reqData.setBio("수정 소개");
+        reqData.setNickname("수정닉네임");
+        reqData.setProfileImage("수정 이미지");
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 수정 - 실패(Nickname 에 특수문자가 있는 경우)")
+    @Test
+    public void UpdateAccount_Fail_When_NameContainsSpecialCharacter() throws Exception {
+
+        // given
+        String url = "/api/v1/accounts/" + myAccount.getId();
+
+        UpdateAccountRequest reqData = new UpdateAccountRequest();
+        reqData.setName("수정이름!");
+        reqData.setBio("수정 소개");
+        reqData.setNickname("수정닉네임");
+        reqData.setProfileImage("수정 이미지");
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 수정 - 실패(Nickname 이 비어있는 경우)")
+    @Test
+    public void UpdateAccount_Fail_When_EmptyNickname() throws Exception {
+
+        // given
+        String url = "/api/v1/accounts/" + myAccount.getId();
+
+        UpdateAccountRequest reqData = new UpdateAccountRequest();
+        reqData.setName("수정이름");
+        reqData.setBio("수정 소개");
+        reqData.setNickname("");
+        reqData.setProfileImage("수정 이미지");
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 수정 - 실패(Nickname 에 공백이 있는 경우)")
+    @Test
+    public void UpdateAccount_Fail_When_WhiteSpaceInNickname() throws Exception {
+
+        // given
+        String url = "/api/v1/accounts/" + myAccount.getId();
+
+        UpdateAccountRequest reqData = new UpdateAccountRequest();
+        reqData.setName("수정이름");
+        reqData.setBio("수정 소개");
+        reqData.setNickname("공 백");
+        reqData.setProfileImage("수정 이미지");
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 수정 - 실패(Nickname 에 특수문자가 있는 경우)")
+    @Test
+    public void UpdateAccount_Fail_When_NicknameContainsSpecialCharacter() throws Exception {
+
+        // given
+        String url = "/api/v1/accounts/" + myAccount.getId();
+
+        UpdateAccountRequest reqData = new UpdateAccountRequest();
+        reqData.setName("수정이름");
+        reqData.setBio("수정 소개");
+        reqData.setNickname("수정닉네임!");
+        reqData.setProfileImage("수정 이미지");
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 수정 - 실패(이미 존재하는 닉네임인 경우)")
+    @Test
+    public void UpdateAccount_Fail_When_DuplicateNickname() throws Exception {
+
+        // given
+        String url = "/api/v1/accounts/" + myAccount.getId();
+
+        UpdateAccountRequest reqData = new UpdateAccountRequest();
+        reqData.setName("수정이름");
+        reqData.setBio("수정 소개");
+        reqData.setNickname(otherAccount.getNickname());
+        reqData.setProfileImage("수정 이미지");
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.DUPLICATE_FIELD_EXCEPTION.getCode());
+                });
+    }
+
+    @DisplayName("계정 수정 - 실패(로그인하지 않은 경우)")
+    @Test
+    public void UpdateAccount_Fail_When_UnAuthenticated() throws Exception {
+
+        // given
+        String url = "/api/v1/accounts/" + myAccount.getId();
+
+        UpdateAccountRequest reqData = new UpdateAccountRequest();
+        reqData.setName("수정이름");
+        reqData.setBio("수정 소개");
+        reqData.setNickname(otherAccount.getNickname());
+        reqData.setProfileImage("수정 이미지");
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 수정 - 성공")
+    @Test
+    public void UpdateAccount_Success() throws Exception {
+
+        // given
+        String url = "/api/v1/accounts/" + myAccount.getId();
+
+        UpdateAccountRequest reqData = new UpdateAccountRequest();
+        reqData.setName("수정이름");
+        reqData.setBio("수정 소개");
+        reqData.setNickname("수정닉네임");
+        reqData.setProfileImage("수정 이미지");
+
+        // when
+        mockMvc.perform(put(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isOk());
+
+        // then
+        Account updatedAccount = findAccountById(myAccount.getId());
+
+        assertThat(updatedAccount.getNickname()).isEqualTo(reqData.getNickname());
+        assertThat(updatedAccount.getBio()).isEqualTo(reqData.getBio());
+        assertThat(updatedAccount.getName()).isEqualTo(reqData.getName());
+        assertThat(updatedAccount.getProfileImage()).isEqualTo(reqData.getProfileImage());
+    }
+
+    @DisplayName("계정 생성 - 실패(Name 이 비어있는 경우)")
+    @Test
+    public void CreateAccount_Fail_When_EmptyName() throws Exception {
+
+        // given
+        CreateAccountRequest reqData = new CreateAccountRequest();
+        reqData.setEmail("newAccount@email.com");
+        reqData.setName("");
+        reqData.setNickname("newAccountNickname");
+        reqData.setPassword("password");
+        reqData.setConfirmPassword("password");
+
+        String url = "/api/v1/accounts";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @DisplayName("계정 생성 - 실패(Name 에 공백이 있는 경우)")
+    @Test
+    public void CreateAccount_Fail_When_WhiteSpaceInName() throws Exception {
+
+        // given
+        CreateAccountRequest reqData = new CreateAccountRequest();
+        reqData.setEmail("newAccount@email.com");
+        reqData.setName("공 백");
+        reqData.setNickname("newAccountNickname");
+        reqData.setPassword("password");
+        reqData.setConfirmPassword("password");
+
+        String url = "/api/v1/accounts";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @DisplayName("계정 생성 - 실패(Name 에 특수문자가 포함된 경우)")
+    @Test
+    public void CreateAccount_Fail_When_NameContainsSpecialCharacter() throws Exception {
+
+        // given
+        CreateAccountRequest reqData = new CreateAccountRequest();
+        reqData.setEmail("newAccount@email.com");
+        reqData.setName("new-Account-Name");
+        reqData.setNickname("newAccountNickname");
+        reqData.setPassword("password");
+        reqData.setConfirmPassword("password123");
+
+        String url = "/api/v1/accounts";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @DisplayName("계정 생성 - 실패(Nickname 이 비어있는 경우)")
+    @Test
+    public void CreateAccount_Fail_When_EmptyNickname() throws Exception {
+
+        // given
+        CreateAccountRequest reqData = new CreateAccountRequest();
+        reqData.setEmail("newAccount@email.com");
+        reqData.setName("newAccountName");
+        reqData.setNickname("");
+        reqData.setPassword("password");
+        reqData.setConfirmPassword("password");
+
+        String url = "/api/v1/accounts";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @DisplayName("계정 생성 - 실패(Nickname 에 공백이 있는 경우)")
+    @Test
+    public void CreateAccount_Fail_When_WhiteSpaceInNickname() throws Exception {
+
+        // given
+        CreateAccountRequest reqData = new CreateAccountRequest();
+        reqData.setEmail("newAccount@email.com");
+        reqData.setName("newAccountName");
+        reqData.setNickname("공 백");
+        reqData.setPassword("password");
+        reqData.setConfirmPassword("password");
+
+        String url = "/api/v1/accounts";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @DisplayName("계정 생성 - 실패(Nickname 에 특수문자가 포함된 경우)")
+    @Test
+    public void CreateAccount_Fail_When_NickNameContainsSpecialCharacter() throws Exception {
+
+        // given
+        CreateAccountRequest reqData = new CreateAccountRequest();
+        reqData.setEmail("newAccount@email.com");
+        reqData.setName("newAccountName");
+        reqData.setNickname("new-Account-Nickname");
+        reqData.setPassword("password");
+        reqData.setConfirmPassword("password123");
+
+        String url = "/api/v1/accounts";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @DisplayName("계정 생성 - 실패(Nickname 이 이미 존재하는 경우)")
+    @Test
+    public void CreateAccount_Fail_When_DuplicateNickname() throws Exception {
+
+        // given
+        CreateAccountRequest reqData = new CreateAccountRequest();
+        reqData.setEmail("newAccount@email.com");
+        reqData.setName("newAccountName");
+        reqData.setNickname(otherAccount.getNickname());
+        reqData.setPassword("password");
+        reqData.setConfirmPassword("password");
+
+        String url = "/api/v1/accounts";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.DUPLICATE_FIELD_EXCEPTION.getCode());
+                });
+    }
+
+    @DisplayName("계정 생성 - 실패(이메일 형식이 잘못된 경우)")
+    @Test
+    public void CreateAccount_Fail_When_InvalidEmailForm() throws Exception {
+
+        // given
+        CreateAccountRequest reqData = new CreateAccountRequest();
+        reqData.setEmail("wrongEmail.naver.com");
+        reqData.setName("newAccountName");
+        reqData.setNickname("newAccountNickname");
+        reqData.setPassword("password");
+        reqData.setConfirmPassword("password");
+
+        String url = "/api/v1/accounts";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @DisplayName("계정 생성 - 실패(이미 사용중인 이메일인 경우)")
+    @Test
+    public void CreateAccount_Fail_When_AlreadyUsedEmail() throws Exception {
+
+        // given
+        CreateAccountRequest reqData = new CreateAccountRequest();
+        reqData.setEmail(otherAccount.getEmail());
+        reqData.setName("newAccountName");
+        reqData.setNickname("newAccountNickname");
+        reqData.setPassword("password");
+        reqData.setConfirmPassword("password");
+
+        String url = "/api/v1/accounts";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.DUPLICATE_FIELD_EXCEPTION.getCode());
+                });
+    }
+
+    @DisplayName("계정 생성 - 실패(비밀번호를 다르게 입력할 경우)")
+    @Test
+    public void CreateAccount_Fail_When_UnMatchPassword() throws Exception {
+
+        // given
+        CreateAccountRequest reqData = new CreateAccountRequest();
+        reqData.setEmail("newAccount@email.com");
+        reqData.setName("newAccountName");
+        reqData.setNickname("newAccountNickname");
+        reqData.setPassword("password");
+        reqData.setConfirmPassword("password123");
+
+        String url = "/api/v1/accounts";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @DisplayName("계정 생성 - 성공")
+    @Test
+    public void CreateAccount_Success() throws Exception {
+
+        // given
+        CreateAccountRequest reqData = new CreateAccountRequest();
+        reqData.setEmail("newAccount@email.com");
+        reqData.setName("newAccountName");
+        reqData.setNickname("newAccountNickname");
+        reqData.setPassword("password");
+        reqData.setConfirmPassword("password");
+
+        String url = "/api/v1/accounts";
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isOk());
+
+        // then
+        Account newAccount = findAccountByNickname(reqData.getNickname());
+        assertThat(newAccount.getId()).isNotNull();
+        assertThat(newAccount.getEmail()).isEqualTo(reqData.getEmail());
+        assertThat(newAccount.getName()).isEqualTo(reqData.getName());
+        assertThat(newAccount.getNickname()).isEqualTo(reqData.getNickname());
+        assertThat(passwordEncoder.matches(reqData.getPassword(), newAccount.getPassword())).isTrue();
+
+        assertThat(newAccount.getRole()).isEqualTo(Role.GUEST);
+        assertThat(newAccount.getEmailCheckToken()).isNotNull();
+        assertThat(newAccount.getEmailCheckTokenGeneratedAt()).isNotNull();
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("비밀번호 변경 - 실패(다른 사람 계정 변경 시도)")
+    @Test
+    public void UpdatePassword_Fail_When_NotMyAccount() throws Exception {
+
+        // given
+        final String originPassword = accountFactory.getPassword();
+        final String updatePassword = "123123123";
+
+        UpdatePasswordRequest reqData = new UpdatePasswordRequest();
+        reqData.setOriginPassword(originPassword);
+        reqData.setUpdatePassword(updatePassword);
+        reqData.setConfirmPassword(updatePassword);
+
+        String url = "/api/v1/accounts/" + otherAccount.getId() + "/password";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isForbidden())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.FORBIDDEN_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("비밀번호 변경 - 실패(현재 비밀번호가 일치하지 않는 경우)")
+    @Test
+    public void UpdatePassword_Fail_When_IncorrectCurrentPassword() throws Exception {
+
+        // given
+        final String wrongOriginPassword = "111111111";
+        final String updatePassword = "123123123";
+
+        assertThat(isSamePassword(wrongOriginPassword, myAccount.getPassword())).isFalse();
+
+        UpdatePasswordRequest reqData = new UpdatePasswordRequest();
+        reqData.setOriginPassword(wrongOriginPassword);
+        reqData.setUpdatePassword(updatePassword);
+        reqData.setConfirmPassword(updatePassword);
+
+        String url = "/api/v1/accounts/" + myAccount.getId() + "/password";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("비밀번호 변경 - 실패(현재 비밀번호를 입력하지 않은 경우)")
+    @Test
+    public void UpdatePassword_Fail_When_EmptyCurrentPassword() throws Exception {
+
+        // given
+        final String updatePassword = "123123123";
+
+        UpdatePasswordRequest reqData = new UpdatePasswordRequest();
+        reqData.setOriginPassword("");
+        reqData.setUpdatePassword(updatePassword);
+        reqData.setConfirmPassword(updatePassword);
+
+        String url = "/api/v1/accounts/" + myAccount.getId() + "/password";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("비밀번호 변경 - 실패(변경할 비밀번호를 입력하지 않은 경우)")
+    @Test
+    public void UpdatePassword_Fail_When_EmptyUpdatePassword() throws Exception {
+
+        // given
+        final String originPassword = accountFactory.getPassword();
+
+        UpdatePasswordRequest reqData = new UpdatePasswordRequest();
+        reqData.setOriginPassword(originPassword);
+        reqData.setUpdatePassword("");
+        reqData.setConfirmPassword("");
+
+        String url = "/api/v1/accounts/" + myAccount.getId() + "/password";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(MethodArgumentNotValidException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("비밀번호 변경 - 실패(비밀번호 확인 입력이 일치하지 않는 경우)")
+    @Test
+    public void UpdatePassword_Fail_When_UnMatchConfirmPassword() throws Exception {
+
+        // given
+        final String originPassword = accountFactory.getPassword();
+
+        UpdatePasswordRequest reqData = new UpdatePasswordRequest();
+        reqData.setOriginPassword(originPassword);
+        reqData.setUpdatePassword("123123123");
+        reqData.setConfirmPassword("111111111");
+
+        String url = "/api/v1/accounts/" + myAccount.getId() + "/password";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("비밀번호 변경 - 실패(변경할 비밀번호가 현재 비밀번호와 같은 경우)")
+    @Test
+    public void UpdatePassword_Fail_When_OriginEqualUpdate() throws Exception {
+
+        // given
+        final String originPassword = accountFactory.getPassword();
+
+        UpdatePasswordRequest reqData = new UpdatePasswordRequest();
+        reqData.setOriginPassword(originPassword);
+        reqData.setUpdatePassword(originPassword);
+        reqData.setConfirmPassword(originPassword);
+
+        String url = "/api/v1/accounts/" + myAccount.getId() + "/password";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @DisplayName("비밀번호 변경 - 실패(로그인 하지 않은 경우)")
+    @Test
+    public void UpdatePassword_Fail_When_UnAuthenticated() throws Exception {
+
+        // given
+        final String originPassword = accountFactory.getPassword();
+        final String updatePassword = "123123123";
+
+        UpdatePasswordRequest reqData = new UpdatePasswordRequest();
+        reqData.setOriginPassword(originPassword);
+        reqData.setUpdatePassword(updatePassword);
+        reqData.setConfirmPassword(updatePassword);
+
+        String url = "/api/v1/accounts/" + myAccount.getId() + "/password";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("비밀번호 변경 - 성공")
+    @Test
+    public void UpdatePassword_Success() throws Exception {
+
+        // given
+        final String originPassword = accountFactory.getPassword();
+        final String updatePassword = "123123123";
+
+        assertThat(isSamePassword(originPassword, myAccount.getPassword())).isTrue();
+
+        UpdatePasswordRequest reqData = new UpdatePasswordRequest();
+        reqData.setOriginPassword(originPassword);
+        reqData.setUpdatePassword(updatePassword);
+        reqData.setConfirmPassword(updatePassword);
+
+        String url = "/api/v1/accounts/" + myAccount.getId() + "/password";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .characterEncoding(StandardCharsets.UTF_8.name())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reqData)))
+                .andExpect(status().isOk());
+
+        // then
+        Account updatedAccount = findAccountById(myAccount.getId());
+        assertThat(isSamePassword(updatePassword, updatedAccount.getPassword())).isTrue();
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 이메일 인증 - 실패(토큰이 일치하지 않는 경우)")
+    @Test
+    public void VerifyEmail_Fail_When_UnMatchEmailToken() throws Exception {
+
+        // given
+        String reqData = "wrongEmailCheckToken";
+
+        String url = "/api/v1/accounts/" + myAccount.getId() + "/verify";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .param("emailCheckToken", reqData))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ARGUMENT_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 이메일 인증 - 실패(다른 사람의 계정 인증 시도)")
+    @Test
+    public void VerifyEmail_Fail_When_NotMyAccount() throws Exception {
+
+        // given
+        String reqData = otherAccount.getEmailCheckToken();
+
+        String url = "/api/v1/accounts/" + otherAccount.getId() + "/verify";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .param("emailCheckToken", reqData))
+                .andExpect(status().isForbidden())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
+                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.FORBIDDEN_EXCEPTION.getCode());
+                });
+    }
+
+    @WithUserDetails(value = "verifiedMyAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 이메일 인증 - 실패(이미 인증된 이메일 계정)")
+    @Test
+    public void VerifyEmail_Fail_When_AlreadyVerifiedEmail() throws Exception {
+
+        // given
+        String reqData = verifiedMyAccount.getEmailCheckToken();
+
+        String url = "/api/v1/accounts/" + verifiedMyAccount.getId() + "/verify";
+
+        // when
+        mockMvc.perform(post(url)
+                        .with(csrf())
+                        .param("emailCheckToken", reqData))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertThat(result.getResolvedException()).isInstanceOf(ApiException.class);
+
+                    ExceptionResult exceptionResult = getExceptionResult(result);
                     assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ACCESS_EXCEPTION.getCode());
                 });
     }
 
-    @DisplayName("팔로우 - 실패(로그인하지 않은 상태)")
+    @DisplayName("계정 이메일 인증 - 실패(로그인하지 않은 경우)")
     @Test
-    public void Follow_Fail_When_Unauthenticated() throws Exception {
+    public void VerifyEmail_Fail_When_UnAuthenticated() throws Exception {
 
         // given
-        // when, then
-        String url = "/api/v1/accounts/" + otherAccount.getId() + "/follow";
+        String reqData = verifiedMyAccount.getEmailCheckToken();
+
+        String url = "/api/v1/accounts/" + verifiedMyAccount.getId() + "/verify";
+
+        // when
         mockMvc.perform(post(url)
-                        .with(csrf()))
+                        .with(csrf())
+                        .param("emailCheckToken", reqData))
                 .andExpect(status().isUnauthorized());
     }
 
-    @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    @DisplayName("팔로우 - 성공")
+    @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @DisplayName("계정 이메일 인증 - 성공")
     @Test
-    public void Follow_Success() throws Exception {
+    public void VerifyEmail_Success() throws Exception {
 
         // given
-        // when, then
-        String url = "/api/v1/accounts/" + otherAccount.getId() + "/follow";
+        assertThat(myAccount.getRole()).isEqualTo(Role.GUEST);
+
+        String reqData = myAccount.getEmailCheckToken();
+
+        String url = "/api/v1/accounts/" + myAccount.getId() + "/verify";
+
+        // when
         mockMvc.perform(post(url)
-                        .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(result -> {
-                    String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-                    Long savedFollowId = objectMapper.readValue(json, Long.class);
+                        .with(csrf())
+                        .param("emailCheckToken", reqData))
+                .andExpect(status().isOk());
 
-                    assertThat(savedFollowId).isNotNull();
-
-                    boolean isFollowing = followRepository.isFollowing(myAccount.getId(), otherAccount.getId());
-                    assertThat(isFollowing).isTrue();
-                });
+        // then
+        assertThat(myAccount.getRole()).isEqualTo(Role.USER);
     }
 
-    @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    @DisplayName("언 팔로우 - 실패(url의 targetId가 잘못된 경우")
-    @Test
-    public void UnFollow_Fail_When_WrongTargetId() throws Exception {
-
-        // given
-        Follow follow = followRepository.save(Follow.builder()
-                .follower(myAccount)
-                .target(otherAccount)
-                .build());
-
-        boolean isFollowing = followRepository.isFollowing(myAccount.getId(), otherAccount.getId());
-        assertThat(isFollowing).isTrue();
-
-        // when, then
-        Long wrongId = 999999L;
-        String url = "/api/v1/accounts/" + wrongId + "/unfollow";
-        mockMvc.perform(post(url)
-                        .with(csrf()))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> {
-
-                    String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-                    ExceptionResult exceptionResult = objectMapper.readValue(json, ExceptionResult.class);
-
-                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.NOT_FOUND_ACCOUNT_EXCEPTION.getCode());
-                });
+    private ExceptionResult getExceptionResult(MvcResult result) throws JsonProcessingException, UnsupportedEncodingException {
+        return objectMapper.readValue(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ExceptionResult.class);
     }
 
-    @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    @DisplayName("언 팔로우 - 실패(이미 언팔로우 상태)")
-    @Test
-    public void UnFollow_Fail_When_AlreadyUnfollow() throws Exception {
-
-        // given
-        boolean isFollowing = followRepository.isFollowing(myAccount.getId(), otherAccount.getId());
-        assertThat(isFollowing).isFalse();
-
-        // when, then
-        String url = "/api/v1/accounts/" + otherAccount.getId() + "/unfollow";
-        mockMvc.perform(post(url)
-                        .with(csrf()))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> {
-
-                    String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-                    ExceptionResult exceptionResult = objectMapper.readValue(json, ExceptionResult.class);
-
-                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.ILLEGAL_ACCESS_EXCEPTION.getCode());
-                });
+    private void assertAccountInfoResponse(AccountInfoResponse resultOne) {
+        assertThat(resultOne.getAccountId()).isNotNull();
+        assertThat(resultOne.getCreatedDate()).isNotNull();
+        assertThat(resultOne.getEmail()).containsIgnoringCase("account");
+        assertThat(resultOne.getBio()).containsIgnoringCase("account");
+        assertThat(resultOne.getName()).containsIgnoringCase("account");
+        assertThat(resultOne.getNickname()).containsIgnoringCase("account");
+        assertThat(resultOne.getProfileImage()).containsIgnoringCase("image");
+        assertThat(resultOne.getRole()).isNotNull();
+        assertThat(resultOne.getEmailVerified()).isNotNull();
     }
 
-    @DisplayName("언 팔로우 - 실패(로그인하지 않은 상태)")
-    @Test
-    public void UnFollow_Fail_When_Unauthenticated() throws Exception {
-
-        // given
-        // when, then
-        String url = "/api/v1/accounts/" + otherAccount.getId() + "/unfollow";
-        mockMvc.perform(post(url)
-                        .with(csrf()))
-                .andExpect(status().isUnauthorized());
+    private boolean isSamePassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
-    @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    @DisplayName("언 팔로우 - 성공")
-    @Test
-    public void UnFollow_Success() throws Exception {
+    private Account findAccountById(Long accountId) {
+        entityManager.flush();
+        entityManager.clear();
 
-        // given
-        Follow follow = followRepository.save(Follow.builder()
-                .follower(myAccount)
-                .target(otherAccount)
-                .build());
-
-        boolean isFollowing = followRepository.isFollowing(myAccount.getId(), otherAccount.getId());
-        assertThat(isFollowing).isTrue();
-
-        // when, then
-        String url = "/api/v1/accounts/" + otherAccount.getId() + "/unfollow";
-        mockMvc.perform(post(url)
-                        .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(result -> {
-
-                    String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-                    Long removedFollowId = objectMapper.readValue(json, Long.class);
-
-                    assertThat(removedFollowId).isNotNull();
-                    assertThat(followRepository.findById(removedFollowId)).isEmpty();
-                });
-
-        isFollowing = followRepository.isFollowing(myAccount.getId(), otherAccount.getId());
-        assertThat(isFollowing).isFalse();
+        return accountRepository.findById(accountId).get();
     }
 
-    @DisplayName("팔로워 리스트 페이징 조회 - 실패(잘못된 targetId)")
-    @Test
-    public void SearchFollowersByPaging_Fail_When_WrongTargetId() throws Exception {
+    private Account findAccountByNickname(String nickname) {
+        entityManager.flush();
+        entityManager.clear();
 
-        // given
-        Follow follow = followRepository.save(Follow.builder()
-                .follower(otherAccount)
-                .target(myAccount)
-                .build());
-
-        boolean isFollowing = followRepository.isFollowing(otherAccount.getId(), myAccount.getId());
-        assertThat(isFollowing).isTrue();
-
-        // when, then
-        Long wrongTargetId = 9999999999L;
-        String url = "/api/v1/accounts/" + wrongTargetId + "/followers";
-        mockMvc.perform(get(url)
-                        .param("page", "0"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> {
-
-                    String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-                    ExceptionResult exceptionResult = objectMapper.readValue(json, ExceptionResult.class);
-
-                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.NOT_FOUND_ACCOUNT_EXCEPTION.getCode());
-                });
-    }
-
-    @DisplayName("팔로워 리스트 페이징 조회 - 성공")
-    @Test
-    public void SearchFollowersByPaging_Success() throws Exception {
-
-        // given
-        Follow follow = followRepository.save(Follow.builder()
-                .follower(otherAccount)
-                .target(myAccount)
-                .build());
-
-        boolean isFollowing = followRepository.isFollowing(otherAccount.getId(), myAccount.getId());
-        assertThat(isFollowing).isTrue();
-
-        // when, then
-        String url = "/api/v1/accounts/" + myAccount.getId() + "/followers";
-        mockMvc.perform(get(url)
-                        .param("page", "0"))
-                .andExpect(status().isOk())
-                .andExpect(result -> {
-
-                    String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-                    PagingDto<FollowerInfoDto> resultPage = objectMapper.readValue(json, new TypeReference<PagingDto<FollowerInfoDto>>() {});
-
-                    assertThat(resultPage.getPageSize()).isEqualTo(6);
-                    assertThat(resultPage.getNumberOfElements()).isEqualTo(1);
-
-                    List<FollowerInfoDto> followers = resultPage.getContents();
-                    assertThat(followers.size()).isEqualTo(1);
-                    assertThat(followers.get(0).getNickname()).isEqualTo(otherAccount.getNickname());
-                });
-    }
-
-    @DisplayName("팔로잉 리스트 페이징 조회 - 실패(잘못된 targetId)")
-    @Test
-    public void SearchFollowingsByPaging_Fail_When_WrongTargetId() throws Exception {
-
-        // given
-        Follow follow = followRepository.save(Follow.builder()
-                .follower(myAccount)
-                .target(otherAccount)
-                .build());
-
-        boolean isFollowing = followRepository.isFollowing(myAccount.getId(), otherAccount.getId());
-        assertThat(isFollowing).isTrue();
-
-        // when, then
-        Long wrongTargetId = 9999999999L;
-        String url = "/api/v1/accounts/" + wrongTargetId + "/followings";
-        mockMvc.perform(get(url)
-                        .param("page", "0"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> {
-
-                    String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-                    ExceptionResult exceptionResult = objectMapper.readValue(json, ExceptionResult.class);
-
-                    assertThat(exceptionResult.getErrorCode()).isEqualTo(Error.NOT_FOUND_ACCOUNT_EXCEPTION.getCode());
-                });
-    }
-
-    @DisplayName("팔로잉 리스트 페이징 조회 - 성공")
-    @Test
-    public void SearchFollowingsByPaging_Success() throws Exception {
-
-        // given
-        Follow follow = followRepository.save(Follow.builder()
-                .follower(myAccount)
-                .target(otherAccount)
-                .build());
-
-        boolean isFollowing = followRepository.isFollowing(myAccount.getId(), otherAccount.getId());
-        assertThat(isFollowing).isTrue();
-
-        // when, then
-        String url = "/api/v1/accounts/" + myAccount.getId() + "/followings";
-        mockMvc.perform(get(url)
-                        .param("page", "0"))
-                .andExpect(status().isOk())
-                .andExpect(result -> {
-
-                    String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-                    PagingDto<FollowingInfoDto> resultPage = objectMapper.readValue(json, new TypeReference<PagingDto<FollowingInfoDto>>() {});
-
-                    assertThat(resultPage.getPageSize()).isEqualTo(6);
-                    assertThat(resultPage.getNumberOfElements()).isEqualTo(1);
-
-                    List<FollowingInfoDto> followings = resultPage.getContents();
-                    assertThat(followings.size()).isEqualTo(1);
-                    assertThat(followings.get(0).getNickname()).isEqualTo(otherAccount.getNickname());
-                });
+        return accountRepository.findByNickname(nickname);
     }
 }

@@ -1,6 +1,7 @@
 .idea/
 **/generated/
 **/static/images/
+spy.log
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,java-web,gradle
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,java-web,gradle
 

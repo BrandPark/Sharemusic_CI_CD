@@ -1,0 +1,15 @@
+<div id="contents" class="container" style="margin-top:10px">
+    <div class="row pb-3">
+        <h3 style="z-index: 2">
+            앨범 이름 '<span id="search-word" th:text="${searchWord}">검색 단어</span>' 검색 결과
+            <span style="font-size: 1.2em" class="text-success" th:text="${resultCount}"></span> 개
+        </h3>
+    </div>
+    <div class="row">
+        <div th:replace="fragments.html::albumCardList(${searchResultList})"></div>
+    </div>
+</div>
+
+<script th:replace="fragments.html::mouseoverShow('.card-description-panel')"></script>
+<script th:replace="fragments.html::mark(${searchWord}, '#contents .card-title, #search-word')"></script>
+

@@ -1,7 +1,5 @@
 package com.brandpark.sharemusic.modules.event;
 
-import com.brandpark.sharemusic.api.v1.exception.ApiException;
-import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.album.domain.Album;
@@ -48,13 +46,13 @@ public class NotificationEventListener {
     public void handleCommentEvent(CommentEvent event) {
 
         Account writer = accountRepository.findById(event.getWriterId())
-                .orElseThrow(() -> new ApiException(Error.NOT_FOUND_ACCOUNT_EXCEPTION));
+                .orElseThrow(() -> new IllegalArgumentException("댓글 작성자의 계정이 존재하지 않습니다."));
 
         Account targetAccount = accountRepository.findByAlbumId(event.getCommentTargetAlbumId())
-                .orElseThrow(() -> new ApiException(Error.NOT_FOUND_ACCOUNT_EXCEPTION));
+                .orElseThrow(() -> new IllegalArgumentException("알림 대상의 계정이 존재하지 않습니다."));
 
         Album targetAlbum = albumRepository.findById(event.getCommentTargetAlbumId())
-                .orElseThrow(() -> new ApiException(Error.NOT_FOUND_ALBUM_EXCEPTION));
+                .orElseThrow(() -> new IllegalArgumentException("댓글이 작성된 앨범이 존재하지 않습니다."));
 
         String message = String.format("%s 님이 앨범 \"%s\"에 댓글을 남겼습니다."
                 , writer.getNickname()
@@ -74,10 +72,10 @@ public class NotificationEventListener {
     public void handleCreateAlbumEvent(CreateAlbumEvent event) {
 
         Account albumCreator = accountRepository.findById(event.getCreatorId())
-                .orElseThrow(() -> new ApiException(Error.NOT_FOUND_ACCOUNT_EXCEPTION));
+                .orElseThrow(() -> new IllegalArgumentException("앨범 작성자의 계정이 존재하지 않습니다."));
 
         Album createdAlbum = albumRepository.findById(event.getAlbumId())
-                .orElseThrow(() -> new ApiException(Error.NOT_FOUND_ALBUM_EXCEPTION));
+                .orElseThrow(() -> new IllegalArgumentException("작성된 앨범이 존재하지 않습니다."));
 
         List<Account> followers = accountRepository.findAllFollowersByFollowingTargetId(event.getCreatorId());
 

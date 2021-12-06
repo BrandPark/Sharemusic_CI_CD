@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.modules.notification;
 
 import com.brandpark.sharemusic.infra.config.auth.CustomUserDetails;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.notification.domain.NotificationRepository;
 import com.brandpark.sharemusic.modules.notification.form.NotificationForm;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class NotificationInterceptor implements HandlerInterceptor {
 
             SessionAccount account = ((CustomUserDetails) authentication.getPrincipal()).getSessionAccount();
 
-            List<NotificationForm> notifications = notificationRepository.findAllFirst10ByAccountIdOrderByCheckedAscCreatedDateDesc(account.getId())
+            List<NotificationForm> notifications = notificationRepository.findFirst10ByAccountIdOrderByCheckedAscCreatedDateDesc(account.getId())
                     .stream()
                     .map(no -> new NotificationForm(
                             no.getId()

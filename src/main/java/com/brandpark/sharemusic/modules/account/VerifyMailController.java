@@ -1,8 +1,8 @@
 package com.brandpark.sharemusic.modules.account;
 
-import com.brandpark.sharemusic.modules.Validator;
+import com.brandpark.sharemusic.modules.validator.FormValidator;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
-import com.brandpark.sharemusic.infra.config.dto.SessionAccount;
+import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.modules.account.form.VerificationEmailToken;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import com.brandpark.sharemusic.modules.account.service.VerifyMailService;
@@ -20,7 +20,7 @@ import javax.validation.Valid;
 @Controller
 public class VerifyMailController {
 
-    private final Validator formValidator;
+    private final FormValidator formValidator;
     private final VerifyMailService verifyMailService;
     private final AccountService accountService;
 

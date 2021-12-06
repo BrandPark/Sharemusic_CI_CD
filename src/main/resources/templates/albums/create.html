@@ -19,19 +19,16 @@
                         <h2>앨범 정보</h2>
                         <br>
                         <div class="form-group">
-                            <label class="col-form-label" for="album-title">앨범 이미지</label>
+                            <label class="col-form-label text-muted" for="album-title">앨범 이미지</label>
                             <input type="file" id="album-image" class="filepond filepond-input filepond-albumImage" name="filepond" accept="image/jpeg, image/png"/>
-                            <small id="imageHelp" class="form-text text-muted">앨범의 이미지를 선택해 주세요.</small>
                         </div>
                         <div class="form-group">
-                            <label class="col-form-label" for="album-title">앨범 제목</label>
+                            <label class="col-form-label text-muted" for="album-title">앨범 제목</label>
                             <input type="text" class="form-control" id="album-title" aria-describedby="titleHelp">
-                            <small id="titleHelp" class="form-text text-muted">앨범의 제목을 입력해 주세요.</small>
                         </div>
                         <div class="form-group">
-                            <label class="col-form-label" for="album-title">앨범 소개</label>
+                            <label class="col-form-label text-muted" for="album-title">앨범 소개</label>
                             <textarea name="description" id="album-description" class="form-control" rows="3" aria-describedby="descriptionHelp"></textarea>
-                            <small id="descriptionHelp" class="form-text text-muted">앨범을 소개해 주세요</small>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="tracks_info" role="tabpanel" aria-labelledby="list_track_info">
@@ -76,8 +73,13 @@
     <script>
         $(function(){
             $("#btn-add").on('click', function(){
-                $('tbody').closest
-                var rowTag =
+                let trCount = $('#tracks_table tbody').children('tr').length;
+                if (trCount >= 5) {
+                    alert("트랙은 5개가 최대입니다.");
+                    return;
+                }
+
+                let rowTag =
                     `<tr>
                         <td>
                             <input type="text" class="form-control">
@@ -97,7 +99,7 @@
 
             $('#btn-save').on('click', function () {
 
-                var tracks = [];
+                let tracks = [];
 
                 $('tbody > tr').each(function () {
                     tracks.push({
@@ -106,9 +108,9 @@
                     });
                 });
 
-                var data = {
+                let data = {
                     title: $('#album-title').val(),
-                    description: $('#album-description').val(),
+                    description: $('#album-description').val().replace(/\n/gm, "<br>"),
                     albumImage: document.querySelector('.filepond-input canvas')?.toDataURL(),
                     tracks: tracks
                 };
@@ -119,16 +121,21 @@
                     contentType: 'application/json;charset=utf-8',
                     dataType: 'json',
                     data: JSON.stringify(data)
-                }).done(function (data) {
+                }).done(function () {
                     alert("앨범을 생성하였습니다.");
                     window.location.href = "/";
                 }).fail(function (e) {
-                    alert("앨범 저장 실패" + e);
+                    alert(e.responseJSON.errorMessage);
                 });
 
             });
 
             $('tbody').on('click', '.btn-remove', function () {
+                let trCount = $('#tracks_table tbody').children('tr').length;
+                if (trCount <= 1) {
+                    alert("트랙은 최소 1개 이상입니다.");
+                    return;
+                }
                 $(this).closest('tr').remove();
             });
         })
