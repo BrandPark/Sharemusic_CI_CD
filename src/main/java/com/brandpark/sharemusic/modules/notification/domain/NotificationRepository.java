@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Transactional(readOnly = true)
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
+public interface NotificationRepository extends JpaRepository<Notification, Long>, ExtendNotificationRepository {
 
     List<Notification> findFirst10ByAccountIdOrderByCheckedAscCreatedDateDesc(Long accountId);
 
@@ -25,4 +25,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Notification n SET n.checked = true WHERE n.checked = false AND n.account.id = :accountId")
     int checkAllNotification(@Param("accountId") Long accountId);
+
+    @Override
+    int batchInsert(List<Notification> notifications);
 }

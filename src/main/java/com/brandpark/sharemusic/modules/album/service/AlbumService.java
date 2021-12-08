@@ -77,7 +77,7 @@ public class AlbumService {
 
         trackRepository.batchInsert(tracksGroupByStatus.get(INSERT), albumId);
         trackRepository.batchUpdate(tracksGroupByStatus.get(UPDATE));
-        trackRepository.batchRemove(tracksGroupByStatus.get(REMOVE));
+        trackRepository.batchDelete(tracksGroupByStatus.get(REMOVE));
 
         entityManager.clear();
     }

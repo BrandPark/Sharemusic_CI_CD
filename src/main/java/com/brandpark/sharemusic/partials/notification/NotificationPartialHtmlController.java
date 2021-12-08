@@ -2,7 +2,7 @@ package com.brandpark.sharemusic.partials.notification;
 
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.notification.NotificationService;
+import com.brandpark.sharemusic.modules.notification.service.NotificationService;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
 import com.brandpark.sharemusic.partials.PageHtmlResult;
 import com.brandpark.sharemusic.partials.PagingHtmlCreator;

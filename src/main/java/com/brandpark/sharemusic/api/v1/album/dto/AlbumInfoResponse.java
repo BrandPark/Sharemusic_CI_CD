@@ -11,7 +11,7 @@ public class AlbumInfoResponse {
     private String title;
     private String albumImage;
     private String description;
-    private int trackCount;
+    private Long trackCount;
     private List<TrackInfoResponse> tracks;
     private Long accountId;
     private LocalDateTime createdDate;

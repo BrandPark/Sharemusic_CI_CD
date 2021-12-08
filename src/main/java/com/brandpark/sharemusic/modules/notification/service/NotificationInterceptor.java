@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules.notification;
+package com.brandpark.sharemusic.modules.notification.service;
 
 import com.brandpark.sharemusic.infra.config.auth.CustomUserDetails;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;

@@ -33,7 +33,7 @@ class TrackRepositoryTest {
 
         // given
         Account account = accountFactory.persistAccount("account");
-        Long albumId = albumFactory.persistAlbumWithTracks("title", 1, account.getId()).getId();
+        Long albumId = albumFactory.persistAlbumWithTracks("title", 0, account.getId()).getId();
         int trackCount = 10;
 
         List<Track> tracks = new ArrayList<>();
@@ -106,7 +106,7 @@ class TrackRepositoryTest {
 
         // when
         System.out.println("===============시작================");
-        int removeCount = trackRepository.batchRemove(tracks);
+        int removeCount = trackRepository.batchDelete(tracks);
         System.out.println("===============끝================");
 
         // then

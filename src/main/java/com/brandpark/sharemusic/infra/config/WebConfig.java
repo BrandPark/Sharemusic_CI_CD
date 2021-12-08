@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.infra.config;
 
-import com.brandpark.sharemusic.modules.notification.NotificationInterceptor;
+import com.brandpark.sharemusic.modules.notification.service.NotificationInterceptor;
 import com.brandpark.sharemusic.modules.search.SearchInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.StaticResourceLocation;
