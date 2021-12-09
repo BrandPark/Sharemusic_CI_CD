@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html :: head"></head>
+
+<body class="background">
+<div th:replace="fragments.html::filepond-css"></div>
+<style>
+    .filepond--action-remove-item {
+        display:none;
+    }
+</style>
+<nav th:replace="fragments.html:: nav"></nav>
+<div th:if="${updateMessage}" class="alert alert-success alert-dismissible fade show text-center" role="alert">
+    <strong th:text="${updateMessage}">프로필이 수정되었습니다.</strong>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="container my-5">
+    <div class="row">
+        <div class="col-3">
+            <div th:replace="fragments.html::accountSettingList('notification')">
+            </div>
+        </div>
+        <div class="col-8">
+            <form id="notification-form" th:action="@{/accounts/edit/notification}" method="post" th:object="${form}" style="width:500px">
+                <div class="notification-control-box">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="create-album" th:field="*{notificationAlbumCreatedByMyFollowing}">
+                        <label class="custom-control-label" for="create-album">앨범 생성 알림</label>
+                    </div>
+                    <small class="text-muted p-2">활성화 하면 내가 팔로우 중인 사람이 새 앨범을 업로드 시 알림을 받습니다.</small>
+                </div>
+
+                <div class="notification-control-box">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="comment-on-album" th:field="*{notificationCommentOnMyAlbum}">
+                        <label class="custom-control-label" for="comment-on-album">댓글 알림</label>
+                    </div>
+                    <small class="text-muted p-2">활성화 하면 내가 만든 앨범에 댓글이 달릴 시 알림을 받습니다.</small>
+                </div>
+
+                <div class="notification-control-box">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="follow-me" th:field="*{notificationFollowMe}">
+                        <label class="custom-control-label" for="follow-me">팔로우 알림</label>
+                    </div>
+                    <small class="text-muted p-2">활성화 하면 다른 사람이 나를 팔로우 시 알림을 받습니다.</small>
+                </div>
+                <div class="notification-control-box d-flex">
+                    <button type="submit" id="btn-update" class="form-control btn btn-primary col-3">변경</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div th:replace="fragments.html::footer"></div>
+<script>
+</script>
+</body>
+</html>
+

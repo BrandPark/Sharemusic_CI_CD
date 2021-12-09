@@ -193,3 +193,9 @@ tr.removed input{
 .table-row {
     background-color: #f1dfdd;
 }
+.custom-switch, .custom-switch .custom-control-input, .custom-switch .custom-control-label {
+    cursor: pointer;
+}
+.notification-control-box {
+    padding-bottom: 40px;
+}
