@@ -2,6 +2,7 @@ package com.brandpark.sharemusic.modules.main;
 
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
@@ -16,11 +17,14 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class HomeController implements ErrorController {
 
+    private final FollowRepository followRepository;
+
     @GetMapping("/")
     public String viewHome(@LoginAccount SessionAccount account, Model model) {
 
         if (account != null) {
             model.addAttribute("account", account);
+            model.addAttribute("followingCount", followRepository.countAllByFollowerId(account.getId()));
         }
 
         return "home";

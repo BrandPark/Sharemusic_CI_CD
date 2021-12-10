@@ -2,11 +2,12 @@ package com.brandpark.sharemusic.partials.account;
 
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.partials.PageHtmlResult;
 import com.brandpark.sharemusic.partials.PagingHtmlCreator;
 import com.brandpark.sharemusic.partials.account.form.FollowerInfoForm;
 import com.brandpark.sharemusic.partials.account.form.FollowingInfoForm;
-import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
+import com.brandpark.sharemusic.partials.account.form.SuggestAccountForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -73,5 +74,16 @@ public class AccountPartialHtmlController {
         }
 
         return htmlCreator.getPageHtmlResult(context, page, "followings", "partial/followings");
+    }
+
+    @GetMapping("/suggest-follow")
+    public PageHtmlResult getSuggestFollowListPagingHtml(@LoginAccount SessionAccount loginAccount
+            , @PageableDefault Pageable pageable, HttpServletRequest request, HttpServletResponse response) {
+
+        WebContext context = new WebContext(request, response, request.getServletContext());
+
+        PagingDto<SuggestAccountForm> page = accountPartialRepository.findAllAccountExceptMe(pageable, loginAccount.getId());
+
+        return htmlCreator.getPageHtmlResult(context, page, "suggests", "partial/home-suggest-follow");
     }
 }

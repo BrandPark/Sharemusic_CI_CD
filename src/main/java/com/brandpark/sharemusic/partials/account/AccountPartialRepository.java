@@ -7,6 +7,7 @@ import com.brandpark.sharemusic.modules.util.page.PagingDtoFactory;
 import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.partials.account.form.FollowerInfoForm;
 import com.brandpark.sharemusic.partials.account.form.FollowingInfoForm;
+import com.brandpark.sharemusic.partials.account.form.SuggestAccountForm;
 import com.brandpark.sharemusic.partials.account.form.UserCardForm;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.ExpressionUtils;
@@ -155,5 +156,21 @@ public class AccountPartialRepository {
                 .fetchResults();
 
         return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal(), 10);
+    }
+
+    public PagingDto<SuggestAccountForm> findAllAccountExceptMe(Pageable pageable, Long accountId) {
+        QueryResults<SuggestAccountForm> queryResults = queryFactory.select(Projections.fields(
+                        SuggestAccountForm.class,
+                        account.id.as("accountId"),
+                        account.name,
+                        account.nickname,
+                        account.profileImage
+                )).from(account)
+                .where(account.id.eq(accountId).not())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        return PagingDtoFactory.createPagingDto(queryResults.getResults(), pageable, queryResults.getTotal());
     }
 }

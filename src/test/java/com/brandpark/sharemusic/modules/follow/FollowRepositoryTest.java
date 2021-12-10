@@ -5,6 +5,7 @@ import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.follow.domain.Follow;
 import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
+import com.brandpark.sharemusic.testUtils.FollowFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,11 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,43 +27,24 @@ class FollowRepositoryTest {
     @Autowired FollowRepository followRepository;
     @Autowired AccountRepository accountRepository;
     @Autowired AccountFactory accountFactory;
+    @Autowired FollowFactory followFactory;
     Account myAccount;
     Account unfollowingOtherAccount;
-    List<Account> followers = new ArrayList<>();
-    List<Account> followings = new ArrayList<>();
-    List<Follow> followListAboutFollowers = new ArrayList<>();
-    List<Follow> followListAboutFollowings = new ArrayList<>();
+    List<Account> followers;
+    List<Account> followings;
+    List<Follow> followListAboutFollowers;
+    List<Follow> followListAboutFollowings;
 
     @BeforeEach
     public void setUp() {
-        myAccount = accountFactory.createAccount("내 계정");
-        unfollowingOtherAccount = accountFactory.createAccount("팔로우 하지 않은 계정");
-        accountRepository.saveAll(List.of(myAccount, unfollowingOtherAccount));
+        myAccount = accountFactory.persistAccount("내 계정");
+        unfollowingOtherAccount = accountFactory.persistAccount("팔로우 하지 않은 계정");
 
-        for (int i = 0; i < 30; i++) {
-            followers.add(accountFactory.createAccount("나를 팔로우한 계정" + i));
-        }
+        followers = accountFactory.persistAccountList("나를 팔로우한 계정", 30);
+        followings = accountFactory.persistAccountList("내가 팔로우한 계정", 30);
 
-        for (int i = 0; i < 30; i++) {
-            followings.add(accountFactory.createAccount("내가 팔로우한 계정" + i));
-        }
-        accountRepository.saveAll(Stream.concat(followers.stream(), followings.stream()).collect(Collectors.toList()));
-
-        for (Account follower : followers) {
-            followListAboutFollowers.add(Follow.builder()
-                    .follower(follower)
-                    .target(myAccount)
-                    .build());
-        }
-
-        for (Account following : followings) {
-            followListAboutFollowings.add(Follow.builder()
-                    .follower(myAccount)
-                    .target(following)
-                    .build());
-        }
-
-        followRepository.saveAll(Stream.concat(followListAboutFollowers.stream(), followListAboutFollowings.stream()).collect(Collectors.toList()));
+        followListAboutFollowers = followFactory.persistFollowers(myAccount, followers);
+        followListAboutFollowings = followFactory.persistFollowings(myAccount, followings);
     }
 
     @DisplayName("팔로잉 중인지 확인")
@@ -100,5 +79,18 @@ class FollowRepositoryTest {
         assertThat(follow.get().getTarget().getId()).isEqualTo(targetId);
 
         assertThat(notFollow).isEmpty();
+    }
+
+    @DisplayName("내가 팔로우한 사람 수 조회")
+    @Test
+    public void countAllByFollowerId() throws Exception {
+
+        // given
+
+        // when
+        int followerCount = followRepository.countAllByFollowerId(myAccount.getId());
+
+        // then
+        assertThat(followerCount).isEqualTo(followings.size());
     }
 }
