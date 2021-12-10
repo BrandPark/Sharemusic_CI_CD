@@ -27,6 +27,12 @@ public class SessionAccount implements Serializable {
 
     private String emailCheckToken;
 
+    private boolean notificationAlbumCreatedByMyFollowing;
+
+    private boolean notificationCommentOnMyAlbum;
+
+    private boolean notificationFollowMe;
+
     public SessionAccount(AccountDto accountDto) {
         id = accountDto.getId();
         name = accountDto.getName();
@@ -37,5 +43,8 @@ public class SessionAccount implements Serializable {
         profileImage = accountDto.getProfileImage();
         role = accountDto.getRole();
         emailCheckToken = accountDto.getEmailCheckToken();
+        notificationAlbumCreatedByMyFollowing = accountDto.isNotificationAlbumCreatedByMyFollowing();
+        notificationFollowMe = accountDto.isNotificationFollowMe();
+        notificationCommentOnMyAlbum = accountDto.isNotificationCommentOnMyAlbum();
     }
 }

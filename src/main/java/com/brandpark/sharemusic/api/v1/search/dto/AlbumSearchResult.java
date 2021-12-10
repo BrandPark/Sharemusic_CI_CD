@@ -11,7 +11,7 @@ public class AlbumSearchResult {
     private String title;
     private String description;
     private String albumImage;
-    private int trackCount;
+    private Long trackCount;
     private List<TrackSearchResult> tracks;
     private Long accountId;
     private LocalDateTime createdDate;

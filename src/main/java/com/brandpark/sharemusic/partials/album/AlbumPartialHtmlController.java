@@ -2,6 +2,7 @@ package com.brandpark.sharemusic.partials.album;
 
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.partials.PageHtmlResult;
 import com.brandpark.sharemusic.partials.PagingHtmlCreator;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 public class AlbumPartialHtmlController {
 
     private final AlbumPartialRepository albumPartialRepository;
+    private final FollowRepository followRepository;
     private final PagingHtmlCreator htmlCreator;
 
     @GetMapping("/albums")
@@ -32,12 +34,12 @@ public class AlbumPartialHtmlController {
         WebContext context = new WebContext(request, response, request.getServletContext());
         PagingDto<AlbumCardForm> page = null;
 
-        context.setVariable("isLogin", account != null);
-
         if (account == null) {
             page = albumPartialRepository.findAllAlbumCardsInfo(pageable);
         } else {
-            context.setVariable("followingCount", albumPartialRepository.countFollowing(account.getId()));
+            int followingCount = followRepository.countAllByFollowerId(account.getId());
+
+            context.setVariable("followingCount", followingCount);
 
             page = albumPartialRepository.findAllAlbumCardsInfoAboutFollowings(pageable, account.getId());
         }

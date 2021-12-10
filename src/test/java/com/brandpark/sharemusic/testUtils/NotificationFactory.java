@@ -50,7 +50,7 @@ public class NotificationFactory {
                 .collect(Collectors.toList());
     }
 
-    private List<Notification> createNotificationList(Account sender, Account receiver, NotificationType type, int count) {
+    public List<Notification> createNotificationList(Account sender, Account receiver, NotificationType type, int count) {
 
         List<Notification> result = new ArrayList<>();
 

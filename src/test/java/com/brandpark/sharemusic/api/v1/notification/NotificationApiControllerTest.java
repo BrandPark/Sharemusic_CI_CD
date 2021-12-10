@@ -68,7 +68,7 @@ class NotificationApiControllerTest {
         mockMvc.perform(get("/api/v1/notifications")
                         .param("page", "0")
                         .param("type", FOLLOW.name()))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is3xxRedirection());
     }
 
     @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
@@ -273,7 +273,7 @@ class NotificationApiControllerTest {
         // when
         mockMvc.perform(put("/api/v1/notifications/" + myNotification.getId())
                         .with(csrf()))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is3xxRedirection());
     }
 
     @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
@@ -360,7 +360,7 @@ class NotificationApiControllerTest {
         mockMvc.perform(put("/api/v1/notifications")
                         .with(csrf())
                         .param("type", notificationType))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is3xxRedirection());
     }
 
     @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)

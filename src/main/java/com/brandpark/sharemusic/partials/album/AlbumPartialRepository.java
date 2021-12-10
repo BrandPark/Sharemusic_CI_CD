@@ -40,12 +40,6 @@ public class AlbumPartialRepository {
     private QTrack track = QTrack.track;
     private QComment comment = QComment.comment;
 
-    public long countFollowing(Long accountId) {
-        return queryFactory.selectFrom(follow)
-                .where(follow.follower.id.eq(accountId))
-                .fetchCount();
-    }
-
     public PagingDto<AlbumCardForm> findAllAlbumCardsInfoAboutFollowings(Pageable pageable, Long myAccountId) {
 
         List<Long> targetIdList = queryFactory.select(follow.target.id)

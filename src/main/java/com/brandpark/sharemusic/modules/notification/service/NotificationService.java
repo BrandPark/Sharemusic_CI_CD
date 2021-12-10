@@ -1,5 +1,6 @@
-package com.brandpark.sharemusic.modules.notification;
+package com.brandpark.sharemusic.modules.notification.service;
 
+import com.brandpark.sharemusic.modules.notification.NotificationType;
 import com.brandpark.sharemusic.modules.notification.domain.Notification;
 import com.brandpark.sharemusic.modules.notification.domain.NotificationRepository;
 import lombok.RequiredArgsConstructor;

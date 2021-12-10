@@ -140,4 +140,26 @@ public class NotificationRepositoryTest {
             }
         }
     }
+    
+    @DisplayName("여러 알림을 저장한다.")
+    @Test
+    public void saveManyNotification() throws Exception {
+    
+        // given
+        List<Notification> notifications = notificationFactory.createNotificationList(myAccount, otherAccount, NotificationType.CREATED_ALBUM_BY_FOLLOWER, 12);
+
+        // when
+        notificationRepository.batchInsert(notifications);
+        entityManager.clear();
+
+        // then
+        List<Notification> results = notificationRepository.findAll();
+        assertThat(results.size()).isEqualTo(notifications.size());
+
+        Notification resultOne = results.get(0);
+        AssertUtil.assertEntityIsNotEmpty(resultOne);
+        assertThat(resultOne.getSender().getId()).isEqualTo(myAccount.getId());
+        assertThat(resultOne.getAccount().getId()).isEqualTo(otherAccount.getId());
+        assertThat(resultOne.getNotificationType()).isEqualTo(NotificationType.CREATED_ALBUM_BY_FOLLOWER);
+    }
 }

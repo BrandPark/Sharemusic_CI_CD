@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class NotificationEventListener {
     private final NotificationRepository notificationRepository;
     private final AccountRepository accountRepository;
     private final AlbumRepository albumRepository;
+    private final EntityManager entityManager;
 
     @EventListener
     public void handleFollowEvent(FollowEvent event) {
@@ -32,14 +34,18 @@ public class NotificationEventListener {
         String message = String.format("%s 님이 회원님을 팔로우하기 시작했습니다."
                 , event.getFollower().getNickname());
 
-        notificationRepository.save(Notification.builder()
-                .account(event.getFollowingTarget())
-                .sender(event.getFollower())
-                .message(message)
-                .link("/accounts/" + event.getFollower().getNickname())
-                .checked(false)
-                .notificationType(NotificationType.FOLLOW)
-                .build());
+        Account account = event.getFollowingTarget();
+
+        if (account.isNotificationFollowMe()) {
+            notificationRepository.save(Notification.builder()
+                    .account(account)
+                    .sender(event.getFollower())
+                    .message(message)
+                    .link("/accounts/" + event.getFollower().getNickname())
+                    .checked(false)
+                    .notificationType(NotificationType.FOLLOW)
+                    .build());
+        }
     }
 
     @EventListener
@@ -58,14 +64,16 @@ public class NotificationEventListener {
                 , writer.getNickname()
                 , targetAlbum.getTitle());
 
-        notificationRepository.save(Notification.builder()
-                .account(targetAccount)
-                .sender(writer)
-                .message(message)
-                .link("/albums/" + targetAlbum.getId())
-                .checked(false)
-                .notificationType(NotificationType.COMMENT)
-                .build());
+        if (targetAccount.isNotificationCommentOnMyAlbum()) {
+            notificationRepository.save(Notification.builder()
+                    .account(targetAccount)
+                    .sender(writer)
+                    .message(message)
+                    .link("/albums/" + targetAlbum.getId())
+                    .checked(false)
+                    .notificationType(NotificationType.COMMENT)
+                    .build());
+        }
     }
 
     @EventListener
@@ -83,16 +91,19 @@ public class NotificationEventListener {
 
         String message = String.format("%s 님이 새로운 앨범을 업로드 하였습니다.", albumCreator.getNickname());
         for (Account follower : followers) {
-            notifications.add(Notification.builder()
-                    .account(follower)
-                    .sender(albumCreator)
-                    .message(message)
-                    .link("/albums/" + createdAlbum.getId())
-                    .checked(false)
-                    .notificationType(NotificationType.CREATED_ALBUM_BY_FOLLOWER)
-                    .build());
+            if (follower.isNotificationAlbumCreatedByMyFollowing()) {
+                notifications.add(Notification.builder()
+                        .account(follower)
+                        .sender(albumCreator)
+                        .message(message)
+                        .link("/albums/" + createdAlbum.getId())
+                        .checked(false)
+                        .notificationType(NotificationType.CREATED_ALBUM_BY_FOLLOWER)
+                        .build());
+            }
         }
 
-        notificationRepository.saveAll(notifications);
+        notificationRepository.batchInsert(notifications);
+        entityManager.clear();
     }
 }
