@@ -25,4 +25,10 @@ public class AccountDto {
     private Role role;
 
     private String emailCheckToken;
+
+    private boolean notificationAlbumCreatedByMyFollowing;
+
+    private boolean notificationCommentOnMyAlbum;
+
+    private boolean notificationFollowMe;
 }

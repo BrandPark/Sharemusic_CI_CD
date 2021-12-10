@@ -44,6 +44,12 @@ public class Account extends BaseTimeEntity {
 
     private LocalDateTime emailCheckTokenGeneratedAt;
 
+    private boolean notificationAlbumCreatedByMyFollowing;
+
+    private boolean notificationCommentOnMyAlbum;
+
+    private boolean notificationFollowMe;
+
     public void generateEmailCheckToken() {
         if (emailCheckToken == null) {
             emailCheckToken = UUID.randomUUID().toString();
@@ -78,6 +84,16 @@ public class Account extends BaseTimeEntity {
         newAccount.assignRole(Role.GUEST);
         newAccount.generateEmailCheckToken();
 
+        newAccount.notificationAlbumCreatedByMyFollowing = true;
+        newAccount.notificationFollowMe = true;
+        newAccount.notificationCommentOnMyAlbum = true;
+
         return newAccount;
+    }
+
+    public void updateNotificationSetting(boolean isNotificationAlbumCreatedByMyFollowing, boolean isNotificationCommentOnMyAlbum, boolean isNotificationFollowMe) {
+        notificationAlbumCreatedByMyFollowing = isNotificationAlbumCreatedByMyFollowing;
+        notificationCommentOnMyAlbum = isNotificationCommentOnMyAlbum;
+        notificationFollowMe = isNotificationFollowMe;
     }
 }

@@ -2,10 +2,11 @@ package com.brandpark.sharemusic.modules.account;
 
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.validator.FormValidator;
 import com.brandpark.sharemusic.modules.account.form.UpdateBasicInfoForm;
+import com.brandpark.sharemusic.modules.account.form.UpdateNotificationSettingForm;
 import com.brandpark.sharemusic.modules.account.form.UpdatePasswordForm;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
+import com.brandpark.sharemusic.modules.validator.FormValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,7 +44,7 @@ public class SettingsController {
         formValidator.validateBasicInfoForm(account, form, errors);
         if (errors.hasErrors()) {
             model.addAttribute(form);
-            model.addAttribute("account", account);;
+            model.addAttribute("account", account);
             return "accounts/settings/basic-info";
         }
 
@@ -77,6 +78,32 @@ public class SettingsController {
 
         attributes.addFlashAttribute("updateMessage", "프로필이 수정되었습니다.");
         return "redirect:/accounts/edit/password";
+    }
+
+    @GetMapping("/notification")
+    public String notificationSettingForm(@LoginAccount SessionAccount account, Model model) {
+
+        UpdateNotificationSettingForm form = new UpdateNotificationSettingForm(account);
+
+        model.addAttribute("account", account);
+        model.addAttribute("form", form);
+
+        return "accounts/settings/notification";
+    }
+
+    @PostMapping("/notification")
+    public String notificationSettingForm(@LoginAccount SessionAccount account, Model model
+            , @Valid UpdateNotificationSettingForm form, BindingResult errors, RedirectAttributes attributes) {
+
+        if (errors.hasErrors()) {
+            model.addAttribute("account", account);
+            return "accounts/settings/notification";
+        }
+
+        accountService.updateNotificationSetting(form.toModuleDto(), account);
+        attributes.addFlashAttribute("updateMessage", "알림 설정이 수정되었습니다.");
+
+        return "redirect:/accounts/edit/notification";
     }
 }
 

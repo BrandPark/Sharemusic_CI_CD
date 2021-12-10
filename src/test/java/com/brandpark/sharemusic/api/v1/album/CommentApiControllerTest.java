@@ -175,7 +175,7 @@ class CommentApiControllerTest {
         mockMvc.perform(post(url)
                         .with(csrf())
                         .param("content", commentContent))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is3xxRedirection());
     }
 
     @WithUserDetails(value = "user", setupBefore = TestExecutionEvent.TEST_EXECUTION)
@@ -237,7 +237,7 @@ class CommentApiControllerTest {
         // when
         mockMvc.perform(delete(url)
                         .with(csrf()))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is3xxRedirection());
     }
 
     @WithUserDetails(value = "user", setupBefore = TestExecutionEvent.TEST_EXECUTION)

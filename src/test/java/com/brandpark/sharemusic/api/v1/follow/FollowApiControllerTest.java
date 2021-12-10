@@ -340,7 +340,7 @@ class FollowApiControllerTest {
         // when, then
         mockMvc.perform(post(url)
                         .with(csrf()))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is3xxRedirection());
     }
 
     @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)
@@ -440,7 +440,7 @@ class FollowApiControllerTest {
         // when, then
         mockMvc.perform(post(url)
                         .with(csrf()))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is3xxRedirection());
     }
 
     @WithUserDetails(value = "내 계정", setupBefore = TestExecutionEvent.TEST_EXECUTION)

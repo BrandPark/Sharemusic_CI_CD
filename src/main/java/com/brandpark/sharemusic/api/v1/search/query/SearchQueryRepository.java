@@ -10,8 +10,10 @@ import com.brandpark.sharemusic.modules.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.album.domain.QTrack;
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.group.GroupBy.list;
+import static com.querydsl.core.types.ExpressionUtils.count;
 
 @RequiredArgsConstructor
 @QueryRepository
@@ -92,7 +95,12 @@ public class SearchQueryRepository {
                                 album.title,
                                 album.description,
                                 album.albumImage,
-                                album.trackCount,
+                                ExpressionUtils.as(
+                                        JPAExpressions.select(count(album.id))
+                                                .from(track)
+                                                .where(track.album.id.eq(album.id))
+                                        , "trackCount"
+                                ),
                                 album.accountId,
                                 album.createdDate,
                                 album.modifiedDate

@@ -12,12 +12,11 @@
         </button>
     </div>
     <div class="container" style="padding-top:30px">
-        <div id="album-list" class="row"></div>
-        <div id="pagination" class="row justify-content-center"></div>
+        <div id="content" class="row"></div>
+        <div id="pagination" class="row justify-content-center mt-3"></div>
     </div>
 
     <div th:replace="fragments.html::footer"></div>
-    <script th:replace="fragments.html::ajax-csrf-header"></script>
     <script>
         $(function () {
             home.init();
@@ -38,24 +37,39 @@
             loadAlbums: function (requestObj, page) {
                 requestObj.page = page;
                 const _this = this;
+                const followingCount = parseInt("[[${followingCount}]]");
 
-                $.ajax({
-                    url: '/partial/albums',
-                    method: 'GET',
-                    data: requestObj,
-                }).done(function (pageObj) {
-                    _this._clearAlbums();
-                    _this._appendAlbums(pageObj);
-                }).fail(function (){
-                    alert("앨범들을 로드하는데 실패했습니다.");
-                });
+                if (isNaN(followingCount) || followingCount > 0) {
+                    $.ajax({
+                        url: '/partial/albums',
+                        method: 'GET',
+                        data: requestObj,
+                    }).done(function (pageObj) {
+                        _this._clearContent();
+                        _this._appendContent(pageObj);
+                    }).fail(function (){
+                        alert("앨범들을 로드하는데 실패했습니다.");
+                    });
+                } else {
+                    $.ajax({
+                        url: '/partial/suggest-follow',
+                        method: 'GET',
+                        data: requestObj,
+                    }).done(function (pageObj) {
+                        _this._clearContent();
+                        _this._appendContent(pageObj);
+                    }).fail(function (){
+                        alert("팔로우 추천리스트를 로드하는데 실패했습니다.");
+                    });
+                }
+
             },
-            _clearAlbums: function () {
-                $('#album-list').empty();
+            _clearContent: function () {
+                $('#content').empty();
                 $('#pagination').empty();
             },
-            _appendAlbums: function (pageObj) {
-                $('#album-list').append(pageObj['listHtml']);
+            _appendContent: function (pageObj) {
+                $('#content').append(pageObj['listHtml']);
                 $('#pagination').append(pageObj['paginationHtml']);
             },
         }

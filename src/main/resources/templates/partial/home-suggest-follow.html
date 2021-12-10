@@ -1,0 +1,43 @@
+<div class="row justify-content-center w-100">
+  <div style="height:630px; width:500px; z-index:2" class="container rounded-lg bg-white p-2 y-scroll d-flex flex-column justify-content-between">
+    <div class="alert alert-success">ShareMusic 은 팔로우한 사람들의 업로드 소식을 공유하는 서비스입니다. 시작하기 전에 아무나 팔로우 해주세요.</div>
+    <div class="list h-100 d-flex flex-column align-items-center" >
+      <div th:each="suggestAccount:${suggests}" style="width: 80%">
+        <div class="row justify-content-center">
+          <div class="col-2 follower-profile-image p-0 d-flex justify-content-center align-items-center">
+            <a class="font-weight-bold text-decoration-none text-dark" th:href="@{'/accounts/' + ${suggestAccount.nickname}}">
+              <i th:if="${#strings.isEmpty(suggestAccount.profileImage)}" class="fa fa-user-circle"
+                 aria-hidden="true" style="font-size: 2em;"></i>
+              <img th:if="${!#strings.isEmpty(suggestAccount.profileImage)}" class="img-fluid float-left rounded-circle img-thumbnail p-0"
+                   th:src="${suggestAccount.profileImage}" width="30" height="30"/>
+            </a>
+          </div>
+          <div class="col-6 follower-name">
+            <a class="font-weight-bold text-dark" th:href="@{'/accounts/' + ${suggestAccount.nickname}}" th:text="${suggestAccount.nickname}" style="font-size:0.8rem;">추천인 닉네임</a>
+            <div class="text-muted" th:text="${suggestAccount.name}" style="font-size:0.8rem">추천인 이름</div>
+          </div>
+          <div class="col-4 d-flex align-items-center justify-content-center">
+            <button class="btn btn-follow" style="font-size: 0.8em" th:data-index="${suggestAccount.accountId}">팔로우</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+      </div>
+      <div class="row justify-content-center align-items-center h-100" th:if="${#lists.isEmpty(suggests)}">
+        <p class="font-weight-bold">추천 가능한 유저가 없습니다.</p>
+      </div>
+    </div>
+    <a class="btn btn-primary w-100" th:href="@{/}" role="button">시작하기</a>
+  </div>
+</div>
+
+<script>
+  $(function () {
+    suggestFollow.init();
+  });
+
+  let suggestFollow = {
+    init: function () {
+
+    }
+  }
+</script>

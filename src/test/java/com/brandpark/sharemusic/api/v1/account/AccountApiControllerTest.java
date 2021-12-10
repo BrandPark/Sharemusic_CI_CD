@@ -387,7 +387,7 @@ class AccountApiControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8.name())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(reqData)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is3xxRedirection());
     }
 
     @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
@@ -950,7 +950,7 @@ class AccountApiControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8.name())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(reqData)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is3xxRedirection());
     }
 
     @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)
@@ -1066,7 +1066,7 @@ class AccountApiControllerTest {
         mockMvc.perform(post(url)
                         .with(csrf())
                         .param("emailCheckToken", reqData))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is3xxRedirection());
     }
 
     @WithUserDetails(value = "myAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)

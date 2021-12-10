@@ -10,4 +10,6 @@ public interface FollowRepository extends JpaRepository<Follow, Long>, ExtendFol
 
     @Override
     boolean isFollowing(Long followerId, Long targetId);
+
+    int countAllByFollowerId(Long followerId);
 }

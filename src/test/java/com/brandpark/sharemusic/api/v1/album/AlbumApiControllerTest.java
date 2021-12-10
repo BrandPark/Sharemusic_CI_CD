@@ -1128,7 +1128,7 @@ class AlbumApiControllerTest {
         mockMvc.perform(delete(url)
                         .with(csrf())
                         .characterEncoding("UTF-8"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is3xxRedirection());
     }
 
     @WithUserDetails(value = "userAccount", setupBefore = TestExecutionEvent.TEST_EXECUTION)

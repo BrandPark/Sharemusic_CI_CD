@@ -26,15 +26,16 @@ public class TrackRepositoryImpl implements ExtendTrackRepository {
 
         int insertCount = 0;
 
-        List<Track> subTracks = new ArrayList<>();
+        List<Track> buff = new ArrayList<>();
         for (int i = 0; i < tracks.size(); i++) {
-            subTracks.add(tracks.get(i));
+            buff.add(tracks.get(i));
             if ((i + 1) % batchSize == 0) {
-                insertCount += batchInsertImpl(subTracks, albumId);
+                insertCount += flushInsert(buff, albumId);
+                buff.clear();
             }
         }
-        if (!subTracks.isEmpty()) {
-            insertCount += batchInsertImpl(subTracks, albumId);
+        if (!buff.isEmpty()) {
+            insertCount += flushInsert(buff, albumId);
         }
 
         return insertCount;
@@ -44,85 +45,83 @@ public class TrackRepositoryImpl implements ExtendTrackRepository {
     public int batchUpdate(List<Track> tracks) {
         int updateCount = 0;
 
-        List<Track> subTracks = new ArrayList<>();
+        List<Track> buff = new ArrayList<>();
         for (int i = 0; i < tracks.size(); i++) {
-            subTracks.add(tracks.get(i));
+            buff.add(tracks.get(i));
             if ((i + 1) % batchSize == 0) {
-                updateCount += batchUpdateImpl(subTracks);
+                updateCount += flushUpdate(buff);
+                buff.clear();
             }
         }
-        if (!subTracks.isEmpty()) {
-            updateCount += batchUpdateImpl(subTracks);
+        if (!buff.isEmpty()) {
+            updateCount += flushUpdate(buff);
         }
 
          return updateCount;
     }
 
     @Override
-    public int batchRemove(List<Track> tracks) {
+    public int batchDelete(List<Track> tracks) {
         int removeCount = 0;
 
-        List<Track> subTracks = new ArrayList<>();
+        List<Track> buff = new ArrayList<>();
         for (int i = 0; i < tracks.size(); i++) {
-            subTracks.add(tracks.get(i));
+            buff.add(tracks.get(i));
             if ((i + 1) % batchSize == 0) {
-                removeCount += batchRemoveImpl(subTracks);
+                removeCount += flushDelete(buff);
+                buff.clear();
             }
         }
-        if (!subTracks.isEmpty()) {
-            removeCount += batchRemoveImpl(subTracks);
+        if (!buff.isEmpty()) {
+            removeCount += flushDelete(buff);
         }
         return removeCount;
     }
 
-    private int batchRemoveImpl(List<Track> subTracks) {
-        int batchedSize = subTracks.size();
+    private int flushDelete(List<Track> buff) {
+        int buffSize = buff.size();
 
         jdbcTemplate.batchUpdate("DELETE FROM TRACK WHERE TRACK_ID=?"
                 , new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
-                        ps.setLong(1, subTracks.get(i).getId());
+                        ps.setLong(1, buff.get(i).getId());
                     }
 
                     @Override
                     public int getBatchSize() {
-                        return batchedSize;
+                        return buffSize;
                     }
                 });
 
-        subTracks.clear();
-
-        return batchedSize;
+        return buffSize;
     }
 
-    private int batchUpdateImpl(List<Track> subTracks) {
+    private int flushUpdate(List<Track> buff) {
 
-        int batchedSize = subTracks.size();
+        int buffSize = buff.size();
 
         jdbcTemplate.batchUpdate("UPDATE TRACK SET TRACK_NAME=?, ARTIST=? WHERE TRACK_ID=?"
                 , new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
-                        ps.setString(1, subTracks.get(i).getName());
-                        ps.setString(2, subTracks.get(i).getArtist());
-                        ps.setLong(3, subTracks.get(i).getId());
+                        ps.setString(1, buff.get(i).getName());
+                        ps.setString(2, buff.get(i).getArtist());
+                        ps.setLong(3, buff.get(i).getId());
                     }
 
                     @Override
                     public int getBatchSize() {
-                        return batchedSize;
+                        return buffSize;
                     }
                 });
 
-        subTracks.clear();
-
-        return batchedSize;
+        return buffSize;
     }
 
-    private int batchInsertImpl(List<Track> subTracks, Long albumId) {
+    private int flushInsert(List<Track> buff, Long albumId) {
 
-        int batchedSize = subTracks.size();
+        int buffSize = buff.size();
 
         jdbcTemplate.batchUpdate("INSERT INTO TRACK(TRACK_NAME, ARTIST, ALBUM_ID, CREATED_DATE, MODIFIED_DATE) VALUES(?, ?, ?, ?, ?)"
                 , new BatchPreparedStatementSetter() {
@@ -131,8 +130,8 @@ public class TrackRepositoryImpl implements ExtendTrackRepository {
 
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
-                        ps.setString(1, subTracks.get(i).getName());
-                        ps.setString(2, subTracks.get(i).getArtist());
+                        ps.setString(1, buff.get(i).getName());
+                        ps.setString(2, buff.get(i).getArtist());
                         ps.setLong(3, albumId);
                         ps.setString(4, now.toString());
                         ps.setString(5, now.toString());
@@ -140,12 +139,10 @@ public class TrackRepositoryImpl implements ExtendTrackRepository {
 
                     @Override
                     public int getBatchSize() {
-                        return batchedSize;
+                        return buffSize;
                     }
                 });
 
-        subTracks.clear();
-
-        return batchedSize;
+        return buffSize;
     }
 }

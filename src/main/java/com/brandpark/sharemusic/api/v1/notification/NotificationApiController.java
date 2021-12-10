@@ -6,7 +6,7 @@ import com.brandpark.sharemusic.api.v1.notification.dto.NotificationInfoResponse
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.api.v1.Validator;
-import com.brandpark.sharemusic.modules.notification.NotificationService;
+import com.brandpark.sharemusic.modules.notification.service.NotificationService;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
 import com.brandpark.sharemusic.modules.notification.domain.NotificationRepository;
 import lombok.RequiredArgsConstructor;

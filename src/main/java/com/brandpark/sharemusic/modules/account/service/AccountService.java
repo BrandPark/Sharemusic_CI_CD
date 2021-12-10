@@ -6,6 +6,7 @@ import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.infra.config.session.dto.AccountDto;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
+import com.brandpark.sharemusic.modules.account.dto.UpdateNotificationSettingDto;
 import com.brandpark.sharemusic.modules.follow.domain.Follow;
 import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
@@ -162,9 +163,22 @@ public class AccountService implements UserDetailsService {
                 account.getBio(),
                 account.getProfileImage(),
                 account.getRole(),
-                account.getEmailCheckToken()
+                account.getEmailCheckToken(),
+                account.isNotificationAlbumCreatedByMyFollowing(),
+                account.isNotificationCommentOnMyAlbum(),
+                account.isNotificationFollowMe()
         ));
 
         return newAccount;
+    }
+
+    @Transactional
+    public void updateNotificationSetting(UpdateNotificationSettingDto data, SessionAccount loginAccount) {
+        Account account = accountRepository.findById(loginAccount.getId()).get();
+        account.updateNotificationSetting(data.isNotificationAlbumCreatedByMyFollowing()
+                , data.isNotificationCommentOnMyAlbum()
+                , data.isNotificationFollowMe());
+
+        login(createSessionAccount(account));
     }
 }

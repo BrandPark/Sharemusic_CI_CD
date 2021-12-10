@@ -120,9 +120,10 @@
         </div>
     </nav>
 
-    <div th:fragment="accountSettingList (currentMenu)" class="list-group" role="tablist">
+    <div th:fragment="accountSettingList (currentMenu)" class="list-group list-group-flush" role="tablist">
         <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'basicInfo'} ? active" th:href="@{/accounts/edit/basicinfo}">기본 정보 변경</a>
         <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'password'} ? active" th:href="@{/accounts/edit/password}">비밀번호 변경</a>
+        <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'notification'} ? active" th:href="@{/accounts/edit/notification}">알림 설정</a>
     </div>
 
     <div th:fragment="albumCardList(list)" id="album-card" class="col-md-3" th:each="albumInfo : ${list}">
@@ -171,17 +172,16 @@
         <script src="/node_modules/moment/min/moment-with-locales.min.js"></script>
         <script src="/node_modules/mark.js/dist/jquery.mark.min.js"></script>
         <script src="/custom/js/main.js"></script>
-    </div>
-
-    <script  th:inline="javascript" th:fragment="ajax-csrf-header">
-        $(function () {
-            var token = /*[[${_csrf.token}]]*/ null;
-            var header = /*[[${_csrf.headerName}]]*/ null;
-            $(document).ajaxSend(function (e, xhr, options) {
-                xhr.setRequestHeader(header, token);
+        <script  th:inline="javascript">
+            $(function () {
+                var token = /*[[${_csrf.token}]]*/ null;
+                var header = /*[[${_csrf.headerName}]]*/ null;
+                $(document).ajaxSend(function (e, xhr, options) {
+                    xhr.setRequestHeader(header, token);
+                });
             });
-        });
-    </script>
+        </script>
+    </div>
 
     <!-- File Pond -->
     <div th:fragment="filepond-css">
