@@ -27,6 +27,6 @@ class DevProfileTest {
     @DisplayName("dev 환경의 host는 localhost:8080이다.")
     @Test
     public void HostIsLocalhost_When_DevProfile() throws Exception {
-        assertThat(appProperties.getHost()).isEqualTo("http://localhost:8080");
+        assertThat(appProperties.getHost()).isEqualTo("http://ec2-52-79-179-149.ap-northeast-2.compute.amazonaws.com:8080");
     }
 }
