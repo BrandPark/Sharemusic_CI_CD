@@ -4,7 +4,9 @@ REPOSITORY=/home/ec2-user/app
 PROJECT_NAME=sharemusic
 
 echo "> Git Pull"
-cd $REPOSITORY/$PROJECT_NAME/
+cd $REPOSITORY/$PROJECT_NAME/config
+git pull
+cd ..
 git pull
 
 echo "> Start Build"
