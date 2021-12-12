@@ -68,13 +68,22 @@ dependencies {
 tasks.register("npm-install") {
     group = "application"
     description = "Installs dependencies from package.json"
-    tasks.appNpmInstall.exec();
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        tasks.appNpmInstall.exec();
+    } else {
+        tasks.appRunScript.exec();
+    }
 }
 
 task appNpmInstall(type: NpmTask) {
     description = "Installs dependencies from pacakage.json"
     workingDir = file("./src/main/resources/static")
     args = ["install"]
+}
+
+task appRunScript(type: Exec) {
+    workingDir "./src/main/resources/shellscript"
+    commandLine 'sh', './npm-script.sh'
 }
 
 // ============================== Query Dsl ==============================
