@@ -73,7 +73,7 @@ tasks.register("npm-install") {
 
 task appNpmInstall(type: NpmTask) {
     description = "Installs dependencies from pacakage.json"
-    workingDir = file("/src/main/resources/static")
+    workingDir = file("./src/main/resources/static")
     args = ["install"]
 }
 
