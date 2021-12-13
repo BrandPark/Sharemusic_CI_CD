@@ -1,8 +1,8 @@
 package com.brandpark.sharemusic.modules.main;
 
+import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
@@ -65,6 +65,7 @@ public class LocalInitData {
         guestAccount = modelMapper.map(form, Account.class);
         guestAccount.generateEmailCheckToken();
         guestAccount.assignRole(Role.GUEST);
+        guestAccount.updateNotificationSetting(true, true, true);
 
         accountRepository.saveAll(List.of(userAccount, guestAccount));
 
@@ -79,6 +80,7 @@ public class LocalInitData {
                     .role(Role.GUEST)
                     .build();
 
+            account.updateNotificationSetting(true, true, true);
             otherAccounts.add(account);
         }
         accountRepository.saveAll(otherAccounts);

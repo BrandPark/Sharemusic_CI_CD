@@ -53,7 +53,7 @@
                     method: "put",
                     data: {type: currentType}
                 }).done(function () {
-                    _this.loadList(currentType, 0);
+                    window.location.reload();
                 }).fail(function (error) {
                     console.log(error);
                 });

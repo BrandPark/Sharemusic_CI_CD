@@ -47,7 +47,7 @@ public class NotificationRepositoryImpl implements ExtendNotificationRepository 
 
         String sql = "insert into notification(" +
                 "sender_id, account_id, checked, link, message, notification_type, created_date, modified_date)" +
-                "values(?, ?, ?, ?, ?, ?, ?, ?)";
+                " values(?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
