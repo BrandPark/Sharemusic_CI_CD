@@ -11,6 +11,6 @@ public class CommentRepositoryImpl implements ExtendCommentRepository {
 
     @Override
     public void deleteAllCommentsByAlbumId(Long albumId) {
-        jdbcTemplate.update("delete from comment where album_id=?", new Object[] {albumId});
+        jdbcTemplate.update("DELETE FROM COMMENT WHERE ALBUM_ID=?", new Object[] {albumId});
     }
 }

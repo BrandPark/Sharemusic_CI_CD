@@ -81,7 +81,7 @@ public class TrackRepositoryImpl implements ExtendTrackRepository {
     private int flushDelete(List<Track> buff) {
         int buffSize = buff.size();
 
-        jdbcTemplate.batchUpdate("delete from track where track_id=?"
+        jdbcTemplate.batchUpdate("DELETE FROM TRACK WHERE TRACK_ID=?"
                 , new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -101,7 +101,7 @@ public class TrackRepositoryImpl implements ExtendTrackRepository {
 
         int buffSize = buff.size();
 
-        jdbcTemplate.batchUpdate("update track set track_name=?, artist=? where track_id=?"
+        jdbcTemplate.batchUpdate("UPDATE TRACK SET TRACK_NAME=?, ARTIST=? WHERE TRACK_ID=?"
                 , new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -123,7 +123,7 @@ public class TrackRepositoryImpl implements ExtendTrackRepository {
 
         int buffSize = buff.size();
 
-        jdbcTemplate.batchUpdate("insert into track(track_name, artist, album_id, created_date, modified_date) values(?, ?, ?, ?, ?)"
+        jdbcTemplate.batchUpdate("INSERT INTO TRACK(TRACK_NAME, ARTIST, ALBUM_ID, CREATED_DATE, MODIFIED_DATE) VALUES(?, ?, ?, ?, ?)"
                 , new BatchPreparedStatementSetter() {
 
                     LocalDateTime now = LocalDateTime.now();

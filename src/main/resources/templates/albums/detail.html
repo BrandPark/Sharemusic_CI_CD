@@ -142,8 +142,7 @@
                 $('#delete-hint-input').on('keyup', function (e) {
                     let val = $(this).val();
                     let deleteHint = $('#delete-hint').text().trim();
-                    console.log(val);
-                    console.log(deleteHint);
+
                     if (val === deleteHint) {
                         $('#btn-delete').removeAttr("disabled");
                     } else {

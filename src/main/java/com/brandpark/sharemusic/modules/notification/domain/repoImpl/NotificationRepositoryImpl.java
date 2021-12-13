@@ -45,9 +45,9 @@ public class NotificationRepositoryImpl implements ExtendNotificationRepository 
 
     private int flushInsert(List<Notification> buff) {
 
-        String sql = "insert into notification(" +
-                "sender_id, account_id, checked, link, message, notification_type, created_date, modified_date)" +
-                " values(?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO NOTIFICATION(" +
+                "SENDER_ID, ACCOUNT_ID, CHECKED, LINK, MESSAGE, NOTIFICATION_TYPE, CREATED_DATE, MODIFIED_DATE)" +
+                " VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
