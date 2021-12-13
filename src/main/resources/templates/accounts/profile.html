@@ -6,10 +6,12 @@
         <div class="container my-5">
             <div class="row mb-5">
                 <div class="col-md-4 d-flex justify-content-center">
-                    <i th:if="${#strings.isEmpty(targetAccount.profileImage)}" class="fa fa-user-circle text-white "
-                       aria-hidden="true" style="font-size: 9em;"></i>
-                    <img th:if="${!#strings.isEmpty(targetAccount.profileImage)}" class="img-fluid float-left rounded-circle img-thumbnail p-0"
-                         th:src="${targetAccount.profileImage}" width="125" height="125"/>
+                    <div>
+                        <i th:if="${#strings.isEmpty(targetAccount.profileImage)}" class="fa fa-user-circle text-white "
+                           aria-hidden="true" style="font-size: 9em;"></i>
+                        <img th:if="${!#strings.isEmpty(targetAccount.profileImage)}" class="img-fluid float-left rounded-circle img-thumbnail p-0"
+                             th:src="${targetAccount.profileImage}" width="125" height="125"/>
+                    </div>
                 </div>
                 <div class="col-md-8">
                     <div class="row mb-2">
@@ -41,9 +43,9 @@
                     </div>
                     <div class="row flex-column">
                         <strong class="d-block" th:text="${targetAccount.name}">이름</strong>
-                        <span class="line-2-hidden" th:utext="${targetAccount.bio}">
+                        <div style="max-height: 120px" class="y-scroll" th:utext="${targetAccount.bio}">
                             자기소개
-                        </span>
+                        </div>
                     </div>
                 </div>
             </div>

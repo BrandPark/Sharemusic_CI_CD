@@ -18,14 +18,17 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     int countByAccountIdAndNotificationTypeAndCheckedIsFalse(Long accountId, NotificationType type);
 
+    @Transactional
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Notification n SET n.checked = true WHERE n.checked = false AND n.account.id = :accountId AND n.notificationType = :type")
     int checkAllNotification(@Param("accountId") Long accountId, @Param("type") NotificationType type);
 
+    @Transactional
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Notification n SET n.checked = true WHERE n.checked = false AND n.account.id = :accountId")
     int checkAllNotification(@Param("accountId") Long accountId);
 
+    @Transactional
     @Override
     int batchInsert(List<Notification> notifications);
 }

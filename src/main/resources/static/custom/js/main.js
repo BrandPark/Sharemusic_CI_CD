@@ -1,7 +1,10 @@
 $(function () {
-    $('textarea.auto-size').on('keydown', function () {
-        if ($(this).height() < 96) {
-            $(this).height(1).height($(this).prop('scrollHeight') + 12);
+    $("textarea.auto-size").each(function () {
+        this.setAttribute("style", "height:" + (this.scrollHeight) + "px;");
+    }).on("input", function () {
+        if (this.scrollHeight < 120) {
+            this.style.height = "auto";
+            this.style.height = (this.scrollHeight) + "px";
         }
     });
 
