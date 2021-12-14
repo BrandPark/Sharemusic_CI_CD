@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.infra.config;
+package com.brandpark.sharemusic.infra.config.db;
 
 import org.hibernate.boot.model.naming.Identifier;
 import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;

@@ -1,5 +1,6 @@
 package com.brandpark.sharemusic.infra.config;
 
+import com.brandpark.sharemusic.infra.config.db.UppercaseJdbcTokenRepository;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -10,7 +11,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import javax.sql.DataSource;
@@ -71,7 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PersistentTokenRepository tokenRepository() {
-        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        UppercaseJdbcTokenRepository jdbcTokenRepository = new UppercaseJdbcTokenRepository();
         jdbcTokenRepository.setDataSource(dataSource);
 
         return jdbcTokenRepository;
