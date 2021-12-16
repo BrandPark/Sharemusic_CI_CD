@@ -18,10 +18,10 @@ public class Track extends BaseTimeEntity {
     @Column(name = "track_id")
     private Long id;
 
-    @Column(name = "track_name", nullable = false, length = 50)
+    @Column(name = "track_name", nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 100)
     private String artist;
 
     @JoinColumn(name = "album_id")

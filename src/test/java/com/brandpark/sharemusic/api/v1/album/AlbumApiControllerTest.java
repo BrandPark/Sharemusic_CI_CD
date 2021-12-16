@@ -1,5 +1,6 @@
 package com.brandpark.sharemusic.api.v1.album;
 
+import com.brandpark.sharemusic.MockMvcTest;
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse;
 import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse.TrackInfoResponse;
@@ -9,10 +10,9 @@ import com.brandpark.sharemusic.api.v1.album.dto.UpdateAlbumRequest;
 import com.brandpark.sharemusic.api.v1.album.dto.UpdateAlbumRequest.UpdateTrackRequest;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
-import com.brandpark.sharemusic.infra.MockMvcTest;
+import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.modules.account.service.AccountService;
 import com.brandpark.sharemusic.modules.album.domain.*;
 import com.brandpark.sharemusic.modules.comment.domain.Comment;

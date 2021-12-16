@@ -22,7 +22,7 @@
             <div th:replace="fragments.html::accountSettingList('notification')">
             </div>
         </div>
-        <div class="col-8">
+        <div class="col-8 pt-4 ml-5">
             <form id="notification-form" th:action="@{/accounts/edit/notification}" method="post" th:object="${form}" style="width:500px">
                 <div class="notification-control-box">
                     <div class="custom-control custom-switch">

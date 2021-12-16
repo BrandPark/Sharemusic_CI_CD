@@ -1,12 +1,12 @@
 package com.brandpark.sharemusic.api.v1.follow;
 
+import com.brandpark.sharemusic.MockMvcTest;
 import com.brandpark.sharemusic.api.page.PageResult;
-import com.brandpark.sharemusic.api.v1.follow.dto.FollowerInfoResponse;
-import com.brandpark.sharemusic.api.v1.follow.dto.FollowingInfoResponse;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
-import com.brandpark.sharemusic.infra.MockMvcTest;
+import com.brandpark.sharemusic.api.v1.follow.dto.FollowerInfoResponse;
+import com.brandpark.sharemusic.api.v1.follow.dto.FollowingInfoResponse;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;

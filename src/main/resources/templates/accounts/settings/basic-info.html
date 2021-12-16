@@ -28,7 +28,7 @@
                         <input name="profileImage" type="text" th:field="*{profileImage}" class="form-control filepond-upload-data"/>
                     </div>
                     <div class="form-group row">
-                        <label class="font-weight-bold col-3 col-form-label text-right pr-4 d-flex justify-content-end align-items-center">
+                        <label class="font-weight-bold col-2 col-form-label text-right pr-4 d-flex justify-content-end align-items-center">
                             <input type="file" id="file-input" class="filepond filepond-input filepond-profile" name="filepond" accept="image/jpeg, image/png"/>
                         </label>
                         <a class="font-weight-bold text-primary pt-3 text-decoration-none" role="button"
@@ -37,22 +37,22 @@
                         </a>
                     </div>
                     <div class="form-group row">
-                        <label class="font-weight-bold col-3 col-form-label text-right pr-4" for="email">이메일</label>
+                        <label class="font-weight-bold col-2 col-form-label text-right pr-4" for="email">이메일</label>
                         <input name="email" id="email" type="email" th:field="*{email}" class="form-control col-6 text-muted" readonly/>
                         <small class="form-text text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
                     </div>
                     <div class="form-group row">
-                        <label class="font-weight-bold col-3 col-form-label text-right pr-4" for="name">이름</label>
+                        <label class="font-weight-bold col-2 col-form-label text-right pr-4" for="name">이름</label>
                         <input name="name" id="name" type="text" th:field="*{name}" class="form-control col-6"/>
                         <small class="form-text text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
                     </div>
                     <div class="form-group row">
-                        <label class="font-weight-bold col-3 col-form-label text-right pr-4" for="nickname">닉네임</label>
+                        <label class="font-weight-bold col-2 col-form-label text-right pr-4" for="nickname">닉네임</label>
                         <input name="nickname" id="nickname" type="text" th:field="*{nickname}" class="form-control col-6"/>
                         <small class="form-text text-danger" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}"></small>
                     </div>
                     <div class="form-group row">
-                        <label class="font-weight-bold col-3 col-form-label text-right pr-4" for="bio">소개</label>
+                        <label class="font-weight-bold col-2 col-form-label text-right pr-4" for="bio">소개</label>
                         <textarea name="bio" id="bio" class="form-control col-6 " th:field="*{bio}" rows="3" ></textarea>
                         <small class="form-text text-danger" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}"></small>
                     </div>

@@ -1,13 +1,13 @@
 package com.brandpark.sharemusic.modules.account;
 
-import com.brandpark.sharemusic.infra.MockMvcTest;
+import com.brandpark.sharemusic.MockMvcTest;
+import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.infra.mail.MailMessage;
 import com.brandpark.sharemusic.infra.mail.MailService;
-import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.modules.account.form.SignUpForm;
+import com.brandpark.sharemusic.testUtils.AccountFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

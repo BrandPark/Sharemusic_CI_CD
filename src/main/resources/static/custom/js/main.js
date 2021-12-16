@@ -8,8 +8,7 @@ $(function () {
         }
     });
 
-    viewController.btnInit();
-
+    viewController.init();
     search.init();
     wave.init();
     notification.init();
@@ -32,8 +31,15 @@ const util = {
 }
 
 const viewController = {
+    init: function () {
+        this.btnInit();
+        this.inputInit();
+    },
     btnInit: function () {
         this._followBtnInit();
+    },
+    inputInit: function () {
+        $('input[type=text], textarea').attr("spellcheck", false);
     },
     _followBtnInit: function () {
         let _this = this;

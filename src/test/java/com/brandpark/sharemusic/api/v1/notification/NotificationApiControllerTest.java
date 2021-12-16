@@ -1,10 +1,10 @@
 package com.brandpark.sharemusic.api.v1.notification;
 
+import com.brandpark.sharemusic.MockMvcTest;
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
 import com.brandpark.sharemusic.api.v1.notification.dto.NotificationInfoResponse;
-import com.brandpark.sharemusic.infra.MockMvcTest;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.notification.NotificationType;

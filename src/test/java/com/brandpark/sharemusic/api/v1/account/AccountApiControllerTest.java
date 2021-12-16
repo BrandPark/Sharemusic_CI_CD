@@ -1,5 +1,6 @@
 package com.brandpark.sharemusic.api.v1.account;
 
+import com.brandpark.sharemusic.MockMvcTest;
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.v1.account.dto.AccountInfoResponse;
 import com.brandpark.sharemusic.api.v1.account.dto.CreateAccountRequest;
@@ -8,10 +9,9 @@ import com.brandpark.sharemusic.api.v1.account.dto.UpdatePasswordRequest;
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.api.v1.exception.dto.ExceptionResult;
-import com.brandpark.sharemusic.infra.MockMvcTest;
+import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.testUtils.AssertUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;

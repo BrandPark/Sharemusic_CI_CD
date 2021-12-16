@@ -1,0 +1,56 @@
+language: java
+jdk:
+  - openjdk11
+
+branches:
+  only:
+    - master
+
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+    - '$HOME/.gradle'
+
+before_install:
+  - chmod +x gradlew
+  - git clone https://$GIT_PERSONAL_ACCESS_TOKEN@github.com/BrandPark/ShareMusic_dev_env.git $TRAVIS_BUILD_DIR/config
+
+script:
+  - ./gradlew tasks
+  - ./gradlew clean build
+
+before_deploy:
+  - mkdir -p tmp
+  - cp scripts/*.sh tmp/
+  - cp appspec.yml tmp/
+  - cp config/* tmp/
+  - cp build/libs/*.jar tmp/
+  - cd tmp/ && zip -r deploy-items *
+  - cd ../ && mkdir -p deploy
+  - mv tmp/deploy-items.zip deploy/sharemusic.zip
+
+deploy:
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: sharemusic-build
+    region: ap-northeast-2
+    skip_cleanup: true
+    acl: private
+    local_dir: deploy
+
+  - provider: codedeploy
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: sharemusic-build
+    key: sharemusic.zip
+    bundle_type:  zip
+    application: sharemusic
+    deployment_group: sharemusic-deploy-group
+    region: ap-northeast-2
+    wait_until_deployed: true
+
+notifications:
+  email:
+    recipients:
+      - alsrhs0530@gmail.com

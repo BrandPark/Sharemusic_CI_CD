@@ -24,7 +24,7 @@
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </label>
                                 <input id="search-input" class="form-control input-lg"
-                                       th:placeholder="${#strings.isEmpty(typeName) ? '앨범 이름 검색' : typeName}"
+                                       th:placeholder="${#strings.isEmpty(typeName) ? '앨범 이름 검색' : typeName+' 검색'}"
                                        th:search-type="${#strings.isEmpty(type) ? 'ALBUM_NAME' : type}"
                                       autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1">
                                 <div class="dropdown text-center" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -76,7 +76,7 @@
                                 <div class="row pb-3 notification-item m-0" th:each="notification: ${notifications}" th:classappend="${notification.checked == true} ? checked" style="cursor: pointer">
                                     <div class="col-2 d-flex justify-content-center align-items-center pr-0">
                                         <i class="fa fa-user-circle" style="font-size: 2.2em" th:if="${#strings.isEmpty(notification.senderProfileImage)}"></i>
-                                        <img style="width:40px; height:40px" th:if="${!#strings.isEmpty(notification.senderProfileImage)}" th:src="${notification.senderProfileImage}">
+                                        <img class="rounded-circle" style="width:40px; height:40px" th:if="${!#strings.isEmpty(notification.senderProfileImage)}" th:src="${notification.senderProfileImage}">
                                     </div>
                                     <div class="col-8 pl-1">
                                         <a th:data-index="${notification.id}" th:link="${notification.link}" class="text-decoration-none text-dark p-0 notification-link" role="button">
@@ -228,27 +228,6 @@
             </div>
         </div>
     </div>
-
-    <script type="application/javascript" th:fragment="form-validation">
-        // Example starter JavaScript for disabling form submissions if there are invalid fields
-        (function() {
-            'use strict';
-            window.addEventListener('load', function() {
-                // Fetch all the forms we want to apply custom Bootstrap validation styles to
-                var forms = document.getElementsByClassName('needs-validation');
-                // Loop over them and prevent submission
-                Array.prototype.filter.call(forms, function(form) {
-                    form.addEventListener('submit', function(event) {
-                        if (form.checkValidity() === false) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    }, false);
-                });
-            }, false);
-        })();
-    </script>
 
     <script th:fragment="mark(keyword, context)">
         $("[[${context}]]").unmark({

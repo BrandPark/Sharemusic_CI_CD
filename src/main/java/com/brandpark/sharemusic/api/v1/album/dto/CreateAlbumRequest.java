@@ -3,6 +3,7 @@ package com.brandpark.sharemusic.api.v1.album.dto;
 import com.brandpark.sharemusic.modules.album.dto.CreateAlbumDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -46,9 +47,11 @@ public class CreateAlbumRequest {
     public static class CreateTrackRequest {
 
         @NotBlank(message = "이름을 입력하지 않은 트랙이 있습니다.")
+        @Length(max = 100, message = "음원 명은 100자 이하로 작성해 주세요.")
         private String name;
 
         @NotBlank(message = "아티스트를 입력하지 않은 트랙이 있습니다.")
+        @Length(max = 100, message = "아티스트는 100자 이하로 작성해 주세요.")
         private String artist;
     }
 }

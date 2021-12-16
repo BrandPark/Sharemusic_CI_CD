@@ -1,9 +1,9 @@
 package com.brandpark.sharemusic.api.v1.search;
 
+import com.brandpark.sharemusic.MockMvcTest;
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.v1.search.dto.AccountSearchResult;
 import com.brandpark.sharemusic.api.v1.search.dto.AlbumSearchResult;
-import com.brandpark.sharemusic.infra.MockMvcTest;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.album.domain.Album;

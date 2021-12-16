@@ -6,7 +6,7 @@
     <nav th:replace="fragments.html:: nav"></nav>
     <div class="container my-5">
         <div class="row">
-            <div class="col-7">
+            <div class="col-7 album-panel">
                 <div class="row pb-5" th:object="${albumDetailView}">
                     <div class="col-5">
                         <div class="image-box d-flex justify-content-center" style="height:185.3px">
@@ -14,7 +14,7 @@
                             <img th:if="${!#strings.isEmpty(albumDetailView.getAlbumImage())}" th:src="${albumDetailView.getAlbumImage()}" class="col-9 rounded-circle">
                         </div>
                     </div>
-                    <div class="col-7 pr-5">
+                    <div class="col-7">
                         <div class="row justify-content-start pb-3">
                             <h3><span th:text="${albumDetailView.getTitle()}" class="pr-3">제목</span></h3>
                             <a th:if="${#authentication.name.equals(albumDetailView.getCreator())}" th:href="@{'/albums/' + ${albumDetailView.getId()} + '/update'}" class="text-decoration-none btn btn-info mr-2" role="button">
@@ -27,12 +27,12 @@
                         </div>
                         <div class="divider"></div>
                         <div class="row text-muted y-scroll" style="height: 100px;"><span th:utext="${albumDetailView.description}">앨범 소개</span></div>
-                        <div class="row justify-content-end pb-4 pt-2"><small class="row text-muted relative-time" th:text="${albumDetailView.getCreatedDate}">앨범 생성 날짜</small></div>
+                        <div class="text-right pb-4 pt-2"><small class="text-muted relative-time" th:text="${albumDetailView.getCreatedDate}">앨범 생성 날짜</small></div>
                     </div>
                 </div>
                 <div class="divider"></div>
                 <div class="row">
-                    <table id="tracks_table" class="table table-bordered border-primary w-100 m-0">
+                    <table id="tracks_table" class="table table-bordered border-primary w-100 m-0" style="opacity: 90%">
                         <thead>
                             <tr class="table-header">
                                 <th scope="col">음원 명</th>
@@ -48,46 +48,53 @@
                     </table>
                 </div>
             </div>
-            <div class="col-5 bg-light pt-2">
-                <div class="row pb-1 sticky-top">
-                    <div class="col-2 d-flex pt-2 justify-content-center">
-                        <i th:if="${#strings.isEmpty(albumDetailView.creatorProfileImage)}" class="fa fa-user-circle text-dark "
-                           aria-hidden="true" style="font-size: 2.5em;"></i>
-                        <img th:if="${!#strings.isEmpty(albumDetailView.creatorProfileImage)}" class="img-fluid float-left rounded-circle img-thumbnail p-0"
-                             th:src="${albumDetailView.creatorProfileImage}"/>
-                    </div>
-                    <div class="col-10">
-                        <div class="row pb-1">
-                            <a th:href="@{'/accounts/' + ${albumDetailView.creator}}" class="text-dark">
-                                <span class="font-weight-bold" style="font-size: 1.1em" th:text="${albumDetailView.creator}">작성자 닉네임</span>
-                            </a>
+            <div class="col-5 bg-light pt-2 d-flex flex-column comment-panel" style="opacity: 90%;">
+                <div class="position-relative">
+                    <div class="row pb-1 sticky-top">
+                        <div class="col-2 d-flex pt-2 justify-content-center">
+                            <i th:if="${#strings.isEmpty(albumDetailView.creatorProfileImage)}" class="fa fa-user-circle text-dark "
+                               aria-hidden="true" style="font-size: 2.5em;"></i>
+                            <img th:if="${!#strings.isEmpty(albumDetailView.creatorProfileImage)}" class="img-fluid float-left rounded-circle img-thumbnail p-0"
+                                 th:src="${albumDetailView.creatorProfileImage}"/>
+                        </div>
+                        <div class="col-10 d-flex align-items-center">
+                            <div class="row pb-1">
+                                <a th:href="@{'/accounts/' + ${albumDetailView.creator}}" class="text-dark">
+                                    <span class="font-weight-bold" style="font-size: 1.2em" th:text="${albumDetailView.creator}">작성자 닉네임</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
+                    <div class="divider"></div>
                 </div>
-                <div class="divider"></div>
+
                 <!-- 댓글들 -->
-                <div id="comments" class="y-scroll" style="height: 380px;"></div>
-                <div class="divider"></div>
-                <!-- 댓글 입력 창 -->
-                <div class="row justify-content-center">
-                    <div th:if="${account == null}" class="w-100 pb-2">
-                        <div class="col-12 text-center">
+                <div id="comments" class="y-scroll position-relative" style="margin-bottom: auto">
+                </div>
+
+                <div class="position-relative" style="bottom:0">
+                    <div class="divider"></div>
+                    <!-- 댓글 입력 창 -->
+                    <div class="row justify-content-center">
+                        <div th:if="${account == null}" class="w-100 pb-2">
+                            <div class="col-12 text-center">
                             <span class="font-weight-bold text-muted">
                                 댓글은
                                 <a th:href="@{/login}" class="text-primary text-decoration-none font-weight-bold">로그인</a>
                                 후 이용하실 수 있습니다.
                             </span>
+                            </div>
                         </div>
+                        <div class="row w-100 pb-2" th:if="${account != null}">
+                            <div  class="col-10">
+                                <textarea id="input-comment" class="form-control auto-size" placeholder="댓글 달기..." style="height: 60px; max-height: 108px"></textarea>
+                            </div>
+                            <div class="col-2 p-0 d-flex align-items-center">
+                                <button id="btn-submit-comment" class="btn  btn-primary">게시</button>
+                            </div>
+                        </div>
+                        <div id="pagination" class="row" style="font-size:0.8em"></div>
                     </div>
-                    <div class="row w-100 pb-2" th:if="${account != null}">
-                        <div  class="col-10">
-                            <textarea id="input-comment" class="form-control auto-size" placeholder="댓글 달기..." style="height: 60px; max-height: 108px"></textarea>
-                        </div>
-                        <div class="col-2 p-0 d-flex align-items-center">
-                            <button id="btn-submit-comment" class="btn  btn-primary">게시</button>
-                        </div>
-                    </div>
-                    <div id="pagination" class="row" style="font-size:0.8em"></div>
                 </div>
             </div>
         </div>
@@ -124,6 +131,7 @@
         $(function () {
             detail.loadComments(0);
             detail.init();
+            $('.comment-panel').css('max-height', $('.album-panel').height());
         });
         let albumId = "[[${albumDetailView.id}]]";
         let detail = {
