@@ -48,4 +48,19 @@ public class ApiExceptionAdvice {
                 .body(result);
     }
 
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ExceptionResult> exceptionHandler(Exception ex) {
+//
+//        String errorMessage = String.format("예기치 못한 상황이 발생했습니다.\n %s", ex.getMessage());
+//
+//        ExceptionResult result = ExceptionResult.builder()
+//                .errorCode(Error.INTERNAL_SERVER_EXCEPTION.getCode())
+//                .errorMessage(errorMessage)
+//                .build();
+//
+//        return ResponseEntity
+//                .status(HttpStatus.BAD_REQUEST)
+//                .header("Content-Type", "application/json;charset=utf-8")
+//                .body(result);
+//    }
 }

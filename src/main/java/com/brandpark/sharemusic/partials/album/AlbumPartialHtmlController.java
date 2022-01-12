@@ -34,6 +34,7 @@ public class AlbumPartialHtmlController {
         WebContext context = new WebContext(request, response, request.getServletContext());
         PagingDto<AlbumCardForm> page = null;
 
+        context.setVariable("isLogin", account != null);
         if (account == null) {
             page = albumPartialRepository.findAllAlbumCardsInfo(pageable);
         } else {

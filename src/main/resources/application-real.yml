@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: # This is in application-realdb.yml
+    username: # This is in application-realdb.yml
+    password: # This is in application-realdb.yml
+    driver-class-name: # This is in application-realdb.yml
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: always
+      schema: classpath:sql/create-session.sql
+  sendgrid:
+    api-key: # This key is in application-secretkey.yml
+
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
+
+app:
+  host: http://ec2-52-79-179-149.ap-northeast-2.compute.amazonaws.com:8080
+
+jwt:
+  secret: # This key is in application-secretkey.yml

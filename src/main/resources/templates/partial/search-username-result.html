@@ -33,7 +33,7 @@
                         </span>
                         (<small th:text="${userInfo.name}">이름</small>)
                     </div>
-                    <span class="card-text line-2-hidden" th:text="${userInfo.bio}">자기소개</span>
+                    <span class="card-text line-2-hidden" th:utext="${userInfo.bio}">자기소개</span>
                     <span th:if="${#strings.isEmpty(userInfo.bio)}" class="text-light">소개</span>
                 </div>
             </div>

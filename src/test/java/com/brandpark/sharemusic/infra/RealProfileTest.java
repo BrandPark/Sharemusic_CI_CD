@@ -11,22 +11,22 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ActiveProfiles("dev")
+@ActiveProfiles("real")
 @SpringBootTest
-class DevProfileTest {
+class RealProfileTest {
 
     @Autowired MailService mailService;
     @Autowired AppProperties appProperties;
 
-    @DisplayName("dev 환경에서는 MailService 로 SendGrid 를 사용한다.")
+    @DisplayName("real 환경에서는 MailService 로 SendGrid 를 사용한다.")
     @Test
-    public void UseSendGridMailService_When_DevProfile() throws Exception {
+    public void UseSendGridMailService_When_RealProfile() throws Exception {
         assertThat(mailService instanceof SendGridMailService).isTrue();
     }
 
-    @DisplayName("dev 환경의 host는 localhost:8080이다.")
+    @DisplayName("real 환경의 host는 ec2의 PUBLIC DOMAIN 이다.")
     @Test
-    public void HostIsLocalhost_When_DevProfile() throws Exception {
-        assertThat(appProperties.getHost()).isEqualTo("http://localhost:8080");
+    public void HostIsLocalhost_When_RealProfile() throws Exception {
+        assertThat(appProperties.getHost()).isEqualTo("http://ec2-52-79-179-149.ap-northeast-2.compute.amazonaws.com:8080");
     }
 }

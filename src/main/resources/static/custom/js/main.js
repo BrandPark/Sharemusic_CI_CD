@@ -1,12 +1,14 @@
 $(function () {
-    $('textarea.auto-size').on('keydown', function () {
-        if ($(this).height() < 96) {
-            $(this).height(1).height($(this).prop('scrollHeight') + 12);
+    $("textarea.auto-size").each(function () {
+        this.setAttribute("style", "height:" + (this.scrollHeight) + "px;");
+    }).on("input", function () {
+        if (this.scrollHeight < 120) {
+            this.style.height = "auto";
+            this.style.height = (this.scrollHeight) + "px";
         }
     });
 
-    viewController.btnInit();
-
+    viewController.init();
     search.init();
     wave.init();
     notification.init();
@@ -29,8 +31,15 @@ const util = {
 }
 
 const viewController = {
+    init: function () {
+        this.btnInit();
+        this.inputInit();
+    },
     btnInit: function () {
         this._followBtnInit();
+    },
+    inputInit: function () {
+        $('input[type=text], textarea').attr("spellcheck", false);
     },
     _followBtnInit: function () {
         let _this = this;

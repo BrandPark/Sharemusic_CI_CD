@@ -64,12 +64,15 @@ i.badge:after{
     overflow-x:hidden;
 }
 .notification-item{
-    background-color: rgb(242,245,245);
+    background-color: rgba(234, 234, 234, 0.8);
 }
 .notification .checked {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.8)
 }
-
+.notification-link {
+    display: flex;
+    align-items: center;
+}
 .list-group-flush .list-group-item{
     background-color: #f1dfdd;
     border-color: #f1dfdd;
@@ -198,4 +201,8 @@ tr.removed input{
 }
 .notification-control-box {
     padding-bottom: 40px;
+}
+.rounded-panel{
+    border-radius: 0.5rem;
+    background-color: rgba(255,255,255,0.8);
 }

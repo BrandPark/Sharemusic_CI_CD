@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
-@Profile("dev")
+@Profile("real")
 @Slf4j
 @RequiredArgsConstructor
 @Service

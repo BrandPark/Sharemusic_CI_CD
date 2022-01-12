@@ -18,7 +18,8 @@ public enum Error {
     NOT_FOUND_ALBUM_EXCEPTION(BAD_REQUEST, "E0008", "앨범을 찾을 수 없습니다."),
     FORBIDDEN_EXCEPTION(FORBIDDEN, "E0009", "접근할 권한이 없습니다."),
 
-    DUPLICATE_FIELD_EXCEPTION(BAD_REQUEST, "E0010", "일치하는 데이터가 이미 존재합니다.");
+    DUPLICATE_FIELD_EXCEPTION(BAD_REQUEST, "E0010", "일치하는 데이터가 이미 존재합니다."),
+    INTERNAL_SERVER_EXCEPTION(INTERNAL_SERVER_ERROR, "E0011", "서버에서 데이터를 처리하는 중 예기치 못한 상황이 발생했습니다.");
 
 
     private final HttpStatus status;

@@ -11,7 +11,6 @@ spring:
           content:
             enabled: true
             paths: /**
-
 server:
   tomcat:
     max-http-form-post-size: 5MB

@@ -29,7 +29,7 @@ public class VerifyMailService {
         context.setVariable("host", appProperties.getHost());
         context.setVariable("linkText", account.getEmail() + " 인증하기");
 
-        String html = templateEngine.process("/accounts/mails/verification-email", context);
+        String html = templateEngine.process("accounts/mails/verification-email", context);
 
         MailMessage message = MailMessage.builder()
                 .to(account.getEmail())

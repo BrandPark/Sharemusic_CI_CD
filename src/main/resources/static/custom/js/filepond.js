@@ -34,7 +34,7 @@ const pond = FilePond.create(
 );
 
 $.fn.filepond.setDefaults({
-    maxFileSize: '1MB',
+    maxFileSize: '3MB',
     labelMaxFileSize: '파일의 크기가 너무 큽니다. 3MB 이하의 사진을 사용해 주세요',
     fileValidateTypeLabelExpectedTypes: 'image/jpeg, image/png 형식의 파일만 가능합니다.',
 });

@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.modules.notification;
 
-import com.brandpark.sharemusic.infra.MockMvcTest;
+import com.brandpark.sharemusic.MockMvcTest;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.notification.domain.Notification;
 import com.brandpark.sharemusic.modules.notification.domain.NotificationRepository;
