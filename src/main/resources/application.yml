@@ -17,3 +17,6 @@ server:
   error:
     whitelabel:
       enabled: false
+
+jwt:
+  secret: default

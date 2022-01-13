@@ -12,3 +12,7 @@ decorator:
       enable-logging: false
 
 batchSize: 500
+jwt:
+  secret: test
+app:
+  host: http://localhost:8080
