@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class TrackRepositoryImpl implements ExtendTrackRepository {
+public class ExtendTrackRepositoryImpl implements ExtendTrackRepository {
 
     private final JdbcTemplate jdbcTemplate;
 

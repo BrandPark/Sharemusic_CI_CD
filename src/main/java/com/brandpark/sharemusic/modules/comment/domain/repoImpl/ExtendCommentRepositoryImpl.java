@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @RequiredArgsConstructor
-public class CommentRepositoryImpl implements ExtendCommentRepository {
+public class ExtendCommentRepositoryImpl implements ExtendCommentRepository {
 
     private final JdbcTemplate jdbcTemplate;
 

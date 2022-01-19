@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class NotificationRepositoryImpl implements ExtendNotificationRepository {
+public class ExtendNotificationRepositoryImpl implements ExtendNotificationRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
