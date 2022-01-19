@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import static com.querydsl.core.types.ExpressionUtils.count;
 
 @RequiredArgsConstructor
-public class AccountRepositoryImpl implements ExtendAccountRepository {
+public class ExtendAccountRepositoryImpl implements ExtendAccountRepository {
 
     private final JPAQueryFactory queryFactory;
 

@@ -7,7 +7,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-class FollowRepositoryImpl implements ExtendFollowRepository {
+class ExtendFollowRepositoryImpl implements ExtendFollowRepository {
 
     private final JPAQueryFactory queryFactory;
     QFollow follow = QFollow.follow;
