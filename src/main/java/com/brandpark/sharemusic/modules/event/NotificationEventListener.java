@@ -31,17 +31,22 @@ public class NotificationEventListener {
     @EventListener
     public void handleFollowEvent(FollowEvent event) {
 
+        Account follower = accountRepository.findById(event.getFollowerId())
+                .orElseThrow(() -> new IllegalArgumentException("팔로우를 요청한 계정이 존재하지 않습니다."));
+
+        Account followingTarget = accountRepository.findById(event.getFollowingTargetId())
+                .orElseThrow(() -> new IllegalArgumentException("팔로우 대상 계정이 존재하지 않습니다."));
+
         String message = String.format("%s 님이 회원님을 팔로우하기 시작했습니다."
-                , event.getFollower().getNickname());
+                , follower.getNickname());
 
-        Account account = event.getFollowingTarget();
 
-        if (account.isNotificationFollowMe()) {
+        if (followingTarget.isNotificationFollowMe()) {
             notificationRepository.save(Notification.builder()
-                    .account(account)
-                    .sender(event.getFollower())
+                    .account(followingTarget)
+                    .sender(follower)
                     .message(message)
-                    .link("/accounts/" + event.getFollower().getNickname())
+                    .link("/accounts/" + follower.getNickname())
                     .checked(false)
                     .notificationType(NotificationType.FOLLOW)
                     .build());

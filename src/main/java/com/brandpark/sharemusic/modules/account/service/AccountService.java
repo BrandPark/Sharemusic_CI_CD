@@ -6,13 +6,13 @@ import com.brandpark.sharemusic.infra.config.session.SessionAccount;
 import com.brandpark.sharemusic.infra.config.session.dto.AccountDto;
 import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.account.dto.UpdateNotificationSettingDto;
-import com.brandpark.sharemusic.modules.follow.domain.Follow;
-import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
+import com.brandpark.sharemusic.modules.account.dto.UpdateNotificationSettingDto;
 import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordDto;
 import com.brandpark.sharemusic.modules.event.FollowEvent;
+import com.brandpark.sharemusic.modules.follow.domain.Follow;
+import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -111,8 +111,8 @@ public class AccountService implements UserDetailsService {
         final Account target = accountRepository.findById(targetAccountId).get();
 
         eventPublisher.publishEvent(FollowEvent.builder()
-                .follower(follower)
-                .followingTarget(target)
+                .followerId(followerId)
+                .followingTargetId(targetAccountId)
                 .build());
 
         return followRepository.save(Follow.builder()
