@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.api.v1.account.dto;
 
-import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
+import com.brandpark.sharemusic.modules.account.account.dto.UpdateAccountDto;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;

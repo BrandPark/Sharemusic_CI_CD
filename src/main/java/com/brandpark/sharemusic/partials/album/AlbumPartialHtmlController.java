@@ -2,7 +2,7 @@ package com.brandpark.sharemusic.partials.album;
 
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
+import com.brandpark.sharemusic.modules.account.follow.domain.FollowRepository;
 import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.partials.PageHtmlResult;
 import com.brandpark.sharemusic.partials.PagingHtmlCreator;

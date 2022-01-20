@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.modules.album.domain;
 
-import com.brandpark.sharemusic.modules.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.account.domain.Account;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.testUtils.AlbumFactory;
 import org.junit.jupiter.api.DisplayName;

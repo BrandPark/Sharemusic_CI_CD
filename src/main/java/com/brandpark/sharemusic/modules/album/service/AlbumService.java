@@ -1,8 +1,8 @@
 package com.brandpark.sharemusic.modules.album.service;
 
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.account.domain.Account;
-import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
+import com.brandpark.sharemusic.modules.account.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.album.domain.*;
 import com.brandpark.sharemusic.modules.album.dto.CreateAlbumDto;
 import com.brandpark.sharemusic.modules.album.dto.UpdateAlbumDto;

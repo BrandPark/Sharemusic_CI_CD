@@ -1,7 +1,6 @@
 package com.brandpark.sharemusic.modules.notification.domain;
 
 import com.brandpark.sharemusic.modules.BaseTimeEntity;
-import com.brandpark.sharemusic.modules.account.domain.Account;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
 import lombok.*;
 
@@ -27,13 +26,11 @@ public class Notification extends BaseTimeEntity {
     @Column(nullable = false)
     private String link;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id", nullable = false)
-    private Account sender;
+    @Column(name = "account_id", nullable = false)
+    private Long accountId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
+    @Column(name = "sender_id", nullable = false)
+    private Long senderId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

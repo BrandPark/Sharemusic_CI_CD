@@ -2,6 +2,8 @@ package com.brandpark.sharemusic.modules.notification.service;
 
 import com.brandpark.sharemusic.infra.config.auth.CustomUserDetails;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
+import com.brandpark.sharemusic.modules.account.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.notification.domain.NotificationRepository;
 import com.brandpark.sharemusic.modules.notification.form.NotificationForm;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class NotificationInterceptor implements HandlerInterceptor {
 
     private final NotificationRepository notificationRepository;
+    private final AccountRepository accountRepository;
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler
@@ -34,17 +37,23 @@ public class NotificationInterceptor implements HandlerInterceptor {
 
             SessionAccount account = ((CustomUserDetails) authentication.getPrincipal()).getSessionAccount();
 
+
             List<NotificationForm> notifications = notificationRepository.findFirst10ByAccountIdOrderByCheckedAscCreatedDateDesc(account.getId())
                     .stream()
-                    .map(no -> new NotificationForm(
-                            no.getId()
-                            , no.getSender().getProfileImage()
-                            , no.getSender().getNickname()
-                            , no.getMessage()
-                            , no.getLink()
-                            , no.isChecked()
-                            , no.getCreatedDate()
-                            , no.getNotificationType().name()))
+                    .map(no -> {
+                        Account sender = accountRepository.findById(no.getSenderId())
+                                .orElseThrow(() -> new IllegalArgumentException("알림을 보낸 계정이 존재하지 않습니다."));
+
+                        return new NotificationForm(
+                                no.getId()
+                                , sender.getProfileImage()
+                                , sender.getNickname()
+                                , no.getMessage()
+                                , no.getLink()
+                                , no.isChecked()
+                                , no.getCreatedDate()
+                                , no.getNotificationType().name());
+                    })
                     .collect(Collectors.toList());
 
             int notReadCount = notificationRepository.countByAccountIdAndCheckedIsFalse(account.getId());

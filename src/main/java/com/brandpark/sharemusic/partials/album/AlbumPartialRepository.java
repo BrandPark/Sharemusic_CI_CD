@@ -1,10 +1,10 @@
 package com.brandpark.sharemusic.partials.album;
 
-import com.brandpark.sharemusic.modules.account.domain.QAccount;
+import com.brandpark.sharemusic.modules.account.account.domain.QAccount;
+import com.brandpark.sharemusic.modules.account.follow.domain.QFollow;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.album.domain.QTrack;
 import com.brandpark.sharemusic.modules.comment.domain.QComment;
-import com.brandpark.sharemusic.modules.follow.domain.QFollow;
 import com.brandpark.sharemusic.modules.util.page.PagingDtoFactory;
 import com.brandpark.sharemusic.modules.util.page.dto.PagingDto;
 import com.brandpark.sharemusic.partials.album.form.AlbumCardForm;
