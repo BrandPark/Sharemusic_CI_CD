@@ -2,8 +2,8 @@ package com.brandpark.sharemusic.modules.notification.service;
 
 import com.brandpark.sharemusic.infra.config.auth.CustomUserDetails;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.account.domain.Account;
-import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
+import com.brandpark.sharemusic.modules.account.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.notification.domain.NotificationRepository;
 import com.brandpark.sharemusic.modules.notification.form.NotificationForm;
 import lombok.RequiredArgsConstructor;

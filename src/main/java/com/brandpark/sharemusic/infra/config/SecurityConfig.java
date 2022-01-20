@@ -2,7 +2,7 @@ package com.brandpark.sharemusic.infra.config;
 
 import com.brandpark.sharemusic.infra.config.db.UppercaseJdbcTokenRepository;
 import com.brandpark.sharemusic.infra.jwt.JwtRequestFilter;
-import com.brandpark.sharemusic.modules.account.service.AccountService;
+import com.brandpark.sharemusic.modules.account.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;

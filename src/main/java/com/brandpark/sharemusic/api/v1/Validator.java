@@ -6,12 +6,12 @@ import com.brandpark.sharemusic.api.v1.album.dto.UpdateAlbumRequest.UpdateTrackR
 import com.brandpark.sharemusic.api.v1.exception.ApiException;
 import com.brandpark.sharemusic.api.v1.exception.Error;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
+import com.brandpark.sharemusic.modules.account.account.domain.AccountRepository;
+import com.brandpark.sharemusic.modules.account.follow.domain.FollowRepository;
 import com.brandpark.sharemusic.infra.config.auth.Role;
-import com.brandpark.sharemusic.modules.account.dto.CreateAccountDto;
-import com.brandpark.sharemusic.modules.account.dto.UpdateAccountDto;
-import com.brandpark.sharemusic.modules.account.dto.UpdatePasswordDto;
+import com.brandpark.sharemusic.modules.account.account.dto.CreateAccountDto;
+import com.brandpark.sharemusic.modules.account.account.dto.UpdateAccountDto;
+import com.brandpark.sharemusic.modules.account.account.dto.UpdatePasswordDto;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.album.domain.TrackRepository;

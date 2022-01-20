@@ -1,8 +1,8 @@
 package com.brandpark.sharemusic.testUtils;
 
-import com.brandpark.sharemusic.modules.account.domain.Account;
-import com.brandpark.sharemusic.modules.follow.domain.Follow;
-import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
+import com.brandpark.sharemusic.modules.account.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.follow.domain.Follow;
+import com.brandpark.sharemusic.modules.account.follow.domain.FollowRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

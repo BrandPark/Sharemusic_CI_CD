@@ -6,7 +6,7 @@ import com.brandpark.sharemusic.api.page.PageResultFactory;
 import com.brandpark.sharemusic.api.v1.search.dto.AccountSearchResult;
 import com.brandpark.sharemusic.api.v1.search.dto.AlbumSearchResult;
 import com.brandpark.sharemusic.api.v1.search.dto.AlbumSearchResult.TrackSearchResult;
-import com.brandpark.sharemusic.modules.account.domain.QAccount;
+import com.brandpark.sharemusic.modules.account.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.album.domain.QAlbum;
 import com.brandpark.sharemusic.modules.album.domain.QTrack;
 import com.querydsl.core.QueryResults;

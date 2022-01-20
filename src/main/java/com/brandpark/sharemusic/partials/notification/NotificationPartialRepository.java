@@ -1,6 +1,6 @@
 package com.brandpark.sharemusic.partials.notification;
 
-import com.brandpark.sharemusic.modules.account.domain.QAccount;
+import com.brandpark.sharemusic.modules.account.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
 import com.brandpark.sharemusic.modules.notification.domain.QNotification;
 import com.brandpark.sharemusic.modules.util.page.PagingDtoFactory;

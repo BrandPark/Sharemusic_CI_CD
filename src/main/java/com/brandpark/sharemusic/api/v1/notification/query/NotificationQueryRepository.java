@@ -3,7 +3,7 @@ package com.brandpark.sharemusic.api.v1.notification.query;
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.page.PageResultFactory;
 import com.brandpark.sharemusic.api.v1.notification.dto.NotificationInfoResponse;
-import com.brandpark.sharemusic.modules.account.domain.QAccount;
+import com.brandpark.sharemusic.modules.account.account.domain.QAccount;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
 import com.brandpark.sharemusic.modules.notification.domain.QNotification;
 import com.querydsl.core.QueryResults;
