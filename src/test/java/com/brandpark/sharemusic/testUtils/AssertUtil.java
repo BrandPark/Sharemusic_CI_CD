@@ -82,9 +82,9 @@ public abstract class AssertUtil {
         assertThat(notification.getId()).isNotNull();
         assertThat(notification.getLink()).isNotNull();
         assertThat(notification.getMessage()).isNotNull();
-        assertThat(notification.getSender()).isNotNull();
+        assertThat(notification.getSenderId()).isNotNull();
         assertThat(notification.getNotificationType()).isNotNull();
-        assertThat(notification.getAccount()).isNotNull();
+        assertThat(notification.getAccountId()).isNotNull();
         assertThat(notification.getCreatedDate()).isNotNull();
         assertThat(notification.getModifiedDate()).isNotNull();
     }

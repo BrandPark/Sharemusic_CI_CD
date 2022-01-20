@@ -1,9 +1,9 @@
 package com.brandpark.sharemusic.modules.follow;
 
-import com.brandpark.sharemusic.modules.account.domain.Account;
-import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
-import com.brandpark.sharemusic.modules.follow.domain.Follow;
-import com.brandpark.sharemusic.modules.follow.domain.FollowRepository;
+import com.brandpark.sharemusic.modules.account.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.account.domain.AccountRepository;
+import com.brandpark.sharemusic.modules.account.follow.domain.Follow;
+import com.brandpark.sharemusic.modules.account.follow.domain.FollowRepository;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.testUtils.FollowFactory;
 import org.junit.jupiter.api.BeforeEach;

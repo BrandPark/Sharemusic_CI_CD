@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.modules.event;
 
-import com.brandpark.sharemusic.modules.account.domain.Account;
-import com.brandpark.sharemusic.modules.account.domain.AccountRepository;
+import com.brandpark.sharemusic.modules.account.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.album.domain.Album;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
 import com.brandpark.sharemusic.modules.notification.NotificationType;
@@ -31,17 +31,22 @@ public class NotificationEventListener {
     @EventListener
     public void handleFollowEvent(FollowEvent event) {
 
+        Account follower = accountRepository.findById(event.getFollowerId())
+                .orElseThrow(() -> new IllegalArgumentException("팔로우를 요청한 계정이 존재하지 않습니다."));
+
+        Account followingTarget = accountRepository.findById(event.getFollowingTargetId())
+                .orElseThrow(() -> new IllegalArgumentException("팔로우 대상 계정이 존재하지 않습니다."));
+
         String message = String.format("%s 님이 회원님을 팔로우하기 시작했습니다."
-                , event.getFollower().getNickname());
+                , follower.getNickname());
 
-        Account account = event.getFollowingTarget();
 
-        if (account.isNotificationFollowMe()) {
+        if (followingTarget.isNotificationFollowMe()) {
             notificationRepository.save(Notification.builder()
-                    .account(account)
-                    .sender(event.getFollower())
+                    .accountId(followingTarget.getId())
+                    .senderId(follower.getId())
                     .message(message)
-                    .link("/accounts/" + event.getFollower().getNickname())
+                    .link("/accounts/" + follower.getNickname())
                     .checked(false)
                     .notificationType(NotificationType.FOLLOW)
                     .build());
@@ -66,8 +71,8 @@ public class NotificationEventListener {
 
         if (targetAccount.isNotificationCommentOnMyAlbum()) {
             notificationRepository.save(Notification.builder()
-                    .account(targetAccount)
-                    .sender(writer)
+                    .accountId(targetAccount.getId())
+                    .senderId(writer.getId())
                     .message(message)
                     .link("/albums/" + targetAlbum.getId())
                     .checked(false)
@@ -93,8 +98,8 @@ public class NotificationEventListener {
         for (Account follower : followers) {
             if (follower.isNotificationAlbumCreatedByMyFollowing()) {
                 notifications.add(Notification.builder()
-                        .account(follower)
-                        .sender(albumCreator)
+                        .accountId(follower.getId())
+                        .senderId(albumCreator.getId())
                         .message(message)
                         .link("/albums/" + createdAlbum.getId())
                         .checked(false)

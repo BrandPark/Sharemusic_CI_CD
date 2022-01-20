@@ -2,7 +2,7 @@ package com.brandpark.sharemusic.infra.jwt;
 
 import com.brandpark.sharemusic.MockMvcTest;
 import com.brandpark.sharemusic.infra.jwt.dto.JwtRequest;
-import com.brandpark.sharemusic.modules.account.domain.Account;
+import com.brandpark.sharemusic.modules.account.account.domain.Account;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
