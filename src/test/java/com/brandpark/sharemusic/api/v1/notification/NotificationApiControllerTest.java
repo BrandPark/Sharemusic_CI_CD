@@ -111,10 +111,12 @@ class NotificationApiControllerTest {
                     AssertUtil.assertDtoIsNotEmpty(resultOne);
 
                     Notification expected = followTypes.get(0);
+                    Account expectedSender = accountRepository.findById(expected.getSenderId()).get();
+
                     assertThat(resultOne.getMessage()).isEqualTo(expected.getMessage());
                     assertThat(resultOne.getLink()).isEqualTo(expected.getLink());
-                    assertThat(resultOne.getSenderNickname()).isEqualTo(expected.getSender().getNickname());
-                    assertThat(resultOne.getSenderProfileImage()).isEqualTo(expected.getSender().getProfileImage());
+                    assertThat(resultOne.getSenderNickname()).isEqualTo(expectedSender.getNickname());
+                    assertThat(resultOne.getSenderProfileImage()).isEqualTo(expectedSender.getProfileImage());
                 });
     }
 
@@ -158,11 +160,13 @@ class NotificationApiControllerTest {
                     AssertUtil.assertDtoIsNotEmpty(resultOne);
 
                     Notification expected = followTypes.get(0);
+                    Account expectedSender = accountRepository.findById(expected.getSenderId()).get();
+
                     assertThat(resultOne.getMessage()).isEqualTo(expected.getMessage());
                     assertThat(resultOne.getLink()).isEqualTo(expected.getLink());
                     assertThat(resultOne.getNotificationType()).isEqualTo(FOLLOW);
-                    assertThat(resultOne.getSenderNickname()).isEqualTo(expected.getSender().getNickname());
-                    assertThat(resultOne.getSenderProfileImage()).isEqualTo(expected.getSender().getProfileImage());
+                    assertThat(resultOne.getSenderNickname()).isEqualTo(expectedSender.getNickname());
+                    assertThat(resultOne.getSenderProfileImage()).isEqualTo(expectedSender.getProfileImage());
                 });
     }
 
@@ -206,11 +210,13 @@ class NotificationApiControllerTest {
                     AssertUtil.assertDtoIsNotEmpty(resultOne);
 
                     Notification expected = commentTypes.get(0);
+                    Account expectedSender = accountRepository.findById(expected.getSenderId()).get();
+
                     assertThat(resultOne.getMessage()).isEqualTo(expected.getMessage());
                     assertThat(resultOne.getLink()).isEqualTo(expected.getLink());
                     assertThat(resultOne.getNotificationType()).isEqualTo(COMMENT);
-                    assertThat(resultOne.getSenderNickname()).isEqualTo(expected.getSender().getNickname());
-                    assertThat(resultOne.getSenderProfileImage()).isEqualTo(expected.getSender().getProfileImage());
+                    assertThat(resultOne.getSenderNickname()).isEqualTo(expectedSender.getNickname());
+                    assertThat(resultOne.getSenderProfileImage()).isEqualTo(expectedSender.getProfileImage());
                 });
     }
 
@@ -254,11 +260,13 @@ class NotificationApiControllerTest {
                     AssertUtil.assertDtoIsNotEmpty(resultOne);
 
                     Notification expected = createAlbumTypes.get(0);
+                    Account expectedSender = accountRepository.findById(expected.getSenderId()).get();
+
                     assertThat(resultOne.getMessage()).isEqualTo(expected.getMessage());
                     assertThat(resultOne.getLink()).isEqualTo(expected.getLink());
                     assertThat(resultOne.getNotificationType()).isEqualTo(CREATED_ALBUM_BY_FOLLOWER);
-                    assertThat(resultOne.getSenderNickname()).isEqualTo(expected.getSender().getNickname());
-                    assertThat(resultOne.getSenderProfileImage()).isEqualTo(expected.getSender().getProfileImage());
+                    assertThat(resultOne.getSenderNickname()).isEqualTo(expectedSender.getNickname());
+                    assertThat(resultOne.getSenderProfileImage()).isEqualTo(expectedSender.getProfileImage());
                 });
     }
 

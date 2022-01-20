@@ -179,7 +179,7 @@ public class Validator {
 
     private void checkAuthorityToReadCheckNotification(SessionAccount account, Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId).get();
-        checkAuthorityToUpdate(account, notification.getAccount().getId());
+        checkAuthorityToUpdate(account, notification.getAccountId());
     }
 
     private void checkExistsNotification(Long notificationId) {

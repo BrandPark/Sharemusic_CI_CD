@@ -43,8 +43,8 @@ public class NotificationEventListener {
 
         if (followingTarget.isNotificationFollowMe()) {
             notificationRepository.save(Notification.builder()
-                    .account(followingTarget)
-                    .sender(follower)
+                    .accountId(followingTarget.getId())
+                    .senderId(follower.getId())
                     .message(message)
                     .link("/accounts/" + follower.getNickname())
                     .checked(false)
@@ -71,8 +71,8 @@ public class NotificationEventListener {
 
         if (targetAccount.isNotificationCommentOnMyAlbum()) {
             notificationRepository.save(Notification.builder()
-                    .account(targetAccount)
-                    .sender(writer)
+                    .accountId(targetAccount.getId())
+                    .senderId(writer.getId())
                     .message(message)
                     .link("/albums/" + targetAlbum.getId())
                     .checked(false)
@@ -98,8 +98,8 @@ public class NotificationEventListener {
         for (Account follower : followers) {
             if (follower.isNotificationAlbumCreatedByMyFollowing()) {
                 notifications.add(Notification.builder()
-                        .account(follower)
-                        .sender(albumCreator)
+                        .accountId(follower.getId())
+                        .senderId(albumCreator.getId())
                         .message(message)
                         .link("/albums/" + createdAlbum.getId())
                         .checked(false)

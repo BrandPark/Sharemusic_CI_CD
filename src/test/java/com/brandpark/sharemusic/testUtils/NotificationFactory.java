@@ -37,8 +37,8 @@ public class NotificationFactory {
                 .link("link")
                 .notificationType(type)
                 .checked(false)
-                .sender(sender)
-                .account(receiver)
+                .senderId(sender.getId())
+                .accountId(receiver.getId())
                 .message("message")
                 .build();
     }

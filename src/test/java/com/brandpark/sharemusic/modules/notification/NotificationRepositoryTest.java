@@ -52,7 +52,7 @@ public class NotificationRepositoryTest {
         Notification resultOne = result.get(0);
         AssertUtil.assertEntityIsNotEmpty(resultOne);
 
-        assertThat(resultOne.getAccount().getId()).isEqualTo(myAccount.getId());
+        assertThat(resultOne.getAccountId()).isEqualTo(myAccount.getId());
         assertThat(resultOne.getCreatedDate()).isAfterOrEqualTo(result.get(9).getCreatedDate());
     }
 
@@ -158,8 +158,8 @@ public class NotificationRepositoryTest {
 
         Notification resultOne = results.get(0);
         AssertUtil.assertEntityIsNotEmpty(resultOne);
-        assertThat(resultOne.getSender().getId()).isEqualTo(myAccount.getId());
-        assertThat(resultOne.getAccount().getId()).isEqualTo(otherAccount.getId());
+        assertThat(resultOne.getSenderId()).isEqualTo(myAccount.getId());
+        assertThat(resultOne.getAccountId()).isEqualTo(otherAccount.getId());
         assertThat(resultOne.getNotificationType()).isEqualTo(NotificationType.CREATED_ALBUM_BY_FOLLOWER);
     }
 }

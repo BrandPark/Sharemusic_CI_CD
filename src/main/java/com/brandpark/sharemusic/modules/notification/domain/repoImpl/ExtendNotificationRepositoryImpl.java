@@ -55,8 +55,8 @@ public class ExtendNotificationRepositoryImpl implements ExtendNotificationRepos
                 Notification n = buff.get(i);
                 LocalDateTime now = LocalDateTime.now();
 
-                ps.setLong(1, n.getSender().getId());
-                ps.setLong(2, n.getAccount().getId());
+                ps.setLong(1, n.getSenderId());
+                ps.setLong(2, n.getAccountId());
                 ps.setBoolean(3, n.isChecked());
                 ps.setString(4, n.getLink());
                 ps.setString(5, n.getMessage());
