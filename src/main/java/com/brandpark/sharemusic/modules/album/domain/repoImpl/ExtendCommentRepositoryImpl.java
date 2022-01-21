@@ -1,6 +1,6 @@
-package com.brandpark.sharemusic.modules.comment.domain.repoImpl;
+package com.brandpark.sharemusic.modules.album.domain.repoImpl;
 
-import com.brandpark.sharemusic.modules.comment.domain.ExtendCommentRepository;
+import com.brandpark.sharemusic.modules.album.domain.ExtendCommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 

@@ -7,7 +7,7 @@ import com.brandpark.sharemusic.api.v1.notification.dto.NotificationInfoResponse
 import com.brandpark.sharemusic.api.v1.search.dto.AccountSearchResult;
 import com.brandpark.sharemusic.api.v1.search.dto.AlbumSearchResult;
 import com.brandpark.sharemusic.modules.album.domain.Album;
-import com.brandpark.sharemusic.modules.comment.domain.Comment;
+import com.brandpark.sharemusic.modules.album.domain.Comment;
 import com.brandpark.sharemusic.modules.notification.domain.Notification;
 import org.springframework.data.domain.Page;
 
