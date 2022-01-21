@@ -2,6 +2,8 @@ package com.brandpark.sharemusic.modules.comment.domain;
 
 import com.brandpark.sharemusic.modules.account.account.domain.Account;
 import com.brandpark.sharemusic.modules.album.domain.Album;
+import com.brandpark.sharemusic.modules.album.domain.Comment;
+import com.brandpark.sharemusic.modules.album.domain.CommentRepository;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.testUtils.AlbumFactory;
 import com.brandpark.sharemusic.testUtils.AssertUtil;

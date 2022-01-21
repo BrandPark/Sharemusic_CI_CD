@@ -15,8 +15,6 @@ import com.brandpark.sharemusic.modules.account.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.account.service.AccountService;
 import com.brandpark.sharemusic.modules.album.domain.*;
-import com.brandpark.sharemusic.modules.comment.domain.Comment;
-import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.testUtils.AlbumFactory;
 import com.brandpark.sharemusic.testUtils.CommentFactory;
