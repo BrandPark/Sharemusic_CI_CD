@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules.comment.domain;
+package com.brandpark.sharemusic.modules.album.domain;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

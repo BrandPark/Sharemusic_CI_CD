@@ -8,7 +8,6 @@ import com.brandpark.sharemusic.modules.album.dto.CreateAlbumDto;
 import com.brandpark.sharemusic.modules.album.dto.UpdateAlbumDto;
 import com.brandpark.sharemusic.modules.album.form.AlbumDetailInfoForm;
 import com.brandpark.sharemusic.modules.album.form.AlbumUpdateForm;
-import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
 import com.brandpark.sharemusic.modules.event.CreateAlbumEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;

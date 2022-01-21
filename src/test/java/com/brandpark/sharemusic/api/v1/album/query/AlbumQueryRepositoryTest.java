@@ -6,7 +6,7 @@ import com.brandpark.sharemusic.api.v1.album.dto.AlbumInfoResponse.TrackInfoResp
 import com.brandpark.sharemusic.modules.account.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.album.domain.AlbumRepository;
-import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
+import com.brandpark.sharemusic.modules.album.domain.CommentRepository;
 import com.brandpark.sharemusic.testUtils.AccountFactory;
 import com.brandpark.sharemusic.testUtils.AlbumFactory;
 import org.junit.jupiter.api.DisplayName;

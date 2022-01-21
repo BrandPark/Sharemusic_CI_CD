@@ -1,7 +1,7 @@
 package com.brandpark.sharemusic.testUtils;
 
-import com.brandpark.sharemusic.modules.comment.domain.Comment;
-import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
+import com.brandpark.sharemusic.modules.album.domain.Comment;
+import com.brandpark.sharemusic.modules.album.domain.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;

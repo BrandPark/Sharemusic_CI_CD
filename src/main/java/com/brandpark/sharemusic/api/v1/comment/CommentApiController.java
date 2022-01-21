@@ -2,13 +2,13 @@ package com.brandpark.sharemusic.api.v1.comment;
 
 import com.brandpark.sharemusic.api.page.PageResult;
 import com.brandpark.sharemusic.api.page.PageResultFactory;
+import com.brandpark.sharemusic.api.v1.Validator;
 import com.brandpark.sharemusic.api.v1.comment.dto.CommentInfoResponse;
 import com.brandpark.sharemusic.infra.config.auth.LoginAccount;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.api.v1.Validator;
-import com.brandpark.sharemusic.modules.comment.CommentService;
-import com.brandpark.sharemusic.modules.comment.domain.Comment;
-import com.brandpark.sharemusic.modules.comment.domain.CommentRepository;
+import com.brandpark.sharemusic.modules.album.domain.Comment;
+import com.brandpark.sharemusic.modules.album.domain.CommentRepository;
+import com.brandpark.sharemusic.modules.album.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

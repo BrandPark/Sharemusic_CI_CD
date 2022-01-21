@@ -1,4 +1,4 @@
-package com.brandpark.sharemusic.modules.comment.domain;
+package com.brandpark.sharemusic.modules.album.domain;
 
 public interface ExtendCommentRepository {
     void deleteAllCommentsByAlbumId(Long albumId);
