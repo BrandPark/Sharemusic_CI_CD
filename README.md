@@ -1,17 +1,23 @@
 # Sharemusic_CI_CD
 Sharemusic은 제가 학교다니던 시절에 친구에게 매일 무슨 음악을 듣는지 추천받던 기억에서 시작한 개인 프로젝트입니다.
 저와 같이 듣는 음악의 취향은 분명하게 있으나 원하는 음악의 정보를 알 수 있는 **통로**가 없는 사람들은 결국 음원 차트 순위에 올라와 있는 음악를 듣게됩니다.
-Sharemusic 은 음악을 공유할 수 있는 **통로**의 역할을 할 수 있도록 만들었습니다.
+Sharemusic 은 음악을 공유할 수 있는 **통로**의 역할을 하는 것이 컨셉입니다. 
 
 ## 프로젝트 시작 계기
-회사에서 실무를 해보면서 내가 코드를 짤 때 굉장히 생각이 많다는 것을 새삼 느꼈다. 내 자신을 되돌아본 결과 **좋은 코드를 만들고 싶은 욕심에 비해 경험이 부족하여 무엇이 옳은지 판단을 못내리는 것이었다.** 고민 끝에 개인 프로젝트를 통해 하나의 서비스를 처음부터 만들어보면서 공부를 병행하면 부족한 경험과 판단 속도가 생길 것이라 생각하여 시작하게 되었다. 
+회사에서 실무를 해보면서 내가 코드를 짤 때 굉장히 생각이 많다는 것을 새삼 느꼈습니다. 내 자신을 되돌아본 결과 **좋은 코드를 만들고 싶은 욕심에 비해 경험이 부족하여 무엇이 옳은지 판단을 못내리는 것이었습니다.** 고민 끝에 개인 프로젝트를 통해 하나의 서비스를 처음부터 만들어보면서 공부를 병행하면 부족한 경험과 판단 속도가 생길 것이라 생각하여 시작하게 되었습니다. 
 
-Sharemusic은 사실 졸업작품을 만들 당시 내가 냈던 아이디어인데 역할 분담 시 웹 디자인을 맡게 되어서 백엔드 쪽을 많이 건드려보지 못했다. 그게 너무 아쉬워서 이번에는 같은 아이디어로 백엔드에 초점을 맞춰서 만들었다. 
+Sharemusic은 사실 졸업작품을 만들 당시 제가 냈던 아이디어인데 역할 분담 시 백엔드를 맡았다가 웹 디자인 파트의 팀원이 못하겠다고 하여 중간에 제가 맡게 되었습니다.
+백엔드 코드를 끝까지 담당하지 못한게 너무 아쉬워서 같은 아이디어로 백엔드에 초점을 맞춰 시작한 것이 이 프로젝트입니다.
+
+
 
 ## 프로젝트 목표
+
+이 프로젝트는 기능은 간단히 하고 설계와 실제 운영 서비스 처럼 CI/CD 파이프 라인을 구축하여 배포 자동화를 하여 운영하는 것을 목표로하였습니다.
+
 - 서비스 규모 확장성을 고려하여 **패키지 간의 의존성을 관리해 모듈화한다.**
 - 무료 EC2는 하나만 생성가능하기 때문에 **API서버와 App 서버를 하나의 프로젝트에 만든다.** 대신 규모가 확장성을 고려하여 분리하여 설계한다.
-- **도메인 간의 결합도를 최소화 한다.**
+- **DDD의 Aggregate 개념을 도입하여 도메인 간의 결합도를 관리한다.**
 - Restful API를 만들어 Front-End Framework나 Android 개발에 열려있도록 한다.
 - **최대한 객체지향적으로 코드를 짜며 유지보수성을 높인다.**
 - Presentation Layer와 Application Layer를 구분하여 유지보수성을 높인다.
@@ -27,7 +33,11 @@ Sharemusic은 사실 졸업작품을 만들 당시 내가 냈던 아이디어인
 <br>
 
 ## 프로젝트를 마치며...
-부족한 지식을 찾아가며 해결하면서 문제 해결력과 침착함이 발전한 것 같다. 아쉬운 점은 뷰나 리액트를 공부해서 Rest API 통신을 하여 웹앱을 만들어보고 싶지만 처음 목표에서 벗어나는 것 같아 다음에 시간이 나면 발전 시키려고한다. 이것 말고도 기능적으로도 [last.fm api](https://www.last.fm/api/show/artist.search)를 통해 음악을 검색해서 검색 된 음악만 저장할 수 있게 하는 기능 등 시간이 날 때 마다 발전 시켜 볼 예정이다.
+
+프로젝트를 하면서 얻은 것은 스스로 문제를 해결해 가며 문제 해결력과 침착함이 발전한 것 같습니다.
+
+jwt 필터를 만들고 jwt토큰을 발급하는 기능까지 구현했지만 활용해 보지 못해서 아쉽습니다. 
+앱을 따로 만들어 통신 해보고 싶지만 처음 목표에서 벗어나는 것 같아 다음에 시간이 나면 적용해 보려고 합니다. 
 
 <br>
 
@@ -91,13 +101,60 @@ Sharemusic은 사실 졸업작품을 만들 당시 내가 냈던 아이디어인
 <br>
 
 
-## Domain Diagram
+## 도메인 다이어그램
 
+![image](https://user-images.githubusercontent.com/53790137/150625544-5633fac8-e0c1-457e-8a16-b6a887fa514e.png)
 
-## Package Dependency Diagram
+<br>
 
+## 패키지 다이어그램
+
+![image](https://user-images.githubusercontent.com/53790137/150625586-9d0a1865-abd0-438d-ad32-92315a43110e.png)
+
+- **api** : rest api와 관련된 패키지
+- **modules** : app의 비즈니스 로직과 엔티티들이 들어있다.
+- **partials** : client side rendering을 하는 것과 같이 화면의 깜박임을 없애고자 ajax 요청에 html 문서 일부를 응답하는 패키지
+- **infra** : app의 spring 설정과 관련된 패키지이다.
+
+<br>
+
+## 객체 다이어그램(modules 패키지 내부)
+
+![image](https://user-images.githubusercontent.com/53790137/150625984-2ca0de63-96da-43bd-9b2b-bd017f9d7837.png)
+
+DDD의 Aggregate 개념을 필요하다고 생각되는 부분에 적용하였다. 
+Application event를 통해 알림을 생성하는 것 까지 표현하고자 패키지 그림도 넣었다.
+
+<br>
+
+## ERD
+
+![image](https://user-images.githubusercontent.com/53790137/150626410-7ed0df0b-0c44-49db-a9d8-6fed797157ee.png)
+
+<br>
+
+## 프로젝트 동안 해결한 문제
+- [설계를 어떻게 해야할까?](https://javanitto.tistory.com/41)
+- [Gmail을 SMTP 서버로 구현하던 중 만난 에러](https://javanitto.tistory.com/32) (문제는 해결했지만 SendGrid를 사용했다.)
+- [로그인 기억하기 기능 구현(Remember Me)](https://javanitto.tistory.com/35)
+- [NPM으로 프론트엔드 라이브러리 빌드 시 자동 다운로드하기](https://javanitto.tistory.com/34)
+- [데이터베이스에 세션 저장하기](https://javanitto.tistory.com/22)
+- MySQL을 사용하면서 테이블 네이밍 대문자로 변환하기 (SpringPhysicalNamingStrategy)
+- [Travis-CI로 S3에 배포하기](https://docs.travis-ci.com/user/deployment/s3/)
+- [CodeDeploy 로 EC2에 배포 설정하기](https://jojoldu.tistory.com/281)
+
+가장 어려웠던 문제는 CI/CD 파이프 라인을 구축하는 작업이었습니다. 
+감춰야 할 설정파일들을 private repository에 따로 저장두어서 빌드할 때 가져와야 했는데 travis CI 서버 내부의 디렉터리 구조를 모르다 보니 헤맸습니다. 
+급할수록 돌아가라고 documentation을 뒤져서 해결했습니다.
+
+시간이 가장 많이 걸렸던 작업은 화면개발이었습니다. 웹앱이라 디자인이 못나게 하고 싶지는 않았는데 어떻게 해도 못나보여서 몇번을 수정한 것 같습니다. 
+
+테스트 코드 작성도 시간이 많이 걸렸습니다. 클래스를 수정할 때 마다 작성해 두었던 테스트 코드들도 굉장히 많은 영향을 받았습니다.
+마틴 파울러의 [Object Mother](https://martinfowler.com/bliki/ObjectMother.html) 글을 보고 영감을 받아 단순 반복되는 작업을 따로 util화 시켜서 작성했더니 유지보수성이 높아졌습니다.
 
 ## 기술 스택
 
-## Sharemusic API Docs
-* [API Docs with Swagger](http://ec2-52-79-179-149.ap-northeast-2.compute.amazonaws.com:8080/swagger-ui.html)
+**Back-end** : `Spring Boot 2.4`, `Java 11`, `Gradle 6.9`, `QueryDsl`, `JPA`, `JDBC`, `NPM`, `Shell script`, `Git`, `JUnit`, `Arcunit`, `Send Grid`, `Travis-CI`
+**Front-end** : `Bootstrap 4.6`, `JavaScript`, `Thymeleaf`
+**Database** : `H2`, `MySQL 8.0`
+**Cloud computing** : AWS (EC2, RDS, S3, CodeDeploy)
