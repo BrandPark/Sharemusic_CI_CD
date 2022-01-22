@@ -3,12 +3,15 @@ Sharemusic은 제가 학교다니던 시절에 친구에게 매일 무슨 음악
 저와 같이 듣는 음악의 취향은 분명하게 있으나 원하는 음악의 정보를 알 수 있는 **통로**가 없는 사람들은 결국 음원 차트 순위에 올라와 있는 음악를 듣게됩니다.
 Sharemusic 은 음악을 공유할 수 있는 **통로**의 역할을 하는 것이 컨셉입니다. 
 
+**접속 링크 : http://ec2-52-79-179-149.ap-northeast-2.compute.amazonaws.com:8080/**
+
 ## 프로젝트 시작 계기
 회사에서 실무를 해보면서 내가 코드를 짤 때 굉장히 생각이 많다는 것을 새삼 느꼈습니다. 내 자신을 되돌아본 결과 **좋은 코드를 만들고 싶은 욕심에 비해 경험이 부족하여 무엇이 옳은지 판단을 못내리는 것이었습니다.** 고민 끝에 개인 프로젝트를 통해 하나의 서비스를 처음부터 만들어보면서 공부를 병행하면 부족한 경험과 판단 속도가 생길 것이라 생각하여 시작하게 되었습니다. 
 
 Sharemusic은 사실 졸업작품을 만들 당시 제가 냈던 아이디어인데 역할 분담 시 백엔드를 맡았다가 웹 디자인 파트의 팀원이 못하겠다고 하여 중간에 제가 맡게 되었습니다.
 백엔드 코드를 끝까지 담당하지 못한게 너무 아쉬워서 같은 아이디어로 백엔드에 초점을 맞춰 시작한 것이 이 프로젝트입니다.
 
+<br>
 
 
 ## 프로젝트 목표
@@ -142,6 +145,7 @@ Application event를 통해 알림을 생성하는 것 까지 표현하고자 �
 - MySQL을 사용하면서 테이블 네이밍 대문자로 변환하기 (SpringPhysicalNamingStrategy)
 - [Travis-CI로 S3에 배포하기](https://docs.travis-ci.com/user/deployment/s3/)
 - [CodeDeploy 로 EC2에 배포 설정하기](https://jojoldu.tistory.com/281)
+- [테스트 코드 쉽게 작성하기](https://martinfowler.com/bliki/ObjectMother.html)
 
 가장 어려웠던 문제는 CI/CD 파이프 라인을 구축하는 작업이었습니다. 
 감춰야 할 설정파일들을 private repository에 따로 저장두어서 빌드할 때 가져와야 했는데 travis CI 서버 내부의 디렉터리 구조를 모르다 보니 헤맸습니다. 
@@ -152,9 +156,14 @@ Application event를 통해 알림을 생성하는 것 까지 표현하고자 �
 테스트 코드 작성도 시간이 많이 걸렸습니다. 클래스를 수정할 때 마다 작성해 두었던 테스트 코드들도 굉장히 많은 영향을 받았습니다.
 마틴 파울러의 [Object Mother](https://martinfowler.com/bliki/ObjectMother.html) 글을 보고 영감을 받아 단순 반복되는 작업을 따로 util화 시켜서 작성했더니 유지보수성이 높아졌습니다.
 
+<br>
+
 ## 기술 스택
 
 **Back-end** : `Spring Boot 2.4`, `Java 11`, `Gradle 6.9`, `QueryDsl`, `JPA`, `JDBC`, `NPM`, `Shell script`, `Git`, `JUnit`, `Arcunit`, `Send Grid`, `Travis-CI`
+
 **Front-end** : `Bootstrap 4.6`, `JavaScript`, `Thymeleaf`
+
 **Database** : `H2`, `MySQL 8.0`
-**Cloud computing** : AWS (EC2, RDS, S3, CodeDeploy)
+
+**Cloud computing** : `AWS` (EC2, RDS, S3, CodeDeploy)
