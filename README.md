@@ -136,6 +136,12 @@ Application event를 통해 알림을 생성하는 것 까지 표현하고자 �
 
 <br>
 
+## 프로젝트 구조
+
+![image](https://user-images.githubusercontent.com/53790137/150806942-1a5b7b3d-2e41-4baa-9a66-dc681bd35fff.png)
+
+<br>
+
 ## 프로젝트 동안 해결한 문제
 - [설계를 어떻게 해야할까?](https://javanitto.tistory.com/41)
 - [Gmail을 SMTP 서버로 구현하던 중 만난 에러](https://javanitto.tistory.com/32) (문제는 해결했지만 SendGrid를 사용했다.)
