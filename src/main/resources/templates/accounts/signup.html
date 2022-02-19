@@ -3,39 +3,50 @@
 <head th:replace="fragments.html :: head"></head>
 
 <body class="background">
-<div class="container" style="padding: 7em 0;">
-    <div class="row justify-content-center py-3">
+<div class="container" style="padding: 2em 0;">
+    <div class="row justify-content-center pb-3">
         <h1 class="text-center" style="z-index:1000;"><a class="text-decoration-none text-dark" th:href="@{/}">ShareMusic</a></h1>
     </div>
     <div class="row justify-content-center">
-        <div class="col-sm-7 col-lg-4">
+        <div class="col-sm-9 col-lg-6 p-3 rounded-panel bg-light" style="opacity: 0.9">
             <form th:action="@{/accounts/signup}" method="post" th:object="${signUpForm}">
                 <div class="form-group">
-                    <input type="text" th:field="*{email}" name="email" class="form-control" placeholder="이메일" required autocomplete="off"/>
+                    <label class="font-weight-bold text-muted">이메일</label>
+                    <input  type="text" th:field="*{email}" name="email" class="form-control" required autocomplete="off"/>
+                    <small class="form-text text-muted">로그인에 사용할 이메일을 입력해주세요. 앨범을 만들기 위해서는 이메일 인증이 필요합니다. </small>
                     <small class="form-text text-danger font-weight-bold" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
                 </div>
                 <div class="form-group">
-                    <input type="text" th:field="*{name}" name="name" class="form-control" placeholder="이름" required minlength="2" maxlength="20" autocomplete="off"/>
+                    <label class="font-weight-bold text-muted">이름</label>
+                    <input type="text" th:field="*{name}" name="name" class="form-control" required minlength="2" maxlength="20" autocomplete="off"/>
+                    <small class="form-text text-muted">이름을 입력해주세요. 영어와 한글만 가능합니다.</small>
                     <small class="form-text text-danger font-weight-bold" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
                 </div>
                 <div class="form-group">
-                    <input type="text" th:field="*{nickname}" name="nickname" class="form-control" placeholder="닉네임" required minlength="2" maxlength="20" autocomplete="off"/>
+                    <label class="font-weight-bold text-muted">닉네임</label>
+                    <input type="text" th:field="*{nickname}" name="nickname" class="form-control" required minlength="2" maxlength="20" autocomplete="off"/>
+                    <small class="form-text text-muted">닉네임을 입력해주세요.(2자 이상 20자 이내) 닉네임으로도 로그인이 가능합니다.</small>
+                    <small class="form-text text-muted">닉네임은 영어, 숫자, 한글, '-', '_'만 사용가능합니다.</small>
                     <small class="form-text text-danger font-weight-bold" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}"></small>
                 </div>
                 <div class="form-group">
-                    <input type="password" name="password" class="form-control" placeholder="비밀번호" required minlength="8" maxlength="30" autocomplete="off"/>
+                    <label class="font-weight-bold text-muted">비밀번호</label>
+                    <input type="password" name="password" class="form-control" required minlength="8" maxlength="30" autocomplete="off"/>
+                    <small class="form-text text-muted">로그인에 사용할 비밀번호를 입력해주세요. (8자 이상 30자 이내)</small>
                     <small class="form-text text-danger font-weight-bold" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
                 </div>
                 <div class="form-group">
-                    <input type="password" name="confirmPassword" class="form-control" placeholder="비밀번호 확인" required minlength="8" maxlength="30" autocomplete="off"/>
+                    <label class="font-weight-bold text-muted">비밀번호 확인</label>
+                    <input type="password" name="confirmPassword" class="form-control" required minlength="8" maxlength="30" autocomplete="off"/>
+                    <small class="form-text text-muted">위에서 입력한 비밀번호를 한번 더 입력해주세요.</small>
                     <small class="form-text text-danger font-weight-bold" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></small>
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="w-100 btn btn-primary">가입</button>
+                    <button type="submit" class="w-100 btn btn-primary font-weight-bold">가입</button>
                 </div>
             </form>
-            <div class="row justify-content-center py-3">
-                <span class="px-1 text-light">계정이 있으신가요?</span><a th:href="@{/login}" class="font-weight-bold">로그인</a>
+            <div class="row justify-content-center">
+                <span class="px-1 text-muted">계정이 있으신가요?</span><a th:href="@{/login}" class="font-weight-bold">로그인</a>
             </div>
         </div>
     </div>
