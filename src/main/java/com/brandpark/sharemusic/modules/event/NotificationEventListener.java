@@ -90,6 +90,7 @@ public class NotificationEventListener {
         Album createdAlbum = albumRepository.findById(event.getAlbumId())
                 .orElseThrow(() -> new IllegalArgumentException("작성된 앨범이 존재하지 않습니다."));
 
+        // TODO: 팔로워 수가 많아지면 문제가 발생할 수 있음.
         List<Account> followers = accountRepository.findAllFollowersByFollowingTargetId(event.getCreatorId());
 
         List<Notification> notifications = new ArrayList<>();

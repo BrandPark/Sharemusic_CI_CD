@@ -8,9 +8,6 @@ import javax.persistence.*;
 @Getter @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(
-        uniqueConstraints = @UniqueConstraint(name = "UK_TRACK", columnNames = {"album_id", "track_name", "artist"})
-)
 @Entity
 public class Track extends BaseTimeEntity {
 

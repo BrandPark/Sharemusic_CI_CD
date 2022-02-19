@@ -10,9 +10,6 @@ import java.util.List;
 @Builder @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(
-        uniqueConstraints = @UniqueConstraint(name = "UK_ALBUM", columnNames = {"account_id", "album_title"})
-)
 @Entity
 public class Album extends BaseTimeEntity {
 
