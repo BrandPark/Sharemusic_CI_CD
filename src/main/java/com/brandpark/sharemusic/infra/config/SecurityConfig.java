@@ -4,19 +4,16 @@ import com.brandpark.sharemusic.infra.config.db.UppercaseJdbcTokenRepository;
 import com.brandpark.sharemusic.infra.jwt.JwtRequestFilter;
 import com.brandpark.sharemusic.modules.account.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
@@ -35,17 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final AccountService accountService;
     private final DataSource dataSource;
     private final AuthenticationEntryPoint authenticationEntryPoint;
-    private final UserDetailsService userDetailsService;
     private final JwtRequestFilter jwtRequestFilter;
-    private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        // 자격 증명을 매칭하기 위한 user가 어디에서 로드되는지 알기 위해
-        // AuthenticationManager 를 설정한다.
-        // BCryptPasswordEncoder 를 사용한다.
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
-    }
 
     @Bean
     @Override
@@ -105,5 +92,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         jdbcTokenRepository.setDataSource(dataSource);
 
         return jdbcTokenRepository;
+    }
+
+    /**
+     * @Component 로 등록된 JwtRequestFilter 가 일반 서블릿 필터로 중복 등록되는것을 방지
+     */
+    @Bean
+    public FilterRegistrationBean registrationBean(JwtRequestFilter filter) {
+        FilterRegistrationBean registrationBean = new FilterRegistrationBean(filter);
+        registrationBean.setEnabled(false);
+        return registrationBean;
     }
 }
