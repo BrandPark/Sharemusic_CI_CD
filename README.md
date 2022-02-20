@@ -174,7 +174,13 @@ API와 JWT 필터를 만들었지만 사용하지 못해서 좀 아쉽습니다.
   - Travis-ci
   - Git Hub
 
+---
+
 ## JPA & Querydsl 사용 규칙
+
+JPA와 Querydsl로 구현한 CRUD는 테스트 코드를 작성해 SQL과 기능을 확인 후 적용했습니다. 
+
+특히 N+1문제가 발생하지 않도록 주의했습니다.
 
 **Repository 종류는 3가지로 구분**했습니다. Album Entity에 대해 예를 들면 다음과 같습니다.
 
@@ -187,22 +193,22 @@ API와 JWT 필터를 만들었지만 사용하지 못해서 좀 아쉽습니다.
   - API에서 사용되는 조회에 특화된 Repository입니다. API 스펙에 종속적인 코드를 한 곳에 모아 유지보수성을 높이고자 했습니다.
   - API의 응답 스펙에 맞춰 데이터를 DTO에 담아 반환합니다.
 
-- JPA와 QueryDSL로 구현한 CRUD는 테스트 코드를 작성해 SQL과 기능을 확인 후 적용했습니다.
-- N+1 문제가 발생하지 않도록 체크하며 개발했습니다.
-
 <br>
 
 ## 코딩 규칙
-- 직접 작성한 쿼리는 반드시 테스트를 통해 기능과 실행되는 SQL을 확인하고 사용한다.
-- 엔티티 클래스는 별도의 static 생성 메서드를 만들어 사용하여 유지보수성을 높인다. (builder는 테스트 코드에서만 사용)
+- 직접 작성한 쿼리는 반드시 테스트를 통해 **기능과 실행되는 SQL을 확인하고 사용**한다.
+- **Entity는 별도의 static 생성 메서드를 만들어 사용**하여 유지보수성을 높인다. (builder는 테스트 코드에서만 사용)
 - 비즈니스 로직은 엔티티에 두고 Service 계층은 트랜잭션과 도메인 로직의 순서를 제어하는 역할을 한다.
-- 테스트 코드는 Factory 클래스를 만들어 사용하여 작성 시간을 줄이고 유지보수성을 높인다.([마틴 파울러 블로그 참고](https://martinfowler.com/bliki/ObjectMother.html))
-- DI는 생성자 주입을 사용한다.
-- 기능을 분리할 가능성이 있다면 Aggregate를 적용하여 참조를 끊고 분리한다. 
-- DB호출 횟수를 신경쓰고 N+1 문제가 발생하지 않도록 체크한다.
-- API Key와 같이 감춰야 하는 설정들은 따로 모아 Private Repository에 보관하고 CI 시 로드하여 사용하도록 한다.
-- JPA의 ddl-auto 옵션과 데이터 저장소가 다르기 때문에 Local, Test, 운영 환경을 분리한다.
-- Front-end에서 사용되는 3rd party libraries은 CDN이나 직접 넣지 않고 Gradle과 NPM을 통해 CI 시 다운로드하여 빌드하도록 한다.
+- **테스트 코드는 Factory 클래스를 만들어 사용**하여 작성 시간을 줄이고 유지보수성을 높인다.([마틴 파울러 블로그 참고](https://martinfowler.com/bliki/ObjectMother.html))
+- **DI는 생성자 주입**을 사용한다.
+- **기능을 분리할 가능성이 있다면 Aggregate를 나눠** 참조를 끊고 분리한다. 
+- **DB호출 횟수를 주의하고 N+1 문제가 발생하지 않도록 체크**한다.
+- API Key와 같이 **감춰야 하는 설정들은 Private Repository에 보관하고 CI 시 로드**하여 사용하도록 한다.
+- JPA의 ddl-auto 옵션과 데이터 저장소가 다르기 때문에 Profile을 통해 **Local, Test, 운영 환경을 분리**한다.
+    - **local** : local
+    - **Test** : test
+    - **운영** : real, realdb, secretkey
+- Front-end에서 사용되는 **3rd party libraries**은 CDN이나 직접 넣지 않고 **Gradle과 NPM을 통해 CI 시 다운로드**하여 빌드하도록 한다.
 
 <br>
 
