@@ -174,7 +174,7 @@ API와 JWT 필터를 만들었지만 사용하지 못해서 좀 아쉽습니다.
   - Travis-ci
   - Git Hub
 
-## JPA & Querydsl 사용 
+## JPA & Querydsl 사용 규칙
 
 **Repository 종류는 3가지로 구분**했습니다. Album Entity에 대해 예를 들면 다음과 같습니다.
 
