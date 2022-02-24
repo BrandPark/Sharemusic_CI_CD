@@ -14,4 +14,6 @@ public class MailMessage {
     private String text;
 
     private String to;
+
+    private String verifyLink;
 }

@@ -11,6 +11,6 @@ public class ConsoleMailService implements MailService {
 
     @Override
     public void send(MailMessage message) {
-        log.info("Send Mail : Text = {}", message.getText());
+        log.info("Send Mail : verify link = {}", message.getVerifyLink());
     }
 }

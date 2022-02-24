@@ -22,10 +22,12 @@ public class VerifyMailService {
     @Transactional
     public void sendSignUpConfirmMail(SessionAccount account) {
 
+        String verifyLink = "/verify-email?token=" + account.getEmailCheckToken() + "&email=" + account.getEmail();
+
         Context context = new Context();
         context.setVariable("nickname", account.getNickname());
         context.setVariable("message", "이메일 인증을 위해서 아래의 버튼을 클릭해주세요.");
-        context.setVariable("link", "/verify-email?token=" + account.getEmailCheckToken() + "&email=" + account.getEmail());
+        context.setVariable("link", verifyLink);
         context.setVariable("host", appProperties.getHost());
         context.setVariable("linkText", account.getEmail() + " 인증하기");
 
@@ -35,6 +37,7 @@ public class VerifyMailService {
                 .to(account.getEmail())
                 .subject("ShareMusic 회원가입 이메일 인증")
                 .text(html)
+                .verifyLink(verifyLink)
                 .build();
 
         mailService.send(message);
