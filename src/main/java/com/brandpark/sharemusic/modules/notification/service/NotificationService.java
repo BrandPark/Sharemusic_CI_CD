@@ -25,6 +25,7 @@ public class NotificationService {
         if (type == null) {
             return notificationRepository.countByAccountIdAndCheckedIsFalse(accountId);
         }
+
         return notificationRepository.countByAccountIdAndNotificationTypeAndCheckedIsFalse(accountId, type);
     }
 }

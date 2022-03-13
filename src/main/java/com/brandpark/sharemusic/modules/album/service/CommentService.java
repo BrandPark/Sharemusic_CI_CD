@@ -26,14 +26,14 @@ public class CommentService {
 
         Album album = albumRepository.findById(albumId).get();
 
-        if (!album.getAccountId().equals(accountId)) {
-            eventPublisher.publishEvent(CommentEvent.builder()
-                    .writerId(accountId)
-                    .commentTargetAlbumId(albumId)
-                    .commentId(comment.getId())
-                    .build());
+        if (isNotMyAlbum(accountId, album)) {
+            eventPublisher.publishEvent(CommentEvent.createCommentEvent(accountId, albumId, comment.getId()));
         }
 
         return comment.getId();
+    }
+
+    private boolean isNotMyAlbum(Long accountId, Album album) {
+        return !album.getAccountId().equals(accountId);
     }
 }

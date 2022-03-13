@@ -107,10 +107,7 @@ public class AccountService implements UserDetailsService {
         final Account follower = accountRepository.findById(followerId).get();
         final Account target = accountRepository.findById(targetAccountId).get();
 
-        eventPublisher.publishEvent(FollowEvent.builder()
-                .followerId(followerId)
-                .followingTargetId(targetAccountId)
-                .build());
+        eventPublisher.publishEvent(FollowEvent.createFollowEvent(followerId, targetAccountId));
 
         return followRepository.save(Follow.builder()
                 .follower(follower)

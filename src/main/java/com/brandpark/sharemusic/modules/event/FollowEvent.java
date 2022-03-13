@@ -1,11 +1,19 @@
 package com.brandpark.sharemusic.modules.event;
 
-import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Builder
+@NoArgsConstructor
 @Getter
 public class FollowEvent {
     private Long followerId;
     private Long followingTargetId;
+
+    public static FollowEvent createFollowEvent(Long followerId, Long followingTargetId) {
+        FollowEvent ret = new FollowEvent();
+        ret.followerId = followerId;
+        ret.followingTargetId = followingTargetId;
+
+        return ret;
+    }
 }
