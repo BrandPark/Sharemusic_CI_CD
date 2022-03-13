@@ -41,9 +41,7 @@ public class AccountService implements UserDetailsService {
     @Transactional
     public SessionAccount signUp(CreateAccountDto data) {
 
-        Account newAccount = createAccount(data);
-
-        SessionAccount newSessionAccount = createSessionAccount(newAccount);
+        SessionAccount newSessionAccount = convertToSessionAccount(createAccount(data));
 
         login(newSessionAccount);
 
@@ -66,7 +64,7 @@ public class AccountService implements UserDetailsService {
     public void succeedVerifyEmailCheckToken(SessionAccount account) {
         Account verifiedAccount = assignUserRole(account.getId());
 
-        login(createSessionAccount(verifiedAccount));
+        login(convertToSessionAccount(verifiedAccount));
     }
 
     @Transactional
@@ -86,7 +84,7 @@ public class AccountService implements UserDetailsService {
                 data.getProfileImage()
         );
 
-        login(createSessionAccount(targetAccount));
+        login(convertToSessionAccount(targetAccount));
     }
 
     @Transactional
@@ -137,7 +135,7 @@ public class AccountService implements UserDetailsService {
         Account account = accountRepository.findByEmailOrNickname(emailOrNickname)
                 .orElseThrow(() -> new UsernameNotFoundException(emailOrNickname));
 
-        SessionAccount sessionAccount = createSessionAccount(account);
+        SessionAccount sessionAccount = convertToSessionAccount(account);
 
         return new CustomUserDetails(sessionAccount);
     }
@@ -153,21 +151,8 @@ public class AccountService implements UserDetailsService {
         context.setAuthentication(authenticationToken);
     }
 
-    private SessionAccount createSessionAccount(Account account) {
-        SessionAccount newAccount = new SessionAccount(new AccountDto(
-                account.getId(),
-                account.getName(),
-                account.getNickname(),
-                account.getEmail(),
-                account.getPassword(),
-                account.getBio(),
-                account.getProfileImage(),
-                account.getRole(),
-                account.getEmailCheckToken(),
-                account.isNotificationAlbumCreatedByMyFollowing(),
-                account.isNotificationCommentOnMyAlbum(),
-                account.isNotificationFollowMe()
-        ));
+    private SessionAccount convertToSessionAccount(Account account) {
+        SessionAccount newAccount = new SessionAccount(AccountDto.of(account));
 
         return newAccount;
     }
@@ -175,10 +160,11 @@ public class AccountService implements UserDetailsService {
     @Transactional
     public void updateNotificationSetting(UpdateNotificationSettingDto data, SessionAccount loginAccount) {
         Account account = accountRepository.findById(loginAccount.getId()).get();
+
         account.updateNotificationSetting(data.isNotificationAlbumCreatedByMyFollowing()
                 , data.isNotificationCommentOnMyAlbum()
                 , data.isNotificationFollowMe());
 
-        login(createSessionAccount(account));
+        login(convertToSessionAccount(account));
     }
 }

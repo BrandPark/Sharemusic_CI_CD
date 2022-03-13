@@ -41,10 +41,7 @@ public class AlbumService {
 
         Long albumId = albumRepository.save(data.toEntity(loginAccount.getId())).getId();
 
-        eventPublisher.publishEvent(CreateAlbumEvent.builder()
-                .albumId(albumId)
-                .creatorId(loginAccount.getId())
-                .build());
+        eventPublisher.publishEvent(CreateAlbumEvent.createAlbumEvent(albumId, loginAccount.getId()));
 
         return albumId;
     }
@@ -56,23 +53,7 @@ public class AlbumService {
         album.updateAlbum(data.getTitle(), data.getAlbumImage(), data.getDescription());
         entityManager.flush();
 
-        Map<Long, Track> lookupTrackMap = album.getTracks().stream()
-                .collect(Collectors.toMap(Track::getId, Function.identity()));
-
-        Map<TrackStatus, List<Track>> tracksGroupByStatus = new HashMap<>();
-        for (TrackStatus status : TrackStatus.values()) {
-            tracksGroupByStatus.put(status, new ArrayList<>());
-        }
-
-        data.getTracks().stream()
-                .forEach(tData -> {
-                    Track track = tData.getStatus() == INSERT
-                            ? Track.createTrack(tData.getName(), tData.getArtist())
-                            : lookupTrackMap.get(tData.getId());
-
-                    track.updateTrack(tData.getName(), tData.getArtist());
-                    tracksGroupByStatus.get(tData.getStatus()).add(track);
-                });
+        Map<TrackStatus, List<Track>> tracksGroupByStatus = getTracksGroupByStatus(data, album);
 
         trackRepository.batchInsert(tracksGroupByStatus.get(INSERT), albumId);
         trackRepository.batchUpdate(tracksGroupByStatus.get(UPDATE));
@@ -101,6 +82,31 @@ public class AlbumService {
         Album album = albumRepository.findById(albumId).get();
 
         return new AlbumUpdateForm(album);
+    }
+
+    private Map<TrackStatus, List<Track>> getTracksGroupByStatus(UpdateAlbumDto data, Album album) {
+
+        Map<Long, Track> originTracksGroupById = album.getTracks().stream()
+                .collect(Collectors.toMap(Track::getId, Function.identity()));
+
+        Map<TrackStatus, List<Track>> tracksGroupByStatus = new HashMap<>();
+
+        for (TrackStatus status : TrackStatus.values()) {
+            tracksGroupByStatus.put(status, new ArrayList<>());
+        }
+
+        data.getTracks().stream()
+                .forEach(tData -> {
+
+                    // 상태가 INSERT 라면 Track Entity 를 새로 만든다.
+                    Track track = tData.getStatus() == INSERT
+                            ? Track.createTrack(tData.getName(), tData.getArtist())
+                            : originTracksGroupById.get(tData.getId());
+
+                    track.updateTrack(tData.getName(), tData.getArtist());
+                    tracksGroupByStatus.get(tData.getStatus()).add(track);
+                });
+        return tracksGroupByStatus;
     }
 }
 
