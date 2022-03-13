@@ -3,16 +3,15 @@ package com.brandpark.sharemusic.modules.account.account.service;
 import com.brandpark.sharemusic.infra.config.auth.CustomUserDetails;
 import com.brandpark.sharemusic.infra.config.auth.Role;
 import com.brandpark.sharemusic.infra.config.session.SessionAccount;
-import com.brandpark.sharemusic.infra.config.session.dto.AccountDto;
 import com.brandpark.sharemusic.modules.account.account.domain.Account;
 import com.brandpark.sharemusic.modules.account.account.domain.AccountRepository;
 import com.brandpark.sharemusic.modules.account.account.dto.CreateAccountDto;
 import com.brandpark.sharemusic.modules.account.account.dto.UpdateAccountDto;
 import com.brandpark.sharemusic.modules.account.account.dto.UpdateNotificationSettingDto;
 import com.brandpark.sharemusic.modules.account.account.dto.UpdatePasswordDto;
-import com.brandpark.sharemusic.modules.event.FollowEvent;
 import com.brandpark.sharemusic.modules.account.follow.domain.Follow;
 import com.brandpark.sharemusic.modules.account.follow.domain.FollowRepository;
+import com.brandpark.sharemusic.modules.event.FollowEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -152,7 +151,21 @@ public class AccountService implements UserDetailsService {
     }
 
     private SessionAccount convertToSessionAccount(Account account) {
-        SessionAccount newAccount = new SessionAccount(AccountDto.of(account));
+
+        SessionAccount newAccount = SessionAccount.builder()
+                .id(account.getId())
+                .name(account.getName())
+                .nickname(account.getNickname())
+                .email(account.getEmail())
+                .password(account.getPassword())
+                .bio(account.getBio())
+                .profileImage(account.getProfileImage())
+                .role(account.getRole())
+                .emailCheckToken(account.getEmailCheckToken())
+                .notificationAlbumCreatedByMyFollowing(account.isNotificationAlbumCreatedByMyFollowing())
+                .notificationCommentOnMyAlbum(account.isNotificationCommentOnMyAlbum())
+                .notificationFollowMe(account.isNotificationFollowMe())
+                .build();
 
         return newAccount;
     }

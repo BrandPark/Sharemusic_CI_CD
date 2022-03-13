@@ -50,16 +50,9 @@ public class AlbumService {
     public void updateAlbum(UpdateAlbumDto data, Long albumId) {
         Album album = albumRepository.findById(albumId).get();
 
-        album.updateAlbum(data.getTitle(), data.getAlbumImage(), data.getDescription());
-        entityManager.flush();
+        updateAlbumInfo(data, album);
 
-        Map<TrackStatus, List<Track>> tracksGroupByStatus = getTracksGroupByStatus(data, album);
-
-        trackRepository.batchInsert(tracksGroupByStatus.get(INSERT), albumId);
-        trackRepository.batchUpdate(tracksGroupByStatus.get(UPDATE));
-        trackRepository.batchDelete(tracksGroupByStatus.get(REMOVE));
-
-        entityManager.clear();
+        updateTracksInfo(data, albumId, album);
     }
 
     @Transactional
@@ -68,6 +61,22 @@ public class AlbumService {
         entityManager.clear();
 
         albumRepository.deleteById(albumId);
+    }
+
+    private void updateTracksInfo(UpdateAlbumDto data, Long albumId, Album album) {
+
+        Map<TrackStatus, List<Track>> tracksGroupByStatus = getUpdatedTracksGroupByStatus(data, album);
+
+        trackRepository.batchInsert(tracksGroupByStatus.get(INSERT), albumId);
+        trackRepository.batchUpdate(tracksGroupByStatus.get(UPDATE));
+        trackRepository.batchDelete(tracksGroupByStatus.get(REMOVE));
+
+        entityManager.clear();
+    }
+
+    private void updateAlbumInfo(UpdateAlbumDto data, Album album) {
+        album.updateAlbum(data.getTitle(), data.getAlbumImage(), data.getDescription());
+        entityManager.flush();
     }
 
     public AlbumDetailInfoForm getAlbumDetailForm(Long albumId) {
@@ -84,7 +93,7 @@ public class AlbumService {
         return new AlbumUpdateForm(album);
     }
 
-    private Map<TrackStatus, List<Track>> getTracksGroupByStatus(UpdateAlbumDto data, Album album) {
+    private Map<TrackStatus, List<Track>> getUpdatedTracksGroupByStatus(UpdateAlbumDto data, Album album) {
 
         Map<Long, Track> originTracksGroupById = album.getTracks().stream()
                 .collect(Collectors.toMap(Track::getId, Function.identity()));

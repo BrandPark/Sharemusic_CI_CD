@@ -1,11 +1,16 @@
 package com.brandpark.sharemusic.infra.config.session;
 
 import com.brandpark.sharemusic.infra.config.auth.Role;
-import com.brandpark.sharemusic.infra.config.session.dto.AccountDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 public class SessionAccount implements Serializable {
 
@@ -33,7 +38,7 @@ public class SessionAccount implements Serializable {
 
     private boolean notificationFollowMe;
 
-    public SessionAccount(AccountDto accountDto) {
+    /*public SessionAccount(AccountDto accountDto) {
         id = accountDto.getId();
         name = accountDto.getName();
         nickname = accountDto.getNickname();
@@ -46,5 +51,5 @@ public class SessionAccount implements Serializable {
         notificationAlbumCreatedByMyFollowing = accountDto.isNotificationAlbumCreatedByMyFollowing();
         notificationFollowMe = accountDto.isNotificationFollowMe();
         notificationCommentOnMyAlbum = accountDto.isNotificationCommentOnMyAlbum();
-    }
+    }*/
 }
