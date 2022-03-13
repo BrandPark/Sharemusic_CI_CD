@@ -5,7 +5,9 @@ spy.log
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,java-web,gradle
 
 ## security config
-config/
+/config/
+
+
 
 ### NPM ###
 node_modules/
